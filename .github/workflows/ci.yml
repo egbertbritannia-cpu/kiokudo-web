@@ -15,3 +15,52 @@ jobs:
       - run: npm test
       - run: npm run check
       - run: npm run build
+
+  cross-repo-staging-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Kiokudo Web
+        uses: actions/checkout@v4
+      - name: Checkout Kiokudo Core
+        uses: actions/checkout@v4
+        with:
+          repository: egbertbritannia-cpu/kiokudo-core
+          path: kiokudo-core
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Web dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Core dependencies
+        working-directory: kiokudo-core
+        run: npm install --no-audit --no-fund
+      - name: Seed isolated SQLite rehearsal from tracked Git JSON
+        working-directory: kiokudo-core
+        run: |
+          npm run staging:local -- seed ./staging-smoke.db
+          npm run staging:local -- audit ./staging-smoke.db
+      - name: Build Core
+        working-directory: kiokudo-core
+        run: npm run build
+      - name: Start local Core
+        run: |
+          cd kiokudo-core
+          nohup env KIOKUDO_SERVICE_TOKEN='ci-only-service-token-never-production' \
+            KIOKUDO_DATABASE_SCOPE=staging \
+            KIOKUDO_DATABASE_URL=file:./staging-smoke.db \
+            npm run start > ../core-staging.log 2>&1 &
+      - name: Start local Web
+        run: |
+          nohup env KIOKUDO_STAGING_READ_ENABLED=true \
+            KIOKUDO_CORE_URL=http://127.0.0.1:4000 \
+            KIOKUDO_CORE_SERVICE_TOKEN='ci-only-service-token-never-production' \
+            npm run dev -- --hostname 127.0.0.1 > web-staging.log 2>&1 &
+      - name: Smoke test real Web BFF → Core HTTP path
+        run: node scripts/smoke-cross-repo.mjs
+      - name: Log diagnostics on failure
+        if: failure()
+        run: |
+          tail -n 100 core-staging.log || true
+          tail -n 100 web-staging.log || true
