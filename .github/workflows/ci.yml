@@ -27,7 +27,7 @@ jobs:
         with:
           repository: egbertbritannia-cpu/kiokudo-core
           # Update deliberately only after Core compatibility CI has passed.
-          ref: 2dc57c6969b4bb5e3bd34207356c922fca6cf66a
+          ref: 74ecba7b43a379a7acaf968ef70023fc7373bc74
           path: kiokudo-core
           persist-credentials: false
       - uses: actions/setup-node@v4
