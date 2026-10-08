@@ -36,3 +36,11 @@ SQLite contains only the 3 minimal entities and must not be mistaken for a full 
 - No cutover or changes to the legacy GitHub repo / production deployment.
 
 **Do not enable read-only BFF outside local development until user authentication and full trust boundary are audited.**
+
+## CI cross-repository version policy
+
+The Web smoke test checks out Core at an **explicit SHA**
+(`2dc57c6969b4bb5e3bd34207356c922fca6cf66a`, DB identity guard/FSRS parity).
+This keeps Web CI reproducible across unrelated Core commits. Bump only
+in a dedicated PR with an actual cross-repo staging smoke PASS.
+This protects CI, not production deployment versioning.
