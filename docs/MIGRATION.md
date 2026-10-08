@@ -40,7 +40,7 @@ SQLite contains only the 3 minimal entities and must not be mistaken for a full 
 ## CI cross-repository version policy
 
 The Web smoke test checks out Core at an **explicit SHA**
-(`2dc57c6969b4bb5e3bd34207356c922fca6cf66a`, DB identity guard/FSRS parity).
+(`74ecba7b43a379a7acaf968ef70023fc7373bc74`, DB identity guard/FSRS parity).
 This keeps Web CI reproducible across unrelated Core commits. Bump only
 in a dedicated PR with an actual cross-repo staging smoke PASS.
 This protects CI, not production deployment versioning.
