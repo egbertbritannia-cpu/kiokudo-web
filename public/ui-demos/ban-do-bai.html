@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>復習 · Bàn Dò Bài</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;500;700&family=Yuji+Boku&display=swap">
+<style>
+:root{--ai:#16263A;--paper:#F2EBDB;--paper2:#EDE4D0;--ink:#17140F;--sub:#6E6454;--line:#CFC3A8;--shu:#C23B22;--wood:rgba(70,48,24,.4);--kin:#B8975A;
+--mincho:'Shippori Mincho','Hiragino Mincho ProN',serif;--maru:'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif;--brush:'Yuji Boku','Shippori Mincho',serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ai:#0C1520;--paper:#2A2620;--paper2:#25211B;--ink:#EFE7D6;--sub:#A99F8C;--line:#454032;--shu:#D9503A}}
+:root[data-theme="dark"]{--ai:#0C1520;--paper:#2A2620;--paper2:#25211B;--ink:#EFE7D6;--sub:#A99F8C;--line:#454032;--shu:#D9503A}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;color:var(--ink);font-family:var(--maru);background-color:var(--ai);
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.06'%3E%3Ccircle cx='20' cy='20' r='18'/%3E%3Ccircle cx='20' cy='20' r='12'/%3E%3Ccircle cx='20' cy='20' r='6'/%3E%3Ccircle cx='0' cy='10' r='18'/%3E%3Ccircle cx='0' cy='10' r='12'/%3E%3Ccircle cx='0' cy='10' r='6'/%3E%3Ccircle cx='40' cy='10' r='18'/%3E%3Ccircle cx='40' cy='10' r='12'/%3E%3Ccircle cx='40' cy='10' r='6'/%3E%3C/g%3E%3C/svg%3E")}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 18px 40px}
+.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;color:#EDE5D2}
+.brand{font:400 1.7rem var(--brush);letter-spacing:.12em}.brand small{font:400 .8rem var(--maru);letter-spacing:0;opacity:.7;margin-left:8px}
+.slots,.mode{display:flex;gap:8px}.slots{overflow-x:auto;padding:2px}
+.top button{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(237,229,210,.35);background:none;color:#EDE5D2;font:400 1.35rem var(--brush);cursor:pointer}
+.top button[aria-pressed=true]{background:var(--shu);border-color:var(--shu);color:#fff}
+.board{display:grid;grid-template-columns:minmax(0,72fr) minmax(0,28fr);gap:22px;margin-top:22px}
+@media (max-width:980px){.board{grid-template-columns:1fr}}
+.scroll{position:relative;background:var(--paper);background-image:repeating-linear-gradient(90deg,transparent 0 3px,rgba(120,90,50,.035) 3px 4px);padding:42px 28px 34px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.roll{position:absolute;left:-10px;right:-10px;height:18px;border-radius:9px;background:linear-gradient(#7A5632,#4C331B 55%,#6A4A28);box-shadow:0 3px 6px rgba(0,0,0,.35)}.roll.t{top:-9px}.roll.b{bottom:-9px}
+.meta{display:flex;justify-content:space-between;gap:10px;color:var(--sub);font-size:.85rem;margin-bottom:6px}
+.stage{display:grid;grid-template-columns:1fr 1fr;gap:22px;min-height:340px}
+@media (max-width:640px){.stage{grid-template-columns:1fr}.front{order:-1}.scroll{padding:36px 16px 28px}}
+.front{position:relative;display:flex;align-items:center;justify-content:center;min-height:300px}
+.enso{position:absolute;width:min(300px,90%);aspect-ratio:1;transform:rotate(-100deg)}
+.enso circle{fill:none;stroke-linecap:round}.enso .tr{stroke:var(--line);stroke-width:3;opacity:.6}.enso .pg{stroke:var(--ink);stroke-width:7;stroke-dasharray:289;transition:stroke-dashoffset .6s}
+.kanji{writing-mode:vertical-rl;font:700 4.4rem/1.15 var(--mincho);position:relative}.kanji rt{font:500 1.05rem var(--maru);color:var(--sub)}
+.prompt{position:relative;text-align:center;font:700 1.9rem/1.35 var(--maru);padding:0 10px}.prompt small{display:block;font:400 .85rem var(--maru);color:var(--sub);margin-top:8px}
+.spk{position:absolute;bottom:0;left:50%;transform:translateX(-50%);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:20px;padding:5px 14px;font:500 .8rem var(--maru);cursor:pointer}
+.ans{position:relative;overflow:hidden;border:1.5px solid var(--line);background:var(--paper2);padding:22px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:300px}
+.ans b{font:700 1.3rem var(--maru)}.ans .jp{font:500 1.1rem/1.6 var(--mincho)}.ans p{margin:0;color:var(--sub);font-size:.92rem}
+.ans .big{font:700 2.6rem var(--mincho);text-align:center}.ans .kn{text-align:center;font-size:1.2rem;color:var(--sub)}
+.shoji{position:absolute;inset:0;background-color:var(--paper);background-image:linear-gradient(var(--wood) 2px,transparent 2px),linear-gradient(90deg,var(--wood) 2px,transparent 2px);background-size:100% 25%,33.34% 100%;display:flex;align-items:center;justify-content:center;transition:transform .55s cubic-bezier(.7,0,.2,1)}
+.shoji span{background:var(--paper);border:1px solid var(--line);padding:10px 14px;margin:0 22px;font-size:.88rem;text-align:center;color:var(--sub)}
+.open .shoji{transform:translateX(-101%)}
+.inc{height:4px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:18px}.inc i{display:block;height:100%;width:100%;background:var(--shu)}
+.tm{min-height:1.5em;margin-top:6px;font-size:.88rem;color:var(--sub)}.tm b{color:var(--ink)}
+.rv{width:100%;margin-top:6px;padding:14px;border:1.5px solid var(--ink);background:none;color:var(--ink);font:700 1rem var(--maru);cursor:pointer}
+.rv:hover{background:var(--ink);color:var(--paper)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.acts button{min-height:64px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;font:700 1rem var(--maru);text-align:left;line-height:1.25}
+.acts i{font:400 2rem var(--brush);font-style:normal}.acts small{display:block;font:400 .72rem var(--maru);opacity:.8}
+.no{background:none;border:1.5px solid var(--ink);color:var(--ink)}.ok{background:var(--shu);border:1.5px solid var(--shu);color:#fff;border-radius:3px;box-shadow:inset 0 0 0 3px var(--shu),inset 0 0 0 4px rgba(255,255,255,.55)}
+.acts button:disabled{opacity:.3;cursor:not-allowed}
+.un{display:block;margin:12px auto 0;border:0;background:none;color:var(--sub);font:500 .85rem var(--maru);text-decoration:underline;cursor:pointer}
+.keys{margin-top:10px;text-align:center;color:var(--sub);font-size:.78rem}kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font:inherit}
+.stamp{position:absolute;right:14%;top:26%;z-index:5;width:150px;height:150px;border:7px solid var(--shu);color:var(--shu);display:flex;align-items:center;justify-content:center;font:400 6rem var(--brush);mix-blend-mode:multiply;animation:st .42s cubic-bezier(.2,1.6,.4,1) both;pointer-events:none}
+.stamp.no{color:var(--sub);border-color:var(--sub);border-radius:50%;background:none}
+@keyframes st{from{transform:scale(2.3) rotate(0);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:.92}}
+.rail h2{margin:0 0 4px;color:#EDE5D2;font:400 1.4rem var(--brush);letter-spacing:.1em}.rail .sm{color:#EDE5D2;opacity:.65;font-size:.8rem}
+.bar{height:14px;border-radius:7px;margin-top:14px;background:linear-gradient(#93A25F,#56672F);box-shadow:0 3px 6px rgba(0,0,0,.35)}
+.strips{display:flex;flex-wrap:wrap;gap:10px 12px;padding:0 6px}
+.tan{position:relative;margin-top:28px;width:62px;min-height:156px;background:#FBF6EA;border:1px solid #D8CDB0;border-top:7px solid var(--ai);padding:10px 4px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;color:#17140F;animation:sw .8s ease-out both;transform-origin:50% -28px}
+.tan::before{content:"";position:absolute;left:50%;top:-29px;height:22px;border-left:1.5px solid #8a7447}
+.tan .t{writing-mode:vertical-rl;font:700 1.25rem/1.2 var(--mincho)}.tan .n{font-size:.68rem;color:var(--shu);text-align:center;line-height:1.2}.tan .v{font-size:.68rem;color:#6E6454;text-align:center;line-height:1.2}
+@keyframes sw{0%{transform:rotate(-14deg)}50%{transform:rotate(7deg)}100%{transform:rotate(0)}}
+.emp{color:#EDE5D2;opacity:.6;font-size:.85rem;padding:24px 4px 0}
+.done{text-align:center;padding:50px 10px}.done .e{font:400 6rem var(--brush);color:var(--shu)}.done h2{font:700 1.5rem var(--mincho);margin:6px 0}
+.done button{margin-top:14px;padding:12px 24px;border:1.5px solid var(--ink);background:none;color:var(--ink);font:700 1rem var(--maru);cursor:pointer}
+button:focus-visible{outline:3px solid var(--kin);outline-offset:2px}
+@media (max-width:640px){.keys{display:none}.kanji{font-size:3.6rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">復習<small>Dò bài · JPD133</small></div>
+    <div class="slots" id="slots" aria-label="Lọc theo Slot"></div>
+    <div class="mode" id="mode"><button data-m="fw" title="Dò thuận: Nhật → Việt" aria-pressed="true">順</button><button data-m="rv" title="Dò nghịch: Việt → Nhật" aria-pressed="false">逆</button></div>
+  </div>
+  <div class="board">
+    <main class="scroll" id="scroll"></main>
+    <aside class="rail"><h2>短冊</h2><div class="sm" id="rt">Từ đang nợ, sẽ quay lại trong phiên</div><div class="bar"></div><div class="strips" id="strips"></div></aside>
+  </div>
+</div>
+<script>
+const CARDS=[
+{k:"父",r:"ちち",v:"bố (của mình)",e:"父は医者です。",ev:"Bố tôi là bác sĩ.",s:1,t:"Gia đình"},
+{k:"母",r:"はは",v:"mẹ (của mình)",e:"母は先生です。",ev:"Mẹ tôi là giáo viên.",s:1,t:"Gia đình"},
+{k:"兄",r:"あに",v:"anh trai (của mình)",e:"兄は会社員です。",ev:"Anh trai tôi là nhân viên công ty.",s:1,t:"Gia đình"},
+{k:"貸す",r:"かす",v:"cho mượn",e:"友達に本を貸します。",ev:"Tôi cho bạn mượn sách.",s:3,t:"Cho / Nhận"},
+{k:"趣味",r:"しゅみ",v:"sở thích",e:"趣味は音楽です。",ev:"Sở thích của tôi là âm nhạc.",s:4,t:"Sở thích"},
+{k:"食べる",r:"たべる",v:"ăn",e:"朝ごはんを食べます。",ev:"Tôi ăn sáng.",s:5,t:"Thể từ điển"},
+{k:"道",r:"みち",v:"con đường",e:"この道をまっすぐ行きます。",ev:"Đi thẳng con đường này.",s:10,t:"Chỉ đường"}];
+const SL={0:"全",1:"一",3:"三",4:"四",5:"五",10:"十"};
+let slot=0,mode="fw",st,t0,tEnd=null,rev=false,hist=[],raf,busy=false;
+const $=id=>document.getElementById(id);
+const pool=()=>CARDS.filter(c=>!slot||c.s===slot);
+function start(){const p=pool();st={q:[...p].sort(()=>Math.random()-.5),done:[],debt:[],total:p.length};hist=[];draw()}
+function draw(){rev=false;tEnd=null;busy=false;t0=performance.now();render()}
+function reveal(){if(rev||busy||!st.q.length)return;rev=true;tEnd=(performance.now()-t0)/1000;render()}
+const grade=s=>s<1.5?"phản xạ tức thì (Easy)":s<=6?"nỗ lực vừa đủ (Good)":"nhớ chậm (Hard)";
+function answer(ok){if(busy||!rev||!st.q.length)return;busy=true;hist.push(JSON.stringify(st));
+ $("scroll").insertAdjacentHTML("beforeend",`<div class="stamp ${ok?"":"no"}">${ok?"覚":"未"}</div>`);
+ setTimeout(()=>{const c=st.q.shift();
+  if(ok){st.debt=st.debt.filter(x=>x!==c.k);st.done.push(c)}
+  else{if(!st.debt.includes(c.k))st.debt.push(c.k);st.q.splice(Math.min(2,st.q.length),0,c)}
+  draw()},ok?460:340)}
+function undo(){if(busy||!hist.length)return;st=JSON.parse(hist.pop());draw()}
+function speak(){const c=st.q[0];if(!c)return;try{const u=new SpeechSynthesisUtterance(c.r);u.lang="ja-JP";speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function render(){
+ const c=st.q[0],n=st.done.length,p=st.total?n/st.total:0;
+ $("slots").innerHTML=Object.keys(SL).map(k=>`<button data-s="${k}" aria-pressed="${+k===slot}" title="${+k?"Slot "+k:"Tất cả Slot"}">${SL[k]}</button>`).join("");
+ $("strips").innerHTML=st.debt.length?st.debt.map(k=>{const x=CARDS.find(z=>z.k===k),i=st.q.findIndex(z=>z.k===k);return `<div class="tan"><div class="t">${x.k}</div><div class="v">${x.v}</div><div class="n">${i>0?"sau "+i+" từ":"đang dò"}</div></div>`}).join(""):`<div class="emp">Chưa có từ nợ. Bấm “Chưa thuộc”, tờ giấy sẽ treo ở đây.</div>`;
+ $("rt").textContent=st.debt.length?"Còn nợ "+st.debt.length+" từ. Thuộc hết mới hoàn thành.":"Từ đang nợ, sẽ quay lại trong phiên";
+ if(!c){$("scroll").innerHTML=`<div class="roll t"></div><div class="roll b"></div><div class="done"><div class="e">完</div><h2>Hoàn thành phiên dò bài</h2><p style="color:var(--sub);margin:0">Bạn đã thuộc ${st.total} từ.</p><button id="again">Dò lại từ đầu</button></div>`;$("again").onclick=start;cancelAnimationFrame(raf);return}
+ const fw=mode==="fw";
+ const front=fw?`<ruby class="kanji">${c.k}<rt>${c.r}</rt></ruby><button class="spk" id="spk">🔊 Nghe (P)</button>`:`<div class="prompt">${c.v}<small>Gợi ý: ${c.t}</small></div>`;
+ const back=fw?`<b>${c.v}</b><p>Ví dụ</p><div class="jp">${c.e}</div><p>${c.ev}</p>`:`<div class="big">${c.k}</div><div class="kn">${c.r}</div><div class="jp" style="text-align:center">${c.e}</div>`;
+ $("scroll").innerHTML=`<div class="roll t"></div><div class="roll b"></div>
+ <div class="meta"><span>Slot ${c.s} · ${c.t}</span><span>${n+1} / ${st.total}</span></div>
+ <div class="stage">
+  <div class="ans ${rev?"open":""}">${back}<div class="shoji"><span>${fw?"Nhẩm nghĩa trong đầu, rồi bấm Space để mở cửa":"Tự nhẩm Kanji và cách đọc, rồi bấm Space"}</span></div></div>
+  <div class="front"><svg class="enso" viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="46"/><circle class="pg" cx="60" cy="60" r="46" style="stroke-dashoffset:${289*(1-p)}"/></svg>${front}</div>
+ </div>
+ <div class="inc"><i id="inc"></i></div><div class="tm" id="tm"></div>
+ ${rev?"":`<button class="rv" id="rv">開く · ${fw?"Hiện nghĩa":"Hiện đáp án"} (Space)</button>`}
+ <div class="acts"><button class="no" id="bn" ${rev?"":"disabled"}><i>未</i><span>Chưa thuộc<small>Backspace / 2 · bốc lại sau 2 từ</small></span></button><button class="ok" id="by" ${rev?"":"disabled"}><i>覚</i><span>Đã thuộc<small>Enter / 1 · tăng stability</small></span></button></div>
+ <button class="un" id="un" ${hist.length?"":"disabled"}>↩ Hoàn tác (Z)</button>
+ <div class="keys"><kbd>Space</kbd> hiện · <kbd>Enter</kbd> thuộc · <kbd>Backspace</kbd> chưa thuộc · <kbd>Z</kbd> hoàn tác · <kbd>P</kbd> phát âm</div>`;
+ const sp=$("spk");if(sp)sp.onclick=speak;if($("rv"))$("rv").onclick=reveal;
+ $("bn").onclick=()=>answer(false);$("by").onclick=()=>answer(true);$("un").onclick=undo;tick()}
+function tick(){cancelAnimationFrame(raf);const tm=$("tm"),inc=$("inc");if(!tm)return;
+ if(tEnd!==null){inc.style.width=Math.max(0,1-tEnd/6)*100+"%";tm.innerHTML=`Phản xạ <b>${tEnd.toFixed(1)}s</b>, ${grade(tEnd)}`;return}
+ const f=()=>{const e=$("tm"),i=$("inc");if(!e||tEnd!==null)return;const s=(performance.now()-t0)/1000;i.style.width=Math.max(0,1-s/6)*100+"%";e.innerHTML=`Đang đo độ trễ: <b>${s.toFixed(1)}s</b>`;raf=requestAnimationFrame(f)};f()}
+$("slots").onclick=e=>{const b=e.target.closest("button");if(!b)return;slot=+b.dataset.s;start()};
+$("mode").onclick=e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;document.querySelectorAll("#mode button").forEach(x=>x.setAttribute("aria-pressed",x===b));start()};
+document.addEventListener("keydown",e=>{const k=e.key;
+ if(k===" "){e.preventDefault();reveal()}
+ else if(k==="Enter"||k==="1")answer(true);
+ else if(k==="Backspace"||k==="2"){e.preventDefault();answer(false)}
+ else if(k==="z"||k==="Z")undo();else if(k==="p"||k==="P")speak()});
+start();
+</script>
+</body>
+</html>

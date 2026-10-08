@@ -1,0 +1,13 @@
+:root{color-scheme:light;--paper:#efe7d6;--card:#f7f1e3;--ink:#17130e;--sub:#6b6252;--shu:#b8341f;--gold:#b8923f;--line:#cdbf9f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif}
+.shell{max-width:1160px;margin:0 auto;padding:28px 24px 48px}
+.brand{display:flex;align-items:center;gap:12px;font-size:.9rem;font-weight:800;letter-spacing:.17em;border-bottom:1px solid var(--line);padding-bottom:22px}
+.brand small{font-family:Georgia,serif;color:var(--sub);letter-spacing:.08em}.seal{display:grid;place-items:center;background:var(--shu);color:white;width:44px;height:44px;font:28px Georgia,serif;transform:rotate(-4deg);border-radius:3px}
+.status{margin-left:auto;letter-spacing:.09em;font-size:.69rem;color:var(--shu);border:1px solid var(--shu);padding:6px 10px}
+.hero{max-width:770px;padding:76px 0 54px}.eyebrow{font-size:.75rem;letter-spacing:.3em;color:var(--shu);font-weight:700}.hero h1{font:700 clamp(2.4rem,6vw,5.2rem)/1.2 Georgia,serif;margin:12px 0 24px}.hero h1 em{color:var(--shu)}.hero p{font-size:1.08rem;line-height:1.8;color:var(--sub)}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.preview{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--card);padding:30px;border:1px solid var(--line);min-height:310px;transition:transform .2s,border-color .2s}.preview:hover,.preview:focus-visible{transform:translateY(-4px);border-color:var(--gold);outline:0}
+.glyph{font:64px Georgia,serif;color:var(--shu)}.kind{font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:5px}.preview h2{font:700 1.7rem Georgia,serif;margin:14px 0 8px}.preview p{color:var(--sub);font-size:.94rem;line-height:1.65;flex:1}.view{font-weight:700;color:var(--shu);font-size:.9rem}
+.notice{margin:36px 0;background:#e6dcc5;border-left:3px solid var(--shu);padding:18px;line-height:1.7;font-size:.92rem}footer{font-size:.81rem;color:var(--sub);border-top:1px solid var(--line);padding-top:22px}footer a{color:inherit}
+@media(max-width:800px){.gallery{grid-template-columns:1fr}.hero{padding:58px 0 28px}.preview{min-height:220px}.status{font-size:.59rem}.shell{padding:18px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
