@@ -17,7 +17,7 @@ function validateCoreUrl(raw: string): URL {
   return u;
 }
 
-export async function forward(request: NextRequest, context: Context): Promise<Response> {
+async function forward(request: NextRequest, context: Context): Promise<Response> {
   const originHeader = request.headers.get('origin');
   if (originHeader) {
     try {
