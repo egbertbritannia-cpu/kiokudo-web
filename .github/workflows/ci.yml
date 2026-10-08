@@ -49,6 +49,7 @@ jobs:
           cd kiokudo-core
           nohup env KIOKUDO_SERVICE_TOKEN='ci-only-service-token-never-production' \
             KIOKUDO_DATABASE_SCOPE=staging \
+            KIOKUDO_EXPECTED_STAGING_MARKER=kiokudo-local-json-fixture-not-production-v1 \
             KIOKUDO_DATABASE_URL=file:./staging-smoke.db \
             npm run start > ../core-staging.log 2>&1 &
       - name: Start local Web

@@ -14,7 +14,7 @@ Source baseline: `egbertbritannia-cpu/japanese-srs-system`, commit `3348f4ee49c9
 
 1. In Core: `npm install` and `npm run staging:local -- seed ./staging-rehearsal.db`.
 2. In Core `.env`, set `KIOKUDO_SERVICE_TOKEN` to a long random secret,
-   `KIOKUDO_DATABASE_SCOPE=staging` and `KIOKUDO_DATABASE_URL=file:./staging-rehearsal.db`.
+   `KIOKUDO_DATABASE_SCOPE=staging`, `KIOKUDO_DATABASE_URL=file:./staging-rehearsal.db`,\n   and `KIOKUDO_EXPECTED_STAGING_MARKER=kiokudo-local-json-fixture-not-production-v1`.\n   Core reads this identity marker from the freshly seeded local SQLite file\n   before accepting API requests; never reuse the fixture marker for Turso.
 3. Start Core with `npm run dev` on `http://127.0.0.1:4000`.
 4. In Web `.env.local`, set `KIOKUDO_STAGING_READ_ENABLED=true`,
    `KIOKUDO_CORE_URL=http://127.0.0.1:4000` and
