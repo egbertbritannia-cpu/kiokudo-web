@@ -22,7 +22,8 @@ export default function Page() {
           </a>
         ))}
       </section>
-      <section className="notice"><strong>Trạng thái migration:</strong> Backend/API production vẫn đang chạy trên repository gốc. Core mới hiện chỉ có health/status API và chưa kết nối DB/ReviewService. Không sử dụng bản preview này để ghi tiến độ học thật.</section>
+      <section className="notice"><a href="/staging/cards" style={{fontWeight:700,color:"#9E3223"}}>Xem Cards staging (read-only, chỉ ở localhost) →</a></section>
+      <section className="notice"><strong>Trạng thái migration:</strong> Backend/API production vẫn chạy trên repository gốc. Core mới đã có cards/reviews API dành riêng cho staging, nhưng trang demo này chưa ghi dữ liệu thật. Không sử dụng bản preview này để ghi tiến độ học thật.</section>
       <footer>Single-user learning system · Next.js FE / Fastify BE · <a href="https://github.com/egbertbritannia-cpu/japanese-srs-system">Legacy baseline</a></footer>
     </main>
   );

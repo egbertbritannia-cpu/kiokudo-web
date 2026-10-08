@@ -1,30 +1,38 @@
-# Kiokudo Web — Migration Progress
+# Kiokudo Web — Phase 3 migration status
 
-Source baseline: `egbertbritannia-cpu/japanese-srs-system` commit `3348f4ee49c9539fb9ea60c96e42833811c325ca`.
+Source baseline: `egbertbritannia-cpu/japanese-srs-system`, commit `3348f4ee49c9539fb9ea60c96e42833811c325ca`.
 
-## Bootstrap scope
+## Implemented
 
-- New Next.js app, standalone build and CI.
-- Static UI demos copied **unchanged** from `public/ui-demos` in legacy.
-- Thin BFF under `/api/backend/[...path]`, including fail-closed service token, origin check and restricted forwarding headers.
-- Web data access not yet migrated. **No fake user data is presented as live.**
+- Next.js app and three unchanged HTML UI demos + gallery.
+- A **local-only** read-only BFF allowlisting `GET /api/v1/cards` and `GET /api/v1/status`, forwarding a server-held service token.
+- `/staging/cards`: renders card IDs/decks/content returned by real Core staging API; not fake data.
+- All review/card mutation methods through this BFF are deliberately disabled (405).
+- When not in Node development mode on localhost, or when `KIOKUDO_STAGING_READ_ENABLED` is not true, BFF returns 503.
 
-## Remaining migration steps
+## Try the integration locally
 
-1. Freeze REST API contracts and explicit names/IDs for grammar, JPD133, IELTS, media and reviews.
-2. Migrate canonical ReviewService + Turso logic to Kiokudo Core with idempotency tests.
-3. Replace server-side DB imports in legacy UI with BFF-backed fetching; preserve genuine card IDs.
-4. Move functional Next.js pages/components into web; keep the three HTML files only as visual references.
-5. Migrate Dexie queue + batch event sync and verify lost-response retries.
-6. Configure Vercel Authentication on the **new** web Vercel project, then server-to-server core authentication.
-7. Add browser E2E tests and cross-repo staging deploy.
-8. Cut over production only after tests, monitoring and rollback checks pass.
+1. In Core: `npm install` and `npm run staging:local -- seed ./staging-rehearsal.db`.
+2. In Core `.env`, set `KIOKUDO_SERVICE_TOKEN` to a long random secret,
+   `KIOKUDO_DATABASE_SCOPE=staging` and `KIOKUDO_DATABASE_URL=file:./staging-rehearsal.db`.
+3. Start Core with `npm run dev` on `http://127.0.0.1:4000`.
+4. In Web `.env.local`, set `KIOKUDO_STAGING_READ_ENABLED=true`,
+   `KIOKUDO_CORE_URL=http://127.0.0.1:4000` and
+   `KIOKUDO_CORE_SERVICE_TOKEN` to the SAME random secret.
+5. Start Web with `npm run dev`; visit `http://localhost:3000/staging/cards`.
+6. UI should display 316 fixture cards and 2 decks with `fixture_*` IDs.
+   These are rehearsal cards, NOT current production progress.
 
-## Important product constraints
+Do not commit either `.env` file. Use two dedicated dev terminals. The fixture
+SQLite contains only the 3 minimal entities and must not be mistaken for a full Turso migration.
 
-- Add Card was decommissioned. Studio Shodo is visual prototype **only**, not an approved live creation feature.
-- `/review/dobai` in recent monolith uses example data; do not treat it as the canonical SRS implementation.
-- No Turso or AI provider credentials in web or browser bundles.
-- Legacy production is not changed or disabled by this repository.
+## Still blocked / not done
 
-Current status: **bootstrap in progress**; no production cutover.
+- No export of real production Turso data, no verified staging Turso credentials, no schema migration of all live tables.
+- No browser-accessible production API, no live FSRS scoring from the new FE.
+- No public Vercel staging deployment or Vercel Authentication check performed.
+- No actual backend deployment to cloud.
+- Grammar special-case, IELTS and integrations remain on legacy.
+- No cutover or changes to the legacy GitHub repo / production deployment.
+
+**Do not enable read-only BFF outside local development until user authentication and full trust boundary are audited.**
