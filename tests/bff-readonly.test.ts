@@ -14,7 +14,7 @@ async function withEnv(fn:()=>Promise<void>){
     KIOKUDO_CORE_URL:process.env.KIOKUDO_CORE_URL, KIOKUDO_CORE_SERVICE_TOKEN:process.env.KIOKUDO_CORE_SERVICE_TOKEN,
   };
   try{
-    process.env.NODE_ENV='development';
+    Object.assign(process.env, { NODE_ENV: 'development' });
     process.env.KIOKUDO_STAGING_READ_ENABLED='true';
     process.env.KIOKUDO_CORE_URL='http://127.0.0.1:4000';
     process.env.KIOKUDO_CORE_SERVICE_TOKEN=token;
