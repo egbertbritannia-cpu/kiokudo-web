@@ -40,6 +40,7 @@ export default function CardsPage() {
   const [cardsList, setCardsList] = useState<CardItem[]>([]);
   const [decksList, setDecksList] = useState<DeckItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   // Debounce tìm kiếm 200ms để tránh lag nhập liệu khi có 676+ thẻ
   useEffect(() => {
@@ -54,14 +55,17 @@ export default function CardsPage() {
     async function fetchCards() {
       try {
         setLoading(true);
+        setLoadError('');
         const res = await fetch('/api/backend/api/v1/cards?limit=1000', { cache: 'no-store' });
         const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Kiokudo Core staging chưa sẵn sàng');
         if (data.success) {
           setCardsList(data.data || []);
           setDecksList(data.decks || []);
         }
       } catch (err) {
         console.error('Lỗi khi tải danh sách thẻ:', err);
+        setLoadError('Không thể tải thư viện staging. Chưa có dữ liệu sản xuất; kiểm tra kết nối Kiokudo Core.');
       } finally {
         setLoading(false);
       }
@@ -116,6 +120,11 @@ export default function CardsPage() {
       />
 
       <div style={{ maxWidth: '980px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+        {loadError && (
+          <p role="alert" style={{ color: '#A53528', background: '#FFF5E8', border: '1px solid #C89B58', padding: '1rem', borderRadius: '10px', fontFamily: 'var(--font-maru)' }}>
+            {loadError}
+          </p>
+        )}
         {/* 1. HEADER CUỘN TRANH TOÀN CẢNH MỘC BẢN HOKUSAI HỒ SUWA */}
       <div
         style={{
