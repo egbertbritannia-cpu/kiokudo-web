@@ -342,79 +342,16 @@ function ReviewSessionContent() {
   }, []);
 
   // Hành động Chấm điểm theo thuật toán FSRS (Bất đồng bộ không chặn luồng giao diện)
+  // Phase 4: UI remains unchanged; mutation stays locked until
+  // authenticated BFF and offline replay parity are verified.
+  // No optimistic count, fake success or IndexedDB event is written.
   const handleGrade = useCallback(
-    async (grade: 'Again' | 'Hard' | 'Good' | 'Easy') => {
+    async (_grade: 'Again' | 'Hard' | 'Good' | 'Easy') => {
       if (!currentCard) return;
-      // Phase 4 migration: preserve the original Karuta/review UI but fail CLOSED.
-      // Do not count, fake-save or enqueue a grade before authenticated BFF writes
-      // and offline replay parity have been verified end to end.
       setUndoToast('Bản xem trước: chấm điểm FSRS chưa được kích hoạt trên frontend mới.');
       setTimeout(() => setUndoToast(null), 3500);
-      return;
-
-
-      const ratingMap = {
-        Again: Rating.Again,
-        Hard: Rating.Hard,
-        Good: Rating.Good,
-        Easy: Rating.Easy,
-      } as const;
-
-      const ratingEnum = ratingMap[grade];
-      const scheduledDays = fsrsNextStates ? fsrsNextStates[ratingEnum]?.card?.scheduled_days : undefined;
-
-      setGradesCount((prev) => ({
-        ...prev,
-        [grade]: prev[grade] + 1,
-      }));
-
-      // Lưu vào lịch sử hoàn tác (DEF-UI-KARUTA-003)
-      setReviewHistory((prev) => [
-        ...prev,
-        { cardIdx: currentIdx, grade },
-      ]);
-
-      // Đo lường độ trôi chảy truy xuất (Retrieval Fluency - BUG-FSRS-06)
-      const responseTimeMs = Math.max(100, Math.round(Date.now() - cardStartTimeRef.current));
-
-      // Gửi ngầm không chặn UI (Optimistic UI update)
-      const submitReview = async () => {
-        try {
-          if (!navigator.onLine) {
-            throw new Error('Offline');
-          }
-          const res = await fetch('/api/review', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              cardId: currentCard.id,
-              rating: grade,
-              grade,
-              responseTimeMs,
-              scheduledDays,
-            }),
-          });
-          if (!res.ok) throw new Error('API review returned non-200');
-        } catch {
-          // Khi ngoại tuyến hoặc API lỗi, lập tức ghi vào IndexedDB Dexie
-          await recordPendingReview(currentCard.id, grade, scheduledDays, responseTimeMs);
-          const count = await getUnsyncedReviewCount();
-          setUnsyncedCount(count);
-        }
-      };
-
-      submitReview();
-
-      setShowAnswer(false);
-      setShowStrokeOrder(false);
-      if (currentIdx >= totalCards) {
-        setIsCompleted(true);
-        japaneseAudio.playSuzuBell();
-      } else {
-        setCurrentIdx((prev) => prev + 1);
-      }
     },
-    [currentCard, currentIdx, totalCards, fsrsNextStates]
+    [currentCard]
   );
 
   // Hành động Hoàn tác kết quả chấm điểm (Undo Grade - DEF-UI-KARUTA-003)
