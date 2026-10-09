@@ -11,11 +11,17 @@ export const metadata: Metadata = {
 };
 
 async function GrammarData() {
-  const [data, patterns] = await Promise.all([
+  try {
+    const [data, patterns] = await Promise.all([
     grammarRepository.getAllLessonsWithStats(),
     grammarRepository.getAllPatternsSummary(),
   ]);
-  return <GrammarGallery lessons={data.lessons} stats={data.stats} allPatterns={patterns} />;
+    return <GrammarGallery lessons={data.lessons} stats={data.stats} allPatterns={patterns} />;
+  } catch {
+    return <p role="alert" style={{maxWidth:1080,margin:'2rem auto',color:'#9B3434'}}>
+      Không thể tải Grammar staging. Giao diện được giữ nguyên, chưa dùng dữ liệu production.
+    </p>;
+  }
 }
 
 export default function GrammarPage() {

@@ -12,7 +12,9 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { lessonId } = await params;
-  const lesson = await grammarRepository.getLessonById(lessonId);
+  let lesson;
+  try { lesson=await grammarRepository.getLessonById(lessonId); }
+  catch { return {title:'Bài học ngữ pháp | Kiokudo Staging'}; }
   if (!lesson) return { title: 'Bài học ngữ pháp | Japanese SRS' };
 
   return {
@@ -22,7 +24,13 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 async function LessonContent({ lessonId }: { lessonId: string }) {
-  const lesson = await grammarRepository.getLessonById(lessonId);
+  let lesson;
+  try { lesson=await grammarRepository.getLessonById(lessonId); }
+  catch {
+    return <p role="alert" style={{color:'#9B3434'}}>
+      Không thể tải bài ngữ pháp từ staging; không có dữ liệu demo thay thế.
+    </p>;
+  }
   if (!lesson) notFound();
 
   const accent = lesson.accentColor || '#1B4268';
