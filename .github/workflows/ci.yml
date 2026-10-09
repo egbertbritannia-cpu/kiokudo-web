@@ -43,6 +43,8 @@ jobs:
         run: |
           npm run staging:local -- seed ./staging-smoke.db
           npm run staging:local -- audit ./staging-smoke.db
+      - name: Add CI-only Grammar and IELTS fixture records
+        run: python3 scripts/seed-phase4b-smoke.py kiokudo-core/staging-smoke.db
       - name: Build Core
         working-directory: kiokudo-core
         run: npm run build
