@@ -2,7 +2,7 @@
 
 Kiokudo Frontend — **faithful migration of the existing Kiokudo UI**, not a redesign.
 
-> **Phase 4A staging preview.** The original `japanese-srs-system` remains the live production application. No production cutover or Turso production connection has occurred.
+> **Phase 4B read-only staging preview.** The original `japanese-srs-system` remains the live production application. No production cutover or Turso production connection has occurred.
 
 ## Preserved UI
 
@@ -14,6 +14,11 @@ The visual design from legacy commit `3348f4ee49c9539fb9ea60c96e42833811c325ca` 
 - `/review/dobai`: original prototype UI (local sample cards; does not persist FSRS).
 - `/culture`: original culture portal.
 - `/conjugation`: original local verb conjugation drill UI and engine.
+- `/grammar`, `/grammar/[lessonId]`: original Japanese Grammar catalog and lesson cards, staging Core read-only GET.
+- `/grammar/practice`: original drill design; local answer scoring only, **no FSRS save**.
+- `/ielts`: original IELTS dashboard using real staging GET responses (no fabricated history/band).
+- `/ielts/session`: original examination timer / local draft, **cloud save disabled**.
+- `/ielts/review`: original analysis/Vocab Vault design, **all write actions disabled**.
 - `/cards/new`: original decommissioned Add Card route.
 - `/ui-demos/`: all three original standalone HTML prototypes remain.
 - `/staging/cards`: previous local-only read-only integration inspector.
@@ -36,6 +41,6 @@ The Studio hash subviews and standalone Dò bài are still the same original in-
 
 ## Migration next
 
-Authentication and per-user scoping in the BFF; transactional FSRS writes plus stable offline event IDs, review undo semantics, grammar/JPD133 real ID mapping, IELTS, external integrations and full production-backend parity are still pending.
+Authentication and per-user scoping in the BFF; transactional FSRS writes plus stable offline event IDs, review undo semantics, grammar/JPD133 persistent ID mapping, IELTS session/log/mistake/vocab **write** contracts, Google/media integrations, screenshot regression and production-backend parity remain pending.
 
-See [Phase 4 fidelity matrix](docs/PHASE4_UI_FIDELITY.md).
+See [Phase 4 fidelity matrix](docs/PHASE4_UI_FIDELITY.md) and [Phase 4B Grammar/IELTS scope](docs/PHASE4B_GRAMMAR_IELTS.md).

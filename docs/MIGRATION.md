@@ -1,4 +1,4 @@
-# Kiokudo Web — Phase 4A migration status
+# Kiokudo Web — Phase 4B migration status
 
 The user-approved direction is **frontend/backend separation with exact existing visual design**. No redesign is authorized.
 
@@ -7,7 +7,9 @@ The user-approved direction is **frontend/backend separation with exact existing
 - Complete: original sample-based Studio/Do Bai remain clearly identified as prototypes.
 - Complete: review writes blocked in FE, no false offline event queuing; Add Card stays decommissioned.
 - Complete: art/source blob SHA visual-fidelity checks added.
-- Pending: screenshot comparisons and dynamic flows, authenticated review mutations, offline replay, real database integration, full Grammar/JPD133/IELTS/integrations, deployed staging, production cutover.
+- Complete: original Grammar/IELTS view components migrated without redesign, staging read-only GET contracts, explicit unavailability/error states and no fabricated IELTS statistics.
+- Complete: CI-only Grammar/IELTS fixture smoke across Web BFF and Core Fastify.
+- Pending: screenshots across viewports, authenticated review/IELTS writes, offline replay, real database connection, synthetic grammar IDs, full external integrations, deployed staging and production cutover.
 
 ## Local staging read test
 
@@ -24,8 +26,8 @@ The user-approved direction is **frontend/backend separation with exact existing
    **not** current learner progress. Review grade attempts are disabled.
 
 CI pins the separate Core repository to revision
-`74ecba7b43a379a7acaf968ef70023fc7373bc74`.
-Cross-repo CI verifies the original BFF integration flow; the Web visual-fidelity test checks unchanged source blob SHA values.
+`67682872d78f37559e4c9e9d109c5c8320d418c1`.
+Cross-repo CI verifies Cards and temporary CI-only Grammar/IELTS fixtures across BFF→Core; the Web visual-fidelity test checks unchanged source blob SHA values.
 
 Never put Turso credentials or database snapshots in GitHub or chat, and do not touch the old production Vercel project.
 
