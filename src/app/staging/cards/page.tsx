@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import './staging.css';
 
 type Card = {
  id:string; kanji:string; reading:string|null; meaning:string; deckId:string;
@@ -36,7 +37,7 @@ export default function StagingCardsPage(){
       (!q||[c.kanji,c.reading,c.meaning].some(t=>(t||'').toLowerCase().includes(q))));
   },[data,deck,search]);
 
-  return <main className="shell">
+  return <main className="srs-inspector">
     <nav className="brand"><Link href="/" style={{color:'inherit',textDecoration:'none'}}>記 KIOKUDO</Link><span className="status">STAGING READ-ONLY</span></nav>
     <section className="hero" style={{padding:'40px 0 26px'}}>
       <div className="eyebrow">PHASE 3 · API BFF → KIOKUDO CORE</div>
