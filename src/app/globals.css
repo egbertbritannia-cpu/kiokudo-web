@@ -1,13 +1,2051 @@
-:root{color-scheme:light;--paper:#efe7d6;--card:#f7f1e3;--ink:#17130e;--sub:#6b6252;--shu:#b8341f;--gold:#b8923f;--line:#cdbf9f}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif}
-.shell{max-width:1160px;margin:0 auto;padding:28px 24px 48px}
-.brand{display:flex;align-items:center;gap:12px;font-size:.9rem;font-weight:800;letter-spacing:.17em;border-bottom:1px solid var(--line);padding-bottom:22px}
-.brand small{font-family:Georgia,serif;color:var(--sub);letter-spacing:.08em}.seal{display:grid;place-items:center;background:var(--shu);color:white;width:44px;height:44px;font:28px Georgia,serif;transform:rotate(-4deg);border-radius:3px}
-.status{margin-left:auto;letter-spacing:.09em;font-size:.69rem;color:var(--shu);border:1px solid var(--shu);padding:6px 10px}
-.hero{max-width:770px;padding:76px 0 54px}.eyebrow{font-size:.75rem;letter-spacing:.3em;color:var(--shu);font-weight:700}.hero h1{font:700 clamp(2.4rem,6vw,5.2rem)/1.2 Georgia,serif;margin:12px 0 24px}.hero h1 em{color:var(--shu)}.hero p{font-size:1.08rem;line-height:1.8;color:var(--sub)}
-.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.preview{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--card);padding:30px;border:1px solid var(--line);min-height:310px;transition:transform .2s,border-color .2s}.preview:hover,.preview:focus-visible{transform:translateY(-4px);border-color:var(--gold);outline:0}
-.glyph{font:64px Georgia,serif;color:var(--shu)}.kind{font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:5px}.preview h2{font:700 1.7rem Georgia,serif;margin:14px 0 8px}.preview p{color:var(--sub);font-size:.94rem;line-height:1.65;flex:1}.view{font-weight:700;color:var(--shu);font-size:.9rem}
-.notice{margin:36px 0;background:#e6dcc5;border-left:3px solid var(--shu);padding:18px;line-height:1.7;font-size:.92rem}footer{font-size:.81rem;color:var(--sub);border-top:1px solid var(--line);padding-top:22px}footer a{color:inherit}
-@media(max-width:800px){.gallery{grid-template-columns:1fr}.hero{padding:58px 0 28px}.preview{min-height:220px}.status{font-size:.59rem}.shell{padding:18px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ==========================================================================
+   JAPANESE SRS SYSTEM - MASTER DESIGN SYSTEM (WA-STYLE & BRIGHT NIPPON)
+   ========================================================================== */
+
+:root {
+  /* --- 1. NHÓM GIẤY DÓ & NỀN THIỀN ĐỊNH (Torinoko Washi Canvas Base) --- */
+  --washi-base:          #F7F4EB; /* Nền chính toàn trang (êm dịu thị giác, chống lóa) */
+  --washi-bg:            #F7F4EB;
+  --washi-card:          #FAF8F2; /* Bề mặt thẻ bài học, card nội dung nổi */
+  --washi-surface:       #FAF8F2;
+  --washi-deep:          #EFEAE0; /* Nền phụ, ô input, thanh breadcrumb, bãi cát Zen */
+  --washi-sunken:        #E7E0D2; /* Trạng thái hover sâu, viền khối nhúng */
+  --washi-border:        #DFD9CB; /* Đường kẻ chia cắt, khung viền thanh mảnh */
+  --washi-border-soft:   #EBE5D8; /* Viền phụ rất mờ cho danh sách chi tiết */
+  --washi-subtle:        #EBE5D8;
+
+  /* --- 2. NHÓM MỰC MÀI THƯ PHÁP (Sumi Ink Hierarchy) --- */
+  --sumi-deep:           #1A1918; /* Nồng Mặc (濃墨) - Tiêu đề H1/H2, chữ Kanji lớn, Logo */
+  --sumi-ink:            #1A1918;
+  --sumi-body:           #47433E; /* Trung Mặc (中墨) - Đoạn văn bản đọc, công thức câu */
+  --sumi-charcoal:       #47433E;
+  --sumi-faint:          #878278; /* Đạm Mặc (淡墨) - Nhãn phụ, timestamp, Furigana rt, shortcut */
+  --sumi-faded:          #878278;
+  --sumi-ghost:          #BCB7AC; /* Mặc tàn - Placeholder, icon vô hiệu hóa */
+  --sumi-water:          #BCB7AC;
+
+  /* --- 3. NHÓM ĐỎ KHOÁNG THẠCH CHU SA & SƠN MÀI (Bengara & Urushi Torii) --- */
+  --bengara-red:         #9E3223; /* Màu hành động chính (CTA Ôn tập, nút bấm Torii) */
+  --bengara:             #9E3223;
+  --bengara-hover:       #83271A; /* Trạng thái hover / active khi nhấn */
+  --bengara-soft:        #FDF2F0; /* Nền phụ mỏng cho badge đến hạn, tag cảnh báo */
+  --bengara-border:      #E8A99F; /* Viền thẻ trạng thái FSRS Again [1] */
+  --bengara-hanko:       rgba(158, 50, 35, 0.08); /* Màu đổ bóng con dấu triện Hanko */
+  --torii-red:           #9E3223;
+  --torii-hover:         #83271A;
+  --torii-subtle:        #FDF2F0;
+  --torii-glow:          rgba(158, 50, 35, 0.25);
+
+  /* --- 4. NHÓM LAM CHÀM SAMURAI (Aizome & Kachiiro) --- */
+  --aizome-navy:         #16253B; /* Khối bài học cao cấp JPD133, banner ngữ pháp */
+  --aizome:              #16253B;
+  --aizome-surface:      #203450; /* Nền button phụ trong card chàm, hover */
+  --aizome-soft:         #EDF2F7; /* Nền tag mẫu câu N4, N3, tag [3] Good */
+  --aizome-border:       #BDCCDC; /* Viền cho trạng thái hồi tưởng Tốt */
+  --aizome-textLight:    #F0F4F8; /* Văn bản tương phản cao trên nền chàm */
+  --indigo-deep:         #16253B;
+
+  /* --- 5. NHÓM VÀNG KIM TRẦM & THẾP VÀNG KINTSUGI (Kincha & Kogane) --- */
+  --kincha-gold:         #AF7E36; /* Đường nứt Kintsugi, badge thuật toán FSRS */
+  --kincha:              #AF7E36;
+  --kincha-shimmer:      #D6A657; /* Ánh sáng phát quang khi nối thẻ thành công */
+  --kincha-soft:         #FBF5E8; /* Nền khối thẻ Khó [2], tag số lượng */
+  --kincha-border:       #E5CCA0; /* Viền thẻ đánh giá [2] FSRS Hard */
+  --kintsugi-gold:       #AF7E36;
+  --yamabuki-gold:       #AF7E36;
+  --yamabuki-light:      #FBF5E8;
+  --yamabuki-amber:      #AF7E36;
+
+  /* --- 6. NHÓM XANH RÊU THIỀN VIỆN & TRÀ ĐẠO (Koke-iro & Matcha) --- */
+  --koke-green:          #485642; /* Nút thêm thẻ mới, trạng thái hoàn thành Dễ [4] */
+  --koke:                #485642;
+  --koke-matcha:         #697858; /* Thẻ tag tích cực, biểu tượng tiết khí mùa */
+  --koke-soft:           #EFF4EE; /* Nền nhẹ cho thẻ 0 đến hạn, badge thành công */
+  --koke-border:         #C6D8C4; /* Viền đánh giá FSRS Easy [4] */
+  --matcha-primary:      #697858;
+  --matcha-deep:         #485642;
+  --matcha-light:        #8B9E78;
+  --matcha-subtle:       #EFF4EE;
+  --matcha-tint:         #F7FAF6;
+
+  /* Hoa anh đào Sakura */
+  --sakura-pink:         #E89DA8;
+  --sakura-petal:        #F5CED3;
+  --sakura-light:        #FDF5F6;
+  --sakura-deep:         #C26372;
+
+  /* --- 7. FSRS FUNCTIONAL SYSTEM --- */
+  --fsrs-again:          var(--bengara-red);
+  --fsrs-hard:           var(--kincha-gold);
+  --fsrs-good:           var(--aizome-navy);
+  --fsrs-easy:           var(--koke-green);
+
+  /* Đổ bóng đa tầng Ambient Depth (High-Aesthetic Designer Skill) */
+  --shadow-washi-sm:   0 1px 3px rgba(26, 25, 24, 0.04), 0 1px 2px rgba(26, 25, 24, 0.02);
+  --shadow-washi-md:   0 4px 6px -1px rgba(26, 25, 24, 0.05), 0 2px 4px -2px rgba(26, 25, 24, 0.03);
+  --shadow-washi-lg:   0 10px 25px -5px rgba(26, 25, 24, 0.06), 0 8px 10px -6px rgba(26, 25, 24, 0.04);
+  --shadow-karuta:     0 12px 32px -4px rgba(72, 86, 66, 0.12), 0 4px 12px -2px rgba(26, 25, 24, 0.04);
+  --shadow-ambient-high: 0 1px 2px 0 rgba(22, 37, 59, 0.05), 0 10px 25px -5px rgba(22, 37, 59, 0.08), 0 20px 48px -12px rgba(22, 37, 59, 0.12);
+  --shadow-ambient-glow: 0 0 0 1px rgba(175, 126, 54, 0.25), 0 14px 36px -6px rgba(175, 126, 54, 0.18);
+  --shadow-hover-lift: 0 1px 3px 0 rgba(22, 37, 59, 0.06), 0 14px 30px -4px rgba(22, 37, 59, 0.12);
+  
+  /* Micro-borders & Glass Sheen (Figma Design Bridge Token Scale) */
+  --border-micro: 1px solid rgba(22, 37, 59, 0.08);
+  --border-micro-gold: 1.2px solid rgba(175, 126, 54, 0.35);
+  --border-micro-sheen: 1px solid rgba(255, 255, 255, 0.28);
+
+  /* --- OKLCH COLOR HARMONY TOKENS (HIGH-AESTHETIC-DESIGNER SCALE - VIS-SYS-02) --- */
+  --oklch-washi-base:       oklch(0.965 0.012 85.0);
+  --oklch-washi-surface:    oklch(0.978 0.008 85.0);
+  --oklch-sumi-ink:         oklch(0.180 0.008 55.0);
+  --oklch-sumi-muted:       oklch(0.550 0.012 75.0);
+  --oklch-torii-vermilion:  oklch(0.480 0.160 28.0);
+  --oklch-torii-glow:       oklch(0.480 0.160 28.0 / 0.22);
+  --oklch-matcha-green:     oklch(0.520 0.065 125.0);
+  --oklch-matcha-deep:      oklch(0.420 0.055 128.0);
+  --oklch-indigo-deep:      oklch(0.240 0.045 245.0);
+  --oklch-kintsugi-gold:    oklch(0.580 0.115 72.0);
+  --oklch-kintsugi-glow:    oklch(0.580 0.115 72.0 / 0.25);
+  --oklch-sakura-mist:      oklch(0.780 0.065 15.0);
+
+  /* Fluid Editorial Kanji Typography Clamps (VIS-SYS-01) */
+  --text-kanji-massive:  clamp(3.5rem, 8vw, 6.2rem);
+  --text-kanji-xl:       clamp(2.4rem, 5.5vw, 4.2rem);
+  --text-kanji-lg:       clamp(1.75rem, 3.8vw, 2.75rem);
+  --text-kanji-md:       clamp(1.35rem, 2.6vw, 1.85rem);
+  --text-body-editorial: clamp(0.92rem, 1.2vw, 1.08rem);
+  --text-caption-washi:  clamp(0.72rem, 0.9vw, 0.85rem);
+
+  /* =======================================================
+     JAPANESE GRAPHIC DESIGN IMPACT TYPOGRAPHY
+     Source: Reference image 16993f123e6add9422185049d288cd94.webp
+     「I DESIGN FOR GROWTH」 style — Bebas Neue condensed display
+     「デジタル / クリスティ」 style — Noto Sans JP heavy vertical
+     ======================================================= */
+
+  /* Display Font: Bebas Neue (Bold Condensed Hero) */
+  --font-display:  var(--font-display, 'Impact', 'Arial Black', sans-serif);
+
+  /* Heavy Japanese Gothic: Noto Sans JP 900 */
+  --font-noto:     var(--font-noto, 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif);
+
+  /* Impact Scale — Typography Scale for Display Headings */
+  --display-size-hero:  clamp(3.5rem, 8vw, 7rem);   /* Hero XL: "GROWTH DESIGN" */
+  --display-size-lg:    clamp(2.5rem, 5vw, 4.5rem); /* Large: section headings  */
+  --display-size-md:    clamp(1.75rem, 3vw, 2.75rem); /* Medium: card headlines  */
+
+  /* Vertical Katakana Scale */
+  --vertical-kana-size-xl: clamp(2rem, 4vw, 3.5rem);   /* "デジタル" style  */
+}
+
+/* ==========================================================================
+   SUMI-E NIGHT DARK MODE (MÀN ĐÊM MỰC NHO - DEF-UI-SHELL-004)
+   ========================================================================== */
+:root[data-theme="dark"],
+.sumi-night,
+.dark {
+  --washi-base:          #121820; /* Mực Sumi đậm làm nền */
+  --washi-bg:            #121820;
+  --washi-card:          #1A2330; /* Bề mặt thẻ bài trong bóng tối */
+  --washi-surface:       #1A2330;
+  --washi-deep:          #222E3F;
+  --washi-sunken:        #18202C;
+  --washi-border:        #2E3D52;
+  --washi-border-soft:   #253346;
+  --washi-subtle:        #253346;
+
+  --sumi-deep:           #FAF8F5; /* Chữ trắng ngà trên nền mực */
+  --sumi-ink:            #FAF8F5;
+  --sumi-body:           #E2DDD5;
+  --sumi-charcoal:       #E2DDD5;
+  --sumi-faint:          #A59E92;
+  --sumi-faded:          #A59E92;
+  --sumi-ghost:          #686055;
+  --sumi-water:          #686055;
+
+  --bengara-red:         #E06A55;
+  --bengara:             #E06A55;
+  --bengara-hover:       #F07C68;
+  --bengara-soft:        rgba(224, 106, 85, 0.15);
+  --torii-red:           #E06A55;
+
+  --aizome-navy:         #8AB4F8;
+  --aizome:              #8AB4F8;
+  --aizome-surface:      #1F324D;
+  --aizome-soft:         rgba(138, 180, 248, 0.15);
+
+  --kincha-gold:         #FDD663;
+  --kincha:              #FDD663;
+  --kincha-soft:         rgba(253, 214, 99, 0.15);
+  --kintsugi-gold:       #FDD663;
+
+  --koke-green:          #81C995;
+  --koke:                #81C995;
+  --koke-soft:           rgba(129, 201, 149, 0.15);
+  --matcha-deep:         #81C995;
+}
+
+/* --- RESET TOÀN CỤC --- */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  background-color: var(--washi-bg);
+  color: var(--sumi-ink);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- HỌA TIẾT TRUYỀN THỐNG WAGARA --- */
+
+/* 1. Sóng Seigaiha chuẩn màu xanh Matcha #697858 (Khớp 100% Bộ mã màu Dentōshoku) */
+.wagara-seigaiha-matcha {
+  background-color: var(--koke-matcha);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32' viewBox='0 0 64 32'%3E%3Cpath d='M0 32 A32 32 0 0 1 64 32 M6 32 A26 26 0 0 1 58 32 M12 32 A20 20 0 0 1 52 32 M18 32 A14 14 0 0 1 46 32 M24 32 A8 8 0 0 1 40 32 M-32 16 A32 32 0 0 1 32 16 M-26 16 A26 26 0 0 1 26 16 M-20 16 A20 20 0 0 1 20 16 M-14 16 A14 14 0 0 1 14 16 M-8 16 A8 8 0 0 1 8 16 M32 16 A32 32 0 0 1 96 16 M38 16 A26 26 0 0 1 90 16 M44 16 A20 20 0 0 1 84 16 M50 16 A14 14 0 0 1 78 16 M56 16 A8 8 0 0 1 72 16 M0 0 A32 32 0 0 1 64 0 M6 0 A26 26 0 0 1 58 0 M12 0 A20 20 0 0 1 52 0 M18 0 A14 14 0 0 1 46 0 M24 0 A8 8 0 0 1 40 0' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 64px 32px;
+}
+
+/* 2. Sóng Seigaiha mờ nhạt làm nền thẻ & Hero banner */
+.wagara-seigaiha-subtle {
+  background-color: var(--washi-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='32' viewBox='0 0 64 32'%3E%3Cpath d='M0 32 A32 32 0 0 1 64 32 M6 32 A26 26 0 0 1 58 32 M12 32 A20 20 0 0 1 52 32 M18 32 A14 14 0 0 1 46 32 M24 32 A8 8 0 0 1 40 32 M-32 16 A32 32 0 0 1 32 16 M-26 16 A26 26 0 0 1 26 16 M-20 16 A20 20 0 0 1 20 16 M-14 16 A14 14 0 0 1 14 16 M-8 16 A8 8 0 0 1 8 16 M32 16 A32 32 0 0 1 96 16 M38 16 A26 26 0 0 1 90 16 M44 16 A20 20 0 0 1 84 16 M50 16 A14 14 0 0 1 78 16 M56 16 A8 8 0 0 1 72 16 M0 0 A32 32 0 0 1 64 0 M6 0 A26 26 0 0 1 58 0 M12 0 A20 20 0 0 1 52 0 M18 0 A14 14 0 0 1 46 0 M24 0 A8 8 0 0 1 40 0' fill='none' stroke='rgba(105, 120, 88, 0.14)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 64px 32px;
+}
+
+/* 3. Vân lông tên Yagasuri */
+.wagara-yagasuri {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 0 L20 20 L40 0 L40 20 L20 40 L0 20 Z' fill='rgba(105, 120, 88, 0.25)'/%3E%3C/svg%3E");
+  background-size: 20px 20px;
+}
+
+/* 4. Vân giấy dó Washi */
+.washi-paper-bg {
+  background-color: var(--washi-bg);
+  background-image: radial-gradient(#E8E2D8 0.75px, transparent 0.75px), radial-gradient(#F0EAE1 0.75px, #FAF8F2 0.75px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+}
+
+/* --- HỆ THỐNG NÚT BẤM (JAPANESE BUTTONS) --- */
+.btn-torii {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: linear-gradient(135deg, var(--bengara-red) 0%, var(--bengara-hover) 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-maru), sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(158, 50, 35, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+.btn-torii:hover {
+  background: linear-gradient(135deg, var(--bengara-hover) 0%, #6E1F14 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(158, 50, 35, 0.45);
+}
+.btn-torii:active {
+  transform: translateY(0);
+}
+
+.btn-washi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: var(--washi-surface);
+  color: var(--sumi-body);
+  border: 1px solid var(--washi-border);
+  border-radius: 10px;
+  font-family: var(--font-maru), sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-washi-sm);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn-washi:hover {
+  background: var(--washi-surface);
+  border-color: var(--kincha-gold);
+  color: var(--sumi-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-washi-md);
+}
+
+.btn-matcha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: linear-gradient(135deg, var(--koke-matcha) 0%, var(--koke-green) 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-maru), sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(72, 86, 66, 0.3);
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+.btn-matcha:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(72, 86, 66, 0.4);
+}
+
+/* --- THẺ BÀI KARUTA (HYAKUNIN ISSHU CARD) --- */
+.card-karuta {
+  background: var(--washi-surface);
+  border: 1px solid var(--washi-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-washi-md);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.card-karuta:hover {
+  border-color: var(--kincha-gold);
+  box-shadow: var(--shadow-karuta);
+  transform: translateY(-3px);
+}
+.card-karuta::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--koke-matcha), var(--kincha-gold), var(--bengara-red));
+  opacity: 0.85;
+}
+
+/* --- HOẠT HỌA CÁNH HOA SAKURA --- */
+@keyframes sakuraFall {
+  0% { top: -10%; opacity: 0; }
+  15% { opacity: 0.85; }
+  90% { opacity: 0.8; }
+  100% { top: 105%; opacity: 0; }
+}
+
+@keyframes sakuraSway {
+  0% { transform: translateX(0) rotate(0deg) scale(1); }
+  25% { transform: translateX(25px) rotate(45deg) scale(1.05); }
+  50% { transform: translateX(-20px) rotate(110deg) scale(0.95); }
+  75% { transform: translateX(30px) rotate(190deg) scale(1.02); }
+  100% { transform: translateX(0) rotate(270deg) scale(1); }
+}
+
+.sakura-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  contain: strict; /* Cách ly hoàn toàn layout & paint khỏi phần còn lại của DOM */
+}
+
+.sakura-petal {
+  position: absolute;
+  top: -20px;
+  background: linear-gradient(135deg, #FFB7C5 0%, #FFA6B9 50%, #F472B6 100%);
+  border-radius: 12px 1px 12px 1px;
+  filter: drop-shadow(0 2px 4px rgba(244, 114, 182, 0.25));
+  opacity: 0;
+  will-change: transform, top, opacity;
+  animation: sakuraFall 12s linear infinite, sakuraSway 4s ease-in-out infinite alternate;
+}
+
+/* Ẩn bớt cánh hoa trên thiết bị di động để giảm tải CPU và tiết kiệm pin */
+@media (max-width: 768px) {
+  .sakura-petal:nth-child(n+9) {
+    display: none !important;
+  }
+}
+
+/* Trợ năng: Vô hiệu hóa hiệu ứng rơi hoa khi người dùng bật chế độ giảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  .sakura-container {
+    display: none !important;
+  }
+}
+
+/* --- CON DẤU SON INKAN (HANKO) --- */
+@keyframes inkanStamp {
+  0% { opacity: 0; transform: scale(2.6) rotate(-18deg); }
+  50% { opacity: 0.95; transform: scale(0.92) rotate(-5deg); }
+  75% { transform: scale(1.05) rotate(-7deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+
+.inkan-stamp-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 2px solid var(--bengara-red);
+  border-radius: 6px;
+  color: var(--bengara-red);
+  font-family: var(--font-mincho), serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  background: var(--bengara-hanko);
+  box-shadow: inset 0 0 0 1px rgba(158, 50, 35, 0.3);
+  animation: inkanStamp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   AUTHENTIC JAPANESE GRAPHIC DESIGN UTILITIES (WA-MODERN BENTO SYSTEM)
+   ========================================================================== */
+
+/* 1. Hinomaru Disc: Crimson Rising Sun Accent */
+.hinomaru-disc {
+  background: radial-gradient(circle at 35% 35%, #B83B2C 0%, var(--bengara-red) 65%, var(--bengara-hover) 100%);
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(158, 50, 35, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+/* 2. Tate-gaki: Authentic Japanese Vertical Ribbon */
+.tategaki-ribbon {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.18em;
+  font-family: var(--font-mincho), serif;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* 3. Woodblock Art Showcase Frame (Khung tranh mộc bản triển lãm) */
+.art-card-frame {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--kincha-gold);
+  box-shadow: 0 8px 24px rgba(26, 25, 24, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  background: var(--sumi-deep);
+}
+
+/* 4. Kifuda Tablet Card (Thẻ gỗ đền thần đạo & trà thất) */
+.card-kifuda {
+  background: var(--washi-card);
+  border: 1.5px solid var(--washi-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-washi-md);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+.card-kifuda:hover {
+  transform: translateY(-4px);
+  border-color: var(--kincha-gold);
+  box-shadow: 0 12px 28px -4px rgba(175, 126, 54, 0.22);
+}
+
+/* 5. Authentic Hyakunin Isshu Karuta Card (Thẻ bài thơ cổ lót lụa) */
+.card-hyakunin-isshu {
+  background: var(--washi-card);
+  border: 2.5px solid var(--aizome-navy);
+  outline: 1.5px solid var(--kincha-gold);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(22, 37, 59, 0.18), inset 0 0 0 1px rgba(175, 126, 54, 0.4);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* 6. Makimono Scroll (Cuộn thư pháp cổ) */
+.makimono-scroll {
+  background: linear-gradient(180deg, #FBF8F1 0%, #F5EFE3 100%);
+  border-top: 3px solid #78350F;
+  border-bottom: 3px solid #78350F;
+  box-shadow: 0 4px 14px rgba(120, 53, 15, 0.12);
+  position: relative;
+}
+
+/* 7. Gold Leaf Foil Flecks (Dát vàng mạ kim Kin-paku) */
+.kinpaku-border {
+  border: 1.5px solid var(--kincha-gold);
+  box-shadow: 0 0 8px rgba(175, 126, 54, 0.25);
+}
+
+/* ==========================================================================
+   VINTAGE JAPANESE ADVERTISING & POSTER STYLING (HIKIFUDA & TAISHO ROMAN)
+   Directly inspired by "Презентация - Японская реклама.jpg"
+   ========================================================================== */
+
+/* 8. Hikifuda Advertising Card (引札 · Áp phích thương mại mộc bản thời Minh Trị/Đại Chính) */
+.card-hikifuda {
+  background: var(--washi-card);
+  border: 2px solid var(--bengara-red);
+  outline: 2px solid var(--kincha-gold);
+  outline-offset: -5px;
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(26, 25, 24, 0.08), 0 2px 6px rgba(158, 50, 35, 0.06);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.card-hikifuda:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(158, 50, 35, 0.16), 0 4px 12px rgba(175, 126, 54, 0.2);
+  outline-color: var(--kincha-shimmer);
+}
+
+/* 9. Tate-gaki Framed Box (Khung triện dọc 「日本の広告」 như trên slide 4 & 7) */
+.tategaki-box {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.2em;
+  font-family: var(--font-mincho), serif;
+  font-weight: 800;
+  padding: 0.75rem 0.35rem;
+  border: 1.5px solid var(--bengara-red);
+  background: rgba(250, 248, 242, 0.95);
+  box-shadow: 0 2px 8px rgba(158, 50, 35, 0.1);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 10. Vintage Japanese Stamp Badge (Huy hiệu tem mộc bản thời xưa) */
+.hikifuda-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.65rem;
+  background: var(--bengara-red);
+  color: #FFFFFF;
+  font-family: var(--font-mincho), serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 6px rgba(158, 50, 35, 0.25);
+}
+
+/* 11. Responsive rules for Japanese Poster Background */
+@media (max-width: 1280px) {
+  .japanese-margin-label-left,
+  .japanese-margin-label-right {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .japanese-poster-bg-root svg {
+    opacity: 0.45 !important;
+  }
+}
+
+/* ==========================================================================
+   JAPANESE WASHI KIRIE & 3D LAYERED WAVE DESIGN SYSTEM
+   Directly extracted from 18337712357dc3b93a96a076cef25eae.jpg
+   ========================================================================== */
+
+/* 1. KHUNG HERO BẦU TRỜI ĐÊM AIZOME */
+.kirie-hero-wrapper {
+  background: linear-gradient(180deg, #101B2B 0%, var(--aizome-navy) 55%, var(--aizome-surface) 100%);
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  color: #FFFFFF;
+  box-shadow: 0 14px 36px rgba(22, 37, 59, 0.25);
+  margin-bottom: 1.5rem;
+}
+
+.kirie-hero-content {
+  padding: 2.25rem 2rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.kirie-greeting-heading {
+  font-family: var(--font-mincho), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.kirie-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 9999px;
+  font-family: var(--font-maru), sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #F8F5EE;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.kirie-user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--washi-card);
+  border: 2px solid var(--kincha-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aizome-navy);
+  font-family: var(--font-mincho), serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* 2. BỘ 3 THẺ KPI GIẤY WASHI CÓ MẢNH GIẤY MÀU LÓ GÓC DƯỚI */
+.kirie-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  position: relative;
+  z-index: 10;
+  padding: 0 0.25rem;
+}
+
+.kirie-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 1.1rem 0 1.25rem;
+}
+
+.kirie-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--washi-sunken);
+  transition: all 0.2s ease;
+}
+
+.kirie-dot.active {
+  background: var(--aizome-navy);
+  transform: scale(1.15);
+}
+
+.kirie-kpi-card {
+  background: var(--washi-card);
+  border: 1.2px solid var(--washi-border);
+  border-radius: 16px;
+  padding: 1.1rem 0.9rem 1.3rem;
+  box-shadow: 0 4px 12px rgba(26, 25, 24, 0.05), 0 1px 3px rgba(26, 25, 24, 0.03);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.kirie-kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -4px rgba(22, 37, 59, 0.12);
+  border-color: var(--kincha-gold);
+}
+
+.kirie-kpi-label {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--sumi-deep);
+  margin-bottom: 0.35rem;
+}
+
+.kirie-kpi-number {
+  font-family: var(--font-mincho), sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.number-blue { color: var(--aizome-navy); }
+.number-gold { color: var(--kincha-gold); }
+.number-green { color: var(--koke-green); }
+
+.kirie-kpi-desc {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.74rem;
+  color: var(--sumi-body);
+  margin: 0;
+  line-height: 1.25;
+}
+
+/* 3. ĐƯỜNG PHÂN CÁCH NGỌN SÓNG VÀNG TODAY'S FOCUS */
+.kirie-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1.35rem 0 0.95rem;
+}
+
+.kirie-section-title {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sumi-deep);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.kirie-wave-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--kincha-gold) 0%, rgba(175, 126, 54, 0.5) 85%, transparent 100%);
+  position: relative;
+}
+
+.kirie-wave-divider-icon {
+  position: absolute;
+  right: 0;
+  top: -8px;
+  width: 24px;
+  height: 16px;
+}
+
+/* 4. DANH SÁCH THẺ BÀI VẠCH SƠN MÀI ĐỨNG BÊN TRÁI */
+.kirie-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.kirie-task-item {
+  background: var(--washi-card);
+  border: 1.2px solid var(--washi-border);
+  border-radius: 12px;
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(22, 37, 59, 0.03);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.kirie-task-item:hover {
+  background: var(--washi-card);
+  border-color: var(--kincha-gold);
+  transform: translateX(4px);
+  box-shadow: 0 4px 14px rgba(22, 37, 59, 0.08);
+}
+
+/* Vạch sơn mài đứng bên trái (Left Vertical Bar) */
+.kirie-vertical-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  border-radius: 4px 0 0 4px;
+}
+
+.bar-navy   { background: var(--aizome-navy); }
+.bar-denim  { background: var(--aizome-surface); }
+.bar-gold   { background: var(--kincha-gold); }
+.bar-matcha { background: var(--koke-green); }
+.bar-torii  { background: var(--bengara-red); }
+
+.kirie-task-text {
+  font-family: var(--font-maru), sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--sumi-deep);
+  margin-left: 0.5rem;
+}
+
+.kirie-task-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.kirie-task-time {
+  font-family: var(--font-sans), monospace;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--sumi-body);
+}
+
+/* 5. HUY HIỆU VIÊN THUỐC MÀU KHOÁNG IWA-ENOGU */
+.kirie-pill {
+  padding: 0.35rem 0.95rem;
+  border-radius: 9999px;
+  font-family: var(--font-maru), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.pill-due-now {
+  background: var(--kincha-gold);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(175, 126, 54, 0.3);
+}
+
+.pill-in-progress {
+  background: var(--aizome-surface);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(32, 52, 80, 0.3);
+}
+
+.pill-pending {
+  background: #D8AA80;
+  color: #2D1A0D;
+}
+
+.pill-not-started {
+  background: #B5C2CC;
+  color: #1E2E38;
+}
+
+.pill-blocked {
+  background: var(--aizome-navy);
+  color: #FFFFFF;
+}
+
+/* 6. THANH ĐIỀU HƯỚNG ĐÁY WASHI (BOTTOM NAVIGATION BAR - VIS-SYS-04) */
+.kirie-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(247, 244, 235, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1.2px solid var(--washi-border);
+  padding-top: 0.55rem;
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(0.55rem + env(safe-area-inset-bottom, 12px));
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 20px rgba(22, 37, 59, 0.08);
+}
+
+.kirie-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: var(--sumi-faint);
+  font-family: var(--font-maru), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 48px;
+  min-height: 48px;
+  justify-content: center;
+}
+
+.kirie-nav-item.active {
+  color: var(--aizome-navy);
+  font-weight: 800;
+}
+
+.kirie-nav-icon-box {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kirie-nav-item.active .kirie-nav-icon-box {
+  background: var(--aizome-navy);
+  color: var(--aizome-textLight);
+  box-shadow: 0 3px 10px rgba(22, 37, 59, 0.35);
+  transform: translateY(-2px);
+}
+
+@media (min-width: 769px) {
+  .kirie-bottom-bar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 12px));
+  }
+}
+
+/* ==========================================================================
+   TẦNG 6: TỐI ƯU HÓA HIỆU NĂNG RUNTIME & DI ĐỘNG (ZERO TAP DELAY)
+   Căn cứ: planning/06_PHASE_6_PERFORMANCE_OPTIMIZATION_AND_SRE.md (Mục 5.1)
+   ========================================================================== */
+.btn-srs-rating,
+.btn-karuta-action,
+button.karuta-btn {
+  touch-action: manipulation; /* Triệt tiêu độ trễ 300ms double-tap zoom trên Safari/Chrome Mobile */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* VIS-REV-05: Tactile press feedback — 60fps transform micro-animations */
+.btn-srs-rating:hover {
+  filter: brightness(1.06) saturate(1.08);
+  transform: translateY(-2px);
+}
+.btn-srs-rating:active {
+  transform: translateY(1px) scale(0.97);
+  filter: brightness(0.96);
+}
+.btn-srs-good:hover {
+  box-shadow: 0 2px 4px rgba(22, 37, 59, 0.10), 0 10px 24px -2px rgba(22, 37, 59, 0.35), 0 20px 44px -10px rgba(22, 37, 59, 0.20) !important;
+  transform: translateY(-3px) !important;
+}
+.btn-srs-good:active {
+  transform: translateY(0px) scale(0.97) !important;
+  box-shadow: 0 2px 8px rgba(22, 37, 59, 0.18) !important;
+}
+
+/* VIS-REV-06 & VIS-REV-07: Washi dropdown / modal slide-in animation (60fps GPU) */
+@keyframes washi-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes washi-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes washi-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ==========================================================================
+   HIGH-AESTHETIC CRAFTSMANSHIP & BENTO SYSTEM (Awwwards & Linear Tier)
+   Enforced via skills: high-aesthetic-designer & figma-design-bridge
+   ========================================================================== */
+
+/* 1. Asymmetric Bento Container */
+.bento-grid-container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.25rem;
+}
+
+.bento-col-12 { grid-column: span 12; }
+.bento-col-8  { grid-column: span 8; }
+.bento-col-7  { grid-column: span 7; }
+.bento-col-6  { grid-column: span 6; }
+.bento-col-5  { grid-column: span 5; }
+.bento-col-4  { grid-column: span 4; }
+
+@media (max-width: 900px) {
+  .bento-col-8,
+  .bento-col-7,
+  .bento-col-6,
+  .bento-col-5,
+  .bento-col-4 {
+    grid-column: span 12;
+  }
+}
+
+/* 2. Bento Card with 3-Layer Ambient Shadow & Translucent Micro-Border */
+.bento-card-artisan {
+  background: var(--washi-surface);
+  border: var(--border-micro);
+  border-radius: 18px;
+  box-shadow: var(--shadow-ambient-high);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-card-artisan:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover-lift);
+  border-color: rgba(200, 155, 88, 0.4);
+}
+
+/* 3. Micro-Typography & Editorial Text Hierarchy */
+.editorial-hero-title {
+  font-family: var(--font-mincho), serif;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.micro-badge-label {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+}
+
+/* 4. Glassmorphism Chat Drawer */
+.glass-drawer-surface {
+  background: rgba(250, 247, 242, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(18, 36, 56, 0.08);
+  box-shadow: -12px 0 40px rgba(18, 36, 56, 0.15);
+}
+
+/* 5. Smooth Pulse & Haptic Micro-Interaction */
+@keyframes senseiThinkingPulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.sensei-thinking-glow {
+  animation: senseiThinkingPulse 1.8s ease-in-out infinite;
+}
+
+
+
+/* ==========================================================================
+   JAPANESE GRAPHIC DESIGN IMPACT TYPOGRAPHY SYSTEM
+   Source: Reference image 16993f123e6add9422185049d288cd94.webp
+   Inspired by: Neo-Japanism bold condensed poster design + vertical katakana
+   Applied by: japanese-srs-uiux-designer & japanese-srs-craftsman skills
+   ========================================================================== */
+
+/* ------------------------------------------------------------------
+   1. BEBAS NEUE DISPLAY CLASS SYSTEM
+      「I DESIGN FOR GROWTH」→「GROWTH DESIGN」impact heading style
+      Ultra-condensed, all-caps, kerned tight, heavy weight
+   ------------------------------------------------------------------ */
+
+/* Hero XL Display — Full-screen section titles, review completion banners */
+.display-hero {
+  font-family: var(--font-display), 'Impact', 'Arial Black', sans-serif;
+  font-size: var(--display-size-hero);
+  font-weight: 400; /* Bebas Neue is already maximum weight at 400 */
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Large Display — Page hero headings, deck titles, stats panels */
+.display-lg {
+  font-family: var(--font-display), 'Impact', 'Arial Black', sans-serif;
+  font-size: var(--display-size-lg);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+/* Medium Display — Card section labels, progress milestones */
+.display-md {
+  font-family: var(--font-display), 'Impact', 'Arial Black', sans-serif;
+  font-size: var(--display-size-md);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Bebas Neue colored variants matching Nippon palette */
+.display-sumi     { color: var(--sumi-ink); }
+.display-torii    { color: var(--torii-red); }
+.display-matcha   { color: var(--matcha-deep); }
+.display-yamabuki { color: var(--yamabuki-amber); }
+.display-washi    { color: var(--washi-bg); } /* White/light on dark bg */
+
+/* ------------------------------------------------------------------
+   2. NOTO SANS JP HEAVY VERTICAL KATAKANA DECORATION
+      「デジタル」「クリスティ」style — bold vertical Japanese text
+      Appear as right-side or left-side decorative column text
+   ------------------------------------------------------------------ */
+
+/* Vertical Katakana XL — Hero side decoration (like the image right column) */
+.tategaki-kana-xl {
+  font-family: var(--font-noto), 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: var(--vertical-kana-size-xl);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--sumi-ink);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Vertical Katakana LG — Sub-labels, secondary side text */
+.tategaki-kana-lg {
+  font-family: var(--font-noto), 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: var(--vertical-kana-size-lg);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  color: var(--sumi-charcoal);
+  user-select: none;
+}
+
+/* Color modifier: Torii Red vertical decoration */
+.tategaki-kana-xl.kana-torii,
+.tategaki-kana-lg.kana-torii { color: var(--torii-red); }
+
+/* Color modifier: Matcha Green vertical decoration */
+.tategaki-kana-xl.kana-matcha,
+.tategaki-kana-lg.kana-matcha { color: var(--matcha-deep); }
+
+/* Color modifier: Yamabuki Gold vertical decoration */
+.tategaki-kana-xl.kana-yamabuki,
+.tategaki-kana-lg.kana-yamabuki { color: var(--yamabuki-amber); }
+
+/* Color modifier: White on dark backgrounds */
+.tategaki-kana-xl.kana-white,
+.tategaki-kana-lg.kana-white { color: rgba(255, 255, 255, 0.92); }
+
+/* ------------------------------------------------------------------
+   3. NOTO SANS JP BODY TEXT SYSTEM
+      Replaces system-fallback Japanese text rendering
+      Ensures correct glyph weight for hiragana/katakana/kanji
+   ------------------------------------------------------------------ */
+
+/* Japanese body text with Noto Sans JP for clean glyph rendering */
+.jp-body {
+  font-family: var(--font-noto), var(--font-maru), 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+}
+
+/* Japanese label — medium weight for UI labels, badges, pills */
+.jp-label {
+  font-family: var(--font-noto), var(--font-maru), 'Hiragino Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+}
+
+/* Japanese heading — 900 weight for section headings in Japanese */
+.jp-heading {
+  font-family: var(--font-noto), var(--font-mincho), 'Hiragino Sans', sans-serif;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* ------------------------------------------------------------------
+   4. COMBINED IMPACT LAYOUT PATTERNS
+      Composite patterns seen in the reference image
+   ------------------------------------------------------------------ */
+
+/* Bilingual hero stack: English Bebas Neue + Japanese Noto below */
+.hero-bilingual-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hero-bilingual-stack .en-display {
+  font-family: var(--font-display), 'Impact', sans-serif;
+  font-weight: 400;
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--sumi-ink);
+}
+
+.hero-bilingual-stack .jp-subtitle {
+  font-family: var(--font-noto), 'Hiragino Sans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  line-height: 1.4;
+  color: var(--sumi-charcoal);
+  letter-spacing: 0.02em;
+}
+
+/* Side Katakana Column Decoration (right-rail vertical text block) */
+.kana-side-rail {
+  position: absolute;
+  right: -0.5rem;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Review completion / mastery banner with Bebas Neue */
+.mastery-display-banner {
+  font-family: var(--font-display), 'Impact', sans-serif;
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: center;
+  background: linear-gradient(135deg, var(--torii-red) 0%, var(--yamabuki-amber) 50%, var(--matcha-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ------------------------------------------------------------------
+   5. RESPONSIVE ADJUSTMENTS
+      Mobile-first: scale down display text on small screens
+   ------------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+  .display-hero { font-size: clamp(2.5rem, 12vw, 4rem); }
+  .display-lg   { font-size: clamp(1.75rem, 8vw, 3rem); }
+  .display-md   { font-size: clamp(1.25rem, 5vw, 2rem); }
+
+  .hero-bilingual-stack .en-display  { font-size: clamp(2rem, 10vw, 3.5rem); }
+  .hero-bilingual-stack .jp-subtitle { font-size: clamp(0.9rem, 3.5vw, 1.2rem); }
+
+  /* Hide large vertical decorative kana on very small screens */
+  .tategaki-kana-xl { display: none; }
+  .tategaki-kana-lg { font-size: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mastery-display-banner {
+    background: var(--torii-red);
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: var(--torii-red);
+    background-clip: unset;
+  }
+}
+
+/* =========================================================================
+   DASHBOARD RESPONSIVE 2-COLUMN GRID (7:5 GOLDEN RATIO)
+   Ngăn chặn hoàn toàn tràn layout và bảo đảm hiển thị mượt mà trên mọi thiết bị
+   ========================================================================= */
+.dashboard-grid-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .dashboard-grid-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+
+/* ==========================================================================
+   BRITISH CLASSIC AESTHETICS (ENGLISH/IELTS MODE)
+   ========================================================================== */
+.english-mode {
+  --primary-color: #002147; /* Oxford Blue */
+  --secondary-color: #A3C1AD; /* Cambridge Blue */
+  --error-color: #990000; /* Crimson Red */
+  --bg-color: #FDFBF7; /* Parchment White */
+  --text-color: #4A4A4A; /* Tweed Gray */
+
+  --font-serif: 'Playfair Display', 'Crimson Text', serif;
+  --font-sans: 'Inter', 'Roboto', sans-serif;
+
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-sans);
+}
+
+.english-mode h1,
+.english-mode h2,
+.english-mode h3,
+.english-mode h4,
+.english-mode h5,
+.english-mode h6 {
+  font-family: var(--font-serif);
+  color: var(--primary-color);
+}
+
+.english-mode .british-border {
+  border: 3px double var(--primary-color);
+  padding: 1rem;
+}
+
+.english-mode .tartan-bg {
+  /* Simple placeholder for tartan background */
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,33,71,0.05) 10px, rgba(0,33,71,0.05) 20px);
+}
+
+/* ==========================================================================
+   TẦNG 8: MỸ HỌC THI ĐẤU KARUTA 3D (TRUE 3D PHYSICS FLIP & ZERO CLS)
+   Căn cứ: planning/09_PHASE_9_UI_UX_AUDIT_AND_COMPREHENSIVE_REDESIGN_PLAN.md
+   ========================================================================== */
+.karuta-3d-scene {
+  perspective: 1400px;
+  width: 100%;
+  min-height: 480px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.karuta-3d-card {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  position: relative;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.karuta-3d-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.karuta-3d-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(22, 37, 59, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.karuta-3d-front {
+  background: #FAF8F2;
+  border: 2px solid #AF7E36;
+  z-index: 2;
+  transform: rotateY(0deg);
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.karuta-3d-back {
+  background: linear-gradient(180deg, #FAF8F2 0%, #F7F4EB 100%);
+  border: 2px solid #485642;
+  transform: rotateY(180deg);
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem 1.75rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karuta-3d-card {
+    transition: none !important;
+  }
+}
+
+/* =========================================================================
+   KIOKUDO STUDIO NAVIGATION BAR STYLES (from kiokudo-studio.html)
+   ========================================================================= */
+.kiokudo-nav-top {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 24px 10px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: color-mix(in srgb, var(--washi-surface, #F7F4EB) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--washi-border, #CDBF9F);
+}
+
+.kiokudo-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans, system-ui), sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.22em;
+  color: var(--sumi-ink, #17130E);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.kiokudo-seal {
+  width: 32px;
+  height: 32px;
+  background: var(--bengara, #B8341F);
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mincho), serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  transform: rotate(-4deg);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px var(--bengara, #B8341F), inset 0 0 0 3px rgba(255, 255, 255, 0.5);
+  user-select: none;
+}
+
+.kiokudo-brand-text {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0.22em;
+}
+
+.kiokudo-menu-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  font-size: 0.86rem;
+  overflow-x: auto;
+}
+
+.kiokudo-menu-links li {
+  margin: 0;
+  padding: 0;
+}
+
+.kiokudo-menu-links a {
+  color: var(--sumi-faded, #6B6252);
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: var(--font-maru, sans-serif);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.kiokudo-menu-links a.active,
+.kiokudo-menu-links a:hover {
+  color: var(--sumi-ink, #17130E);
+  border-bottom-color: var(--bengara, #B8341F);
+}
+
+.kiokudo-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.kiokudo-cta-btn {
+  background: var(--sumi-deep, #17130E);
+  color: var(--washi-base, #EFE7D6);
+  padding: 7px 16px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  font-family: var(--font-sans), sans-serif;
+  border-radius: 2px;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.kiokudo-cta-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.kiokudo-cta-btn b {
+  font-family: var(--font-mincho), serif;
+  font-weight: 700;
+  color: var(--kincha-gold, #B8923F);
+  margin-right: 6px;
+  font-size: 0.95rem;
+}
+
+.kiokudo-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Thanh viên thuốc nổi trên Mobile */
+.kiokudo-pill-nav {
+  display: none;
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  background: var(--sumi-deep, #14100C);
+  border-radius: 34px;
+  padding: 6px 8px;
+  gap: 2px;
+  overflow-x: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.kiokudo-pill-nav a {
+  flex: 1;
+  min-width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #CFC4AB;
+  font-size: 0.62rem;
+  padding: 4px 0;
+  border-radius: 20px;
+  text-decoration: none;
+  font-family: var(--font-maru);
+  transition: all 0.2s ease;
+}
+
+.kiokudo-pill-nav a i {
+  font-family: var(--font-mincho), serif;
+  font-style: normal;
+  font-size: 1.15rem;
+  color: var(--kincha-shimmer, #D4AE5E);
+  line-height: 1.1;
+}
+
+.kiokudo-pill-nav a.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+}
+
+@media (max-width: 860px) {
+  .kiokudo-menu-links,
+  .kiokudo-cta-btn {
+    display: none !important;
+  }
+  .kiokudo-pill-nav {
+    display: flex;
+  }
+}
+
+/* ==========================================================================
+   KIOKUDO STUDIO & BÀN DÒ BÀI & CỔNG VĂN HÓA (FROM DOC HTML TEMPLATES)
+   ========================================================================== */
+:root {
+  --paper: #EFE7D6;
+  --paper2: #EDE4D0;
+  --card: #F7F1E3;
+  --ink: #17130E;
+  --sub: #6B6252;
+  --line: #CDBF9F;
+  --sand: #E6DCC5;
+  --rake: #B9AB8B;
+  --shu: #B8341F;
+  --gold: #B8923F;
+  --sumi: #14100C;
+  --ok: #3F6B3A;
+  --no: #B8341F;
+  --ai: #16263A;
+  --wood: rgba(70,48,24,.4);
+  --kin: #B8975A;
+  --brush: 'Yuji Boku', var(--font-mincho), serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ai: #0C1520;
+    --paper: #1A1611;
+    --paper2: #231E17;
+    --card: #231E17;
+    --ink: #EFE7D6;
+    --sub: #A59B87;
+    --line: #40382B;
+    --sand: #2A241C;
+    --rake: #4A4033;
+    --shu: #D9503A;
+    --gold: #D4AE5E;
+    --ok: #6FA36A;
+    --no: #D9503A;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ai: #0C1520;
+  --paper: #1A1611;
+  --paper2: #231E17;
+  --card: #231E17;
+  --ink: #EFE7D6;
+  --sub: #A59B87;
+  --line: #40382B;
+  --sand: #2A241C;
+  --rake: #4A4033;
+  --shu: #D9503A;
+  --gold: #D4AE5E;
+  --ok: #6FA36A;
+  --no: #D9503A;
+}
+
+/* CHUẨN XÁC 100% TỪ KIOKUDO-STUDIO.HTML LINES 14-27 */
+html { scroll-padding-top: calc(76px + env(safe-area-inset-top, 0px)); }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1rem/1.65 var(--font-sans), var(--sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .5;
+  background-image: repeating-linear-gradient(90deg, transparent 0 5px, rgba(120, 90, 50, .04) 5px 6px);
+  z-index: 0;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+nav.top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 20px 10px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 700 .78rem var(--font-sans), sans-serif;
+  letter-spacing: .2em;
+}
+.seal {
+  width: 32px;
+  height: 32px;
+  background: var(--shu);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font: 400 1.3rem var(--brush), var(--font-mincho), serif;
+  transform: rotate(-4deg);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px var(--shu), inset 0 0 0 3px rgba(255, 255, 255, .5);
+}
+nav.top ul {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  font-size: .84rem;
+  overflow-x: auto;
+}
+nav.top ul a {
+  color: var(--sub);
+  padding: 4px 0;
+  border-bottom: 1.5px solid transparent;
+  white-space: nowrap;
+}
+nav.top ul a.on, nav.top ul a:hover {
+  color: var(--ink);
+  border-color: var(--shu);
+}
+.cta {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 7px 16px;
+  font: 600 .82rem var(--font-sans), sans-serif;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.cta b {
+  font: 400 1rem var(--brush), var(--font-mincho), serif;
+  color: var(--gold);
+  margin-right: 5px;
+}
+.pill {
+  display: none;
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  background: var(--sumi);
+  border-radius: 34px;
+  padding: 6px 8px;
+  gap: 2px;
+  overflow-x: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+.pill a {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 56px;
+  color: #CFC4AB;
+  font-size: .6rem;
+  padding: 3px 0;
+  border-radius: 24px;
+}
+.pill a i {
+  font: 400 1.2rem/1.2 var(--brush), var(--font-mincho), serif;
+  font-style: normal;
+  color: var(--gold);
+}
+.pill a.on {
+  background: rgba(255, 255, 255, .1);
+}
+@media (max-width: 860px) {
+  nav.top ul, nav.top .cta { display: none; }
+  .pill { display: flex; }
+}
+
+main, #app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 98px 22px 120px;
+  position: relative;
+  z-index: 10;
+}
+
+.hd { display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; }
+.hd .e { font: 500 .7rem var(--font-sans), sans-serif; letter-spacing: .3em; color: var(--shu); text-transform: uppercase; }
+h1, #app h1, main h1, .studio-main h1 { margin: 2px 0 0; font: 700 clamp(1.6rem, 3.4vw, 2.4rem)/1.25 var(--font-mincho), serif; }
+h1 small, #app h1 small, main h1 small, .studio-main h1 small { font: 400 .8rem var(--font-sans), sans-serif; color: var(--sub); margin-left: 10px; }
+.meta { font-size: .82rem; color: var(--sub); }
+.meta b { color: var(--ink); }
+.box { background: var(--card); border: 1px solid var(--line); padding: 22px; position: relative; }
+.fr { box-shadow: 0 0 0 6px var(--paper), 0 0 0 7px var(--gold); }
+.row { display: grid; gap: 22px; }
+.r2 { grid-template-columns: 58fr 42fr; }
+.r3 { grid-template-columns: repeat(3, 1fr); }
+.r4 { grid-template-columns: repeat(4, 1fr); }
+.r55 { grid-template-columns: 60fr 40fr; }
+@media (max-width: 860px) {
+  .r2, .r3, .r55 { grid-template-columns: 1fr; }
+  .r4 { grid-template-columns: 1fr 1fr; }
+}
+.bar { height: 6px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--shu); transition: width .4s; }
+.btn { border: 1.5px solid var(--ink); background: none; padding: 10px 18px; font-weight: 600; font-size: .88rem; cursor: pointer; border-radius: 2px; }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn.p { background: var(--shu); border-color: var(--shu); color: #fff; box-shadow: inset 0 0 0 3px var(--shu), inset 0 0 0 4px rgba(255, 255, 255, .5); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.in, .sel { width: 100%; border: 1.5px solid var(--line); background: var(--paper); padding: 10px 12px; border-radius: 2px; outline: none; }
+.in:focus, .sel:focus { border-color: var(--gold); }
+label.l { display: block; font: 600 .68rem var(--font-sans), sans-serif; letter-spacing: .18em; color: var(--sub); margin: 14px 0 5px; text-transform: uppercase; }
+.chip { display: inline-block; border: 1.5px solid var(--line); padding: 4px 13px; border-radius: 20px; font-size: .8rem; cursor: pointer; background: none; margin: 0 6px 6px 0; }
+.chip.on { border-color: var(--shu); color: var(--shu); font-weight: 600; }
+.jp { font-family: var(--font-mincho), serif; }
+.sub { color: var(--sub); }
+.toast { position: fixed; left: 50%; top: calc(78px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 20px; border-radius: 3px; z-index: 50; font-size: .85rem; animation: tt 2.6s forwards; }
+@keyframes tt { 0% { opacity: 0; transform: translate(-50%, -10px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+
+/* karuta */
+.kt { max-width: 520px; margin: 0 auto; }
+.tile { background: var(--card); border: 2px solid var(--ink); outline: 1px solid var(--gold); outline-offset: -8px; padding: 34px 30px 26px; text-align: center; min-height: 420px; position: relative; box-shadow: 6px 8px 0 rgba(0, 0, 0, .18); }
+.tile .c { position: absolute; top: 0; right: 0; width: 46px; height: 46px; background: var(--shu); color: #fff; display: grid; place-items: center; font: 400 1.5rem var(--brush); }
+.tile .k { font: 700 3.4rem/1.2 var(--font-mincho), serif; }
+.tile .kana { font-size: 1.15rem; color: var(--sub); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.two div { border: 1px solid var(--line); padding: 8px; font-size: .85rem; }
+.two small { display: block; font-size: .62rem; letter-spacing: .14em; color: var(--sub); }
+.ctx { border-left: 3px solid var(--gold); background: var(--paper); padding: 10px 14px; text-align: left; font-size: .92rem; margin-top: 12px; }
+.gr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+.gr button { padding: 12px 4px; border: 1.5px solid var(--ink); background: var(--card); cursor: pointer; font-weight: 700; font-size: .85rem; }
+.gr button small { display: block; font-weight: 400; font-size: .7rem; color: var(--sub); }
+.gr button:hover { background: var(--ink); color: var(--paper); }
+.gr button:hover small { color: var(--paper); }
+.gr .a { border-color: var(--no); color: var(--no); }
+@media (max-width: 520px) { .gr { grid-template-columns: 1fr 1fr; } }
+
+/* table */
+.tb { overflow-x: auto; }
+.tb table { width: 100%; border-collapse: collapse; min-width: 720px; }
+.tb th { font: 600 .66rem var(--font-sans), sans-serif; letter-spacing: .14em; color: var(--sub); text-align: left; padding: 10px; border-bottom: 2px solid var(--ink); }
+.tb td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: .9rem; }
+.tb ruby { font: 700 1.4rem var(--font-mincho), serif; }
+.tb rt { font: 400 .6rem var(--font-sans), sans-serif; color: var(--sub); }
+.tag { font-size: .72rem; border: 1px solid var(--gold); color: var(--gold); padding: 1px 8px; border-radius: 12px; }
+.lnk { background: none; border: 0; color: var(--shu); font-weight: 600; font-size: .8rem; cursor: pointer; padding: 0 6px 0 0; }
+
+/* shodo */
+.pv { text-align: center; }
+.pv .k { font: 700 3rem/1.2 var(--font-mincho), serif; }
+.pv .m { background: var(--paper); border: 1px solid var(--line); padding: 10px; margin: 14px 0; text-align: left; font-size: .9rem; white-space: pre-line; }
+.cz { background: var(--gold); color: var(--sumi); padding: 0 6px; border-radius: 2px; }
+.cop { border: 1.5px dashed var(--gold); padding: 14px; margin-top: 16px; font-size: .88rem; background: var(--paper); }
+
+/* dojo */
+.big { font: 700 3.4rem/1.2 var(--font-mincho), serif; text-align: center; }
+.ans { display: flex; gap: 10px; margin-top: 16px; }
+.ans .in { font-size: 1.3rem; font-family: var(--font-mincho), serif; }
+.fb { margin-top: 14px; padding: 12px 14px; border-left: 4px solid var(--ok); background: var(--paper); font-size: .9rem; }
+.fb.x { border-color: var(--no); }
+.acc { display: grid; gap: 10px; margin-top: 8px; }
+.acc div { display: grid; grid-template-columns: 150px 1fr 44px; gap: 12px; align-items: center; font-size: .85rem; }
+
+/* grammar */
+.pat { border: 1px solid var(--line); background: var(--card); padding: 18px; border-top: 4px solid var(--shu); }
+.pat h4 { margin: 0 0 4px; font: 700 1rem var(--font-mincho), serif; }
+.pat p { margin: 4px 0; font-size: .85rem; color: var(--sub); }
+.pat .ex { font: 500 1rem var(--font-mincho), serif; color: var(--ink); }
+.opt { display: block; width: 100%; text-align: left; padding: 13px 16px; border: 1.5px solid var(--line); background: var(--card); margin-top: 10px; cursor: pointer; font-size: 1rem; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 18%, var(--card)); }
+.opt.no { border-color: var(--no); background: color-mix(in srgb, var(--no) 14%, var(--card)); }
+.rule { border-left: 3px solid var(--gold); padding-left: 14px; margin: 14px 0; }
+.bad { color: var(--no); text-decoration: line-through; }
+.good { color: var(--ok); font-weight: 600; }
+
+/* ielts / kura */
+.band { font: 700 2.6rem/1.1 var(--font-mincho), serif; }
+.band small { font: 400 .7rem var(--font-sans), sans-serif; letter-spacing: .2em; color: var(--sub); display: block; }
+.tip { display: none; font-size: .75rem; color: var(--sub); margin-top: 6px; }
+.hv:hover .tip { display: block; }
+.li { padding: 12px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; font-size: .9rem; }
+.li b { font-family: var(--font-mincho), serif; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); margin-right: 8px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 25%, transparent); animation: pl 2s infinite; }
+@keyframes pl { 50% { box-shadow: 0 0 0 8px transparent; } }
+.kv { display: grid; gap: 10px; }
+.kv div { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding-bottom: 8px; font-size: .9rem; }
+
+/* home gate */
+.gate { text-align: center; padding: 30px 0 10px; }
+.gate .hk { writing-mode: vertical-rl; font: 700 clamp(2rem, 5vw, 3.2rem)/1.5 var(--font-mincho), serif; margin: 0 auto; height: 340px; letter-spacing: .14em; text-align: left; }
+.en { background: #123524; color: #F3E9D2; padding: 50px 24px; text-align: center; box-shadow: 0 0 0 6px var(--paper), 0 0 0 7px var(--gold); border-top: 10px double #C9A24B; }
+.en .q { font: italic 500 clamp(1.8rem, 4.6vw, 3.2rem)/1.25 'Cormorant Garamond', Georgia, serif; }
+.en small { display: block; letter-spacing: .3em; font: 600 .7rem var(--font-sans), sans-serif; color: #C9A24B; margin-bottom: 16px; }
+.fk { font: 700 .8rem var(--font-sans), sans-serif; letter-spacing: .3em; }
+
+/* ===== BÀN DÒ BÀI (FUKUSHUU DESK) ===== */
+.dobai-view {
+  background-color: var(--ai);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.06'%3E%3Ccircle cx='20' cy='20' r='18'/%3E%3Ccircle cx='20' cy='20' r='12'/%3E%3Ccircle cx='20' cy='20' r='6'/%3E%3Ccircle cx='0' cy='10' r='18'/%3E%3Ccircle cx='0' cy='10' r='12'/%3E%3Ccircle cx='0' cy='10' r='6'/%3E%3Ccircle cx='40' cy='10' r='18'/%3E%3Ccircle cx='40' cy='10' r='12'/%3E%3Ccircle cx='40' cy='10' r='6'/%3E%3C/g%3E%3C/svg%3E");
+  border-radius: 4px;
+  padding: 26px 22px 38px;
+  color: #EDE5D2;
+  box-shadow: 0 0 0 6px var(--paper), 0 0 0 8px var(--gold), 0 20px 45px rgba(0, 0, 0, .22);
+  font-family: var(--font-maru), sans-serif;
+}
+.dobai-view .db-top { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; color: #EDE5D2; margin-bottom: 18px; }
+.dobai-view .db-brand { font: 400 1.7rem var(--brush); letter-spacing: .12em; }
+.dobai-view .db-brand small { font: 400 .8rem var(--font-maru), sans-serif; letter-spacing: 0; opacity: .7; margin-left: 8px; }
+.dobai-view .slots, .dobai-view .mode { display: flex; gap: 8px; }
+.dobai-view .slots { overflow-x: auto; padding: 2px; }
+.dobai-view .slots button, .dobai-view .mode button { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(237, 229, 210, .35); background: none; color: #EDE5D2; font: 400 1.35rem var(--brush); cursor: pointer; transition: all .2s; }
+.dobai-view .slots button[aria-pressed=true], .dobai-view .mode button[aria-pressed=true] { background: var(--shu); border-color: var(--shu); color: #fff; }
+.dobai-view .board { display: grid; grid-template-columns: minmax(0, 72fr) minmax(0, 28fr); gap: 22px; margin-top: 14px; }
+@media (max-width: 980px) { .dobai-view .board { grid-template-columns: 1fr; } }
+.dobai-view .scroll { position: relative; background: var(--paper); background-image: repeating-linear-gradient(90deg, transparent 0 3px, rgba(120, 90, 50, .035) 3px 4px); padding: 42px 28px 34px; box-shadow: 0 18px 40px rgba(0, 0, 0, .35); color: var(--ink); }
+.dobai-view .roll { position: absolute; left: -10px; right: -10px; height: 18px; border-radius: 9px; background: linear-gradient(#7A5632, #4C331B 55%, #6A4A28); box-shadow: 0 3px 6px rgba(0, 0, 0, .35); }
+.dobai-view .roll.t { top: -9px; }
+.dobai-view .roll.b { bottom: -9px; }
+.dobai-view .meta { display: flex; justify-content: space-between; gap: 10px; color: var(--sub); font-size: .85rem; margin-bottom: 6px; }
+.dobai-view .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; min-height: 340px; }
+@media (max-width: 640px) { .dobai-view .stage { grid-template-columns: 1fr; } .dobai-view .front { order: -1; } .dobai-view .scroll { padding: 36px 16px 28px; } }
+.dobai-view .front { position: relative; display: flex; align-items: center; justify-content: center; min-height: 300px; }
+.dobai-view .enso { position: absolute; width: min(300px, 90%); aspect-ratio: 1; transform: rotate(-100deg); }
+.dobai-view .enso circle { fill: none; stroke-linecap: round; }
+.dobai-view .enso .tr { stroke: var(--line); stroke-width: 3; opacity: .6; }
+.dobai-view .enso .pg { stroke: var(--ink); stroke-width: 7; stroke-dasharray: 289; transition: stroke-dashoffset .6s; }
+.dobai-view .kanji { writing-mode: vertical-rl; font: 700 4.4rem/1.15 var(--font-mincho), serif; position: relative; }
+.dobai-view .kanji rt { font: 500 1.05rem var(--font-maru), sans-serif; color: var(--sub); }
+.dobai-view .prompt { position: relative; text-align: center; font: 700 1.9rem/1.35 var(--font-maru), sans-serif; padding: 0 10px; color: var(--ink); }
+.dobai-view .prompt small { display: block; font: 400 .85rem var(--font-maru), sans-serif; color: var(--sub); margin-top: 8px; }
+.dobai-view .spk { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 20px; padding: 5px 14px; font: 500 .8rem var(--font-maru), sans-serif; cursor: pointer; }
+.dobai-view .ans-card { position: relative; overflow: hidden; border: 1.5px solid var(--line); background: var(--paper2); padding: 22px; display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 300px; color: var(--ink); }
+.dobai-view .ans-card b { font: 700 1.3rem var(--font-maru), sans-serif; }
+.dobai-view .ans-card .jp { font: 500 1.1rem/1.6 var(--font-mincho), serif; }
+.dobai-view .ans-card p { margin: 0; color: var(--sub); font-size: .92rem; }
+.dobai-view .ans-card .big { font: 700 2.6rem var(--font-mincho), serif; text-align: center; }
+.dobai-view .ans-card .kn { text-align: center; font-size: 1.2rem; color: var(--sub); }
+.dobai-view .shoji { position: absolute; inset: 0; background-color: var(--paper); background-image: linear-gradient(var(--wood) 2px, transparent 2px), linear-gradient(90deg, var(--wood) 2px, transparent 2px); background-size: 100% 25%, 33.34% 100%; display: flex; align-items: center; justify-content: center; transition: transform .55s cubic-bezier(.7, 0, .2, 1); }
+.dobai-view .shoji span { background: var(--paper); border: 1px solid var(--line); padding: 10px 14px; margin: 0 22px; font-size: .88rem; text-align: center; color: var(--sub); }
+.dobai-view .ans-card.open .shoji { transform: translateX(-101%); }
+.dobai-view .inc { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; margin-top: 18px; }
+.dobai-view .inc i { display: block; height: 100%; width: 100%; background: var(--shu); }
+.dobai-view .tm { min-height: 1.5em; margin-top: 6px; font-size: .88rem; color: var(--sub); }
+.dobai-view .tm b { color: var(--ink); }
+.dobai-view .rv-btn { width: 100%; margin-top: 6px; padding: 14px; border: 1.5px solid var(--ink); background: none; color: var(--ink); font: 700 1rem var(--font-maru), sans-serif; cursor: pointer; }
+.dobai-view .rv-btn:hover { background: var(--ink); color: var(--paper); }
+.dobai-view .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.dobai-view .acts button { min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; font: 700 1rem var(--font-maru), sans-serif; text-align: left; line-height: 1.25; }
+.dobai-view .acts i { font: 400 2rem var(--brush); font-style: normal; }
+.dobai-view .acts small { display: block; font: 400 .72rem var(--font-maru), sans-serif; opacity: .8; }
+.dobai-view .acts .no { background: none; border: 1.5px solid var(--ink); color: var(--ink); }
+.dobai-view .acts .ok { background: var(--shu); border: 1.5px solid var(--shu); color: #fff; border-radius: 3px; box-shadow: inset 0 0 0 3px var(--shu), inset 0 0 0 4px rgba(255, 255, 255, .55); }
+.dobai-view .acts button:disabled { opacity: .3; cursor: not-allowed; }
+.dobai-view .un { display: block; margin: 12px auto 0; border: 0; background: none; color: var(--sub); font: 500 .85rem var(--font-maru), sans-serif; text-decoration: underline; cursor: pointer; }
+.dobai-view .keys { margin-top: 10px; text-align: center; color: var(--sub); font-size: .78rem; }
+.dobai-view kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font: inherit; }
+.dobai-view .stamp { position: absolute; right: 14%; top: 26%; z-index: 5; width: 150px; height: 150px; border: 7px solid var(--shu); color: var(--shu); display: flex; align-items: center; justify-content: center; font: 400 6rem var(--brush); mix-blend-mode: multiply; animation: db_st .42s cubic-bezier(.2, 1.6, .4, 1) both; pointer-events: none; }
+.dobai-view .stamp.no { color: var(--sub); border-color: var(--sub); border-radius: 50%; background: none; }
+@keyframes db_st { from { transform: scale(2.3) rotate(0); opacity: 0; } to { transform: scale(1) rotate(-8deg); opacity: .92; } }
+.dobai-view .rail h2 { margin: 0 0 4px; color: #EDE5D2; font: 400 1.4rem var(--brush); letter-spacing: .1em; }
+.dobai-view .rail .sm { color: #EDE5D2; opacity: .65; font-size: .8rem; }
+.dobai-view .rail-bar { height: 14px; border-radius: 7px; margin-top: 14px; background: linear-gradient(#93A25F, #56672F); box-shadow: 0 3px 6px rgba(0, 0, 0, .35); }
+.dobai-view .strips { display: flex; flex-wrap: wrap; gap: 10px 12px; padding: 0 6px; }
+.dobai-view .tan { position: relative; margin-top: 28px; width: 62px; min-height: 156px; background: #FBF6EA; border: 1px solid #D8CDB0; border-top: 7px solid var(--ai); padding: 10px 4px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; color: #17140F; animation: db_sw .8s ease-out both; transform-origin: 50% -28px; }
+.dobai-view .tan::before { content: ""; position: absolute; left: 50%; top: -29px; height: 22px; border-left: 1.5px solid #8a7447; }
+.dobai-view .tan .t { writing-mode: vertical-rl; font: 700 1.25rem/1.2 var(--font-mincho), serif; }
+.dobai-view .tan .n { font-size: .68rem; color: var(--shu); text-align: center; line-height: 1.2; }
+.dobai-view .tan .v { font-size: .68rem; color: #6E6454; text-align: center; line-height: 1.2; }
+@keyframes db_sw { 0% { transform: rotate(-14deg); } 50% { transform: rotate(7deg); } 100% { transform: rotate(0); } }
+.dobai-view .emp { color: #EDE5D2; opacity: .6; font-size: .85rem; padding: 24px 4px 0; }
+.dobai-view .done { text-align: center; padding: 50px 10px; color: var(--ink); }
+.dobai-view .done .e { font: 400 6rem var(--brush); color: var(--shu); }
+.dobai-view .done h2 { font: 700 1.5rem var(--font-mincho), serif; margin: 6px 0; }
+.dobai-view .done button { margin-top: 14px; padding: 12px 24px; border: 1.5px solid var(--ink); background: none; color: var(--ink); font: 700 1rem var(--font-maru), sans-serif; cursor: pointer; }
+@media (max-width: 640px) { .dobai-view .keys { display: none; } .dobai-view .kanji { font-size: 3.6rem; } }
+
+/* ===== CỔNG VĂN HÓA (PORTAL & HONMARU) ===== */
+.portal-view { position: relative; }
+.portal-view .vein { position: fixed; left: 8px; top: 0; height: 100vh; width: 20px; z-index: 15; pointer-events: none; }
+.portal-view section { position: relative; padding: 60px 0; }
+.portal-view section.hero-sec { padding-top: 10px; }
+.portal-view .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 44px; align-items: center; }
+@media (max-width: 820px) { .portal-view .hero { grid-template-columns: 1fr; } }
+.portal-view .cap { font: 400 .85rem var(--font-sans), sans-serif; letter-spacing: .4em; color: var(--sub); margin-bottom: 20px; }
+.portal-view .cap b { font: 400 1.1rem var(--brush); letter-spacing: .3em; color: var(--shu); }
+.portal-view .frame { box-shadow: 0 0 0 7px var(--paper), 0 0 0 8px var(--gold), 0 24px 50px rgba(0, 0, 0, .18); background: var(--card); padding: 34px 30px; position: relative; }
+.portal-view .haiku { writing-mode: vertical-rl; font: 700 clamp(1.9rem, 4.2vw, 3.1rem)/1.5 var(--font-mincho), serif; height: min(52vh, 380px); margin: 0 auto; display: block; width: max-content; letter-spacing: .14em; }
+.portal-view .haiku p { margin: 0 0 0 18px; opacity: 0; animation: pv_ink 1.6s ease-out forwards; }
+.portal-view .haiku p:nth-child(2) { animation-delay: .9s; margin-top: 34px; }
+.portal-view .haiku p:nth-child(3) { animation-delay: 1.8s; margin-top: 68px; }
+@keyframes pv_ink { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: blur(0); } }
+.portal-view .tr { margin: 22px 0 0; text-align: center; color: var(--sub); font-size: .88rem; font-style: italic; }
+.portal-view .by { text-align: center; font-size: .75rem; letter-spacing: .18em; color: var(--gold); margin-top: 8px; }
+.portal-view .garden { width: 100%; display: block; border: 1px solid var(--line); box-shadow: 0 0 0 7px var(--paper), 0 0 0 8px var(--line); }
+.portal-view .garden .l { stroke: var(--rake); stroke-width: 1.4; fill: none; }
+.portal-view .garden .m { fill: var(--sand); }
+.portal-view .garden .r { fill: var(--ink); }
+.portal-view .garden .rg { stroke: var(--rake); stroke-width: 1.4; fill: none; }
+.portal-view .scrollhint { margin-top: 20px; font: 400 .7rem var(--font-sans), sans-serif; letter-spacing: .3em; color: var(--sub); text-align: center; }
+.portal-view .dark-section { background: var(--sumi); color: #EFE7D6; overflow: hidden; padding: 70px 24px; border-radius: 4px; margin: 40px 0; position: relative; }
+.portal-view .dark-section::before { content: ""; position: absolute; inset: 0; opacity: .9; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24'%3E%3Cg fill='none' stroke='%23D4AE5E' stroke-opacity='.13'%3E%3Ccircle cx='24' cy='24' r='22'/%3E%3Ccircle cx='24' cy='24' r='15'/%3E%3Ccircle cx='24' cy='24' r='8'/%3E%3Ccircle cx='0' cy='12' r='22'/%3E%3Ccircle cx='0' cy='12' r='15'/%3E%3Ccircle cx='0' cy='12' r='8'/%3E%3Ccircle cx='48' cy='12' r='22'/%3E%3Ccircle cx='48' cy='12' r='15'/%3E%3Ccircle cx='48' cy='12' r='8'/%3E%3C/g%3E%3C/svg%3E"); -webkit-mask-image: linear-gradient(90deg, #000, transparent 55%); mask-image: linear-gradient(90deg, #000, transparent 55%); }
+.portal-view .dark-section .eyebrow { color: #D4AE5E; }
+.portal-view .dark-section h2 em { color: #D4AE5E; }
+.portal-view .phil { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; position: relative; z-index: 1; }
+@media (max-width: 820px) { .portal-view .phil { grid-template-columns: 1fr; } }
+.portal-view .bowl { width: 100%; max-width: 380px; margin: auto; display: block; overflow: visible; cursor: pointer; }
+.portal-view .sh { fill: #241D16; stroke: #3a3126; stroke-width: 1.5; transition: transform 2.2s cubic-bezier(.2, .8, .2, 1); }
+.portal-view .sm { fill: none; stroke: #D4AE5E; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 2.4s ease-in-out 1.4s; filter: drop-shadow(0 0 5px rgba(212, 174, 94, .8)); }
+.portal-view .healed .sm { stroke-dashoffset: 0; }
+.portal-view .healed .sh { transform: none !important; }
+.portal-view .pt { border-left: 1.5px solid #D4AE5E; padding: 2px 0 2px 18px; margin: 0 0 24px; }
+.portal-view .pt h3 { margin: 0; font: 700 1.35rem var(--font-mincho), serif; }
+.portal-view .pt h3 small { font: 400 .8rem var(--font-sans), sans-serif; color: #D4AE5E; margin-left: 10px; letter-spacing: .1em; }
+.portal-view .pt p { margin: 6px 0 0; color: #C9BFA8; font-size: .95rem; }
+.portal-view .hint { font-size: .78rem; color: #8d836f; text-align: center; margin-top: 10px; }
+.portal-view .banner { display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; background: var(--card); border: 1px solid var(--line); padding: 26px 32px; box-shadow: 0 0 0 6px var(--paper), 0 0 0 7px var(--gold); }
+@media (max-width: 720px) { .portal-view .banner { grid-template-columns: 1fr; text-align: center; } .portal-view .banner svg { margin: auto; } }
+.portal-view .banner h3 { margin: 0 0 4px; font: 700 1.5rem var(--font-mincho), serif; }
+.portal-view .banner p { margin: 0; color: var(--sub); }
+.portal-view .go { display: inline-flex; align-items: center; gap: 12px; background: var(--shu); color: #fff; padding: 14px 26px; font: 700 .95rem var(--font-sans), sans-serif; letter-spacing: .1em; border-radius: 3px; box-shadow: inset 0 0 0 3px var(--shu), inset 0 0 0 4px rgba(255, 255, 255, .55); }
+.portal-view .go i { font: 400 1.7rem/1 var(--brush); font-style: normal; }
+.portal-view .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 22px 0; }
+@media (max-width: 820px) { .portal-view .stats { grid-template-columns: 1fr 1fr; } }
+.portal-view .stat { background: var(--card); border: 1px solid var(--line); padding: 18px; position: relative; overflow: hidden; }
+.portal-view .stat small { letter-spacing: .2em; font-size: .65rem; color: var(--sub); }
+.portal-view .stat b { display: block; font: 700 2.3rem/1.2 var(--font-mincho), serif; }
+.portal-view .stat span { font-size: .8rem; color: var(--sub); }
+.portal-view .stat .k { position: absolute; right: 8px; bottom: -14px; font: 400 5rem var(--brush); opacity: .09; }
+.portal-view .cols { display: grid; grid-template-columns: 58fr 42fr; gap: 26px; }
+@media (max-width: 900px) { .portal-view .cols { grid-template-columns: 1fr; } }
+.portal-view .panel { background: var(--card); border: 1px solid var(--line); padding: 24px; }
+.portal-view .panel h3 { margin: 0 0 14px; font: 600 .75rem var(--font-sans), sans-serif; letter-spacing: .25em; color: var(--sub); }
+.portal-view .q { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 16px 0; border-top: 1px solid var(--line); }
+.portal-view .q .n { font: 400 1.8rem var(--brush); color: var(--gold); width: 30px; }
+.portal-view .q .w { font: 700 1.5rem var(--font-mincho), serif; }
+.portal-view .q .w small { font: 400 .8rem var(--font-sans), sans-serif; color: var(--sub); margin-left: 8px; }
+.portal-view .q .e { font-size: .82rem; color: var(--sub); }
+.portal-view .q .s { font: 500 .7rem var(--font-sans), sans-serif; color: var(--shu); letter-spacing: .06em; }
+.portal-view .q a { border: 1.5px solid var(--ink); padding: 6px 14px; font-size: .78rem; font-weight: 600; white-space: nowrap; }
+.portal-view .q a:hover { background: var(--ink); color: var(--paper); }
+.portal-view .decks { display: flex; flex-direction: column; gap: 12px; }
+.portal-view .tan { display: flex; gap: 14px; align-items: center; background: var(--paper); border: 1px solid var(--line); border-left: 6px solid var(--ai, #16263A); padding: 12px 14px; }
+.portal-view .tan i { font: 700 1.5rem var(--font-mincho), serif; font-style: normal; width: 40px; text-align: center; }
+.portal-view .tan div { flex: 1; font-size: .88rem; line-height: 1.35; }
+.portal-view .tan small { color: var(--sub); display: block; font-size: .76rem; }
+.portal-view .tan a { font-size: .76rem; font-weight: 600; color: var(--shu); }
+.portal-view footer { padding: 50px 28px 20px; text-align: center; color: var(--sub); font-size: .85rem; }
+.portal-view footer .f { font: 700 1.3rem var(--font-mincho), serif; color: var(--ink); letter-spacing: .3em; margin-bottom: 10px; }
+.portal-view .rv-item { opacity: 0; transform: translateY(26px); transition: all 1s ease; }
+.portal-view .rv-item.on { opacity: 1; transform: none; }
+
+
+
