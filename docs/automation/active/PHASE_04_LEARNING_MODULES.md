@@ -2,7 +2,7 @@
 
 > **BẢN ĐIỀU PHỐI ĐANG HOẠT ĐỘNG / ACTIVE 5-PHASE PLAN — 09/10/2026**
 >
-> Trọng số: **12/45 điểm**. Lượt chạy: **4/5**. Tài liệu điều phối duy nhất: [AUTOMATION_5_HOUR_PLAN](../../../AUTOMATION_5_HOUR_PLAN.md).
+> Trọng số: **12/45 điểm**. Lượt chạy: **4/5**. Tài liệu điều phối duy nhất: [AUTOMATION_5_HOUR_PLAN](../../AUTOMATION_5_HOUR_PLAN.md).
 > Phiên lập lịch là một phiên thực thi ưu tiên, **không phải cam kết hoàn thành tất cả tiêu chí trong một giờ**. Các phần chưa có bằng chứng cần giữ ở PARTIAL/BLOCKED. Dữ liệu production không được truy cập, không merge/deploy tự động.
 
 ## I. Chỉ thị mới cho lần chạy này
