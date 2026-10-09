@@ -1,0 +1,34 @@
+name: Phase 4 one-time faithful legacy artwork import
+on:
+  push:
+    branches: [migration/phase4-ui-fidelity]
+permissions:
+  contents: write
+jobs:
+  preserve-original-art:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Kiokudo Web migration branch
+        uses: actions/checkout@v4
+        with:
+          ref: migration/phase4-ui-fidelity
+          persist-credentials: true
+      - name: Checkout locked original UI assets
+        uses: actions/checkout@v4
+        with:
+          repository: egbertbritannia-cpu/japanese-srs-system
+          ref: 3348f4ee49c9539fb9ea60c96e42833811c325ca
+          path: .source-kiokudo
+          persist-credentials: false
+      - name: Import exact original artwork and PWA manifest
+        run: |
+          mkdir -p public/assets/art
+          cp -a .source-kiokudo/public/assets/art/. public/assets/art/
+          cp .source-kiokudo/public/manifest.json public/manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/art public/manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(web): preserve original Kiokudo art files without redesign"
+            git push origin HEAD:migration/phase4-ui-fidelity
+          fi
