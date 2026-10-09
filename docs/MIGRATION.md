@@ -28,3 +28,12 @@ CI pins the separate Core repository to revision
 Cross-repo CI verifies the original BFF integration flow; the Web visual-fidelity test checks unchanged source blob SHA values.
 
 Never put Turso credentials or database snapshots in GitHub or chat, and do not touch the old production Vercel project.
+
+## Phase 4B read-only Grammar/IELTS contract
+
+See [Phase 4B data contract and write-safety matrix](PHASE4B_GRAMMAR_IELTS.md).
+Original Grammar and IELTS JSX/component designs were imported. Grammar/IELTS
+staging GETs are supported by Core (pinned commit `67682872d78f37559e4c9e9d109c5c8320d418c1`);
+all learner-progress/score/session writes remain intentionally blocked and
+public deployments still cannot call Core. The original 316-card fixture
+contains no Grammar/IELTS tables; those pages need a dedicated staging schema.

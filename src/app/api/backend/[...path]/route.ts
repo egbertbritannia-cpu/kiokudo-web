@@ -4,7 +4,17 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 type Context = { params: Promise<{ path: string[] }> };
-const allowlist = new Set(['api/v1/cards', 'api/v1/status']);
+const allowlist = new Set([
+  'api/v1/cards','api/v1/status',
+  'api/v1/grammar','api/v1/grammar/practice',
+  'api/v1/ielts/dashboard','api/v1/ielts/materials','api/v1/ielts/sessions',
+  'api/v1/ielts/vocab','api/v1/ielts/mistakes',
+]);
+function isAllowedReadRoute(route:string):boolean {
+  return allowlist.has(route) ||
+    /^api\/v1\/grammar\/[A-Za-z0-9_-]{1,128}$/.test(route) ||
+    /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}$/.test(route);
+}
 
 /**
  * Phase 3 local staging gateway — read-only only.
@@ -44,7 +54,7 @@ async function forward(request: NextRequest, context: Context): Promise<Response
   }
   const {path} = await context.params;
   const route = Array.isArray(path) ? path.join('/') : '';
-  if (!allowlist.has(route)) {
+  if (!isAllowedReadRoute(route)) {
     return Response.json({error:'route_not_migrated'}, {status:404});
   }
   const raw = process.env.KIOKUDO_CORE_URL;

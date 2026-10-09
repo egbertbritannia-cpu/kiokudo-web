@@ -72,3 +72,34 @@ test('BFF fails closed if missing service credential',async()=>{
     assert.equal(r.status,503);
   });
 });
+
+test('Phase4B BFF forwards only whitelisted Grammar and IELTS GETs',async()=>{
+ await withEnv(async()=>{
+  const old=globalThis.fetch;
+  const seen:string[]=[];
+  globalThis.fetch=async(url,init)=>{
+    seen.push(String(url));
+    assert.equal(init?.method,'GET');
+    assert.equal(new Headers(init?.headers).get('authorization'),`Bearer ${token}`);
+    return new Response(JSON.stringify({success:true,data:[]}),{status:200,headers:{'content-type':'application/json'}});
+  };
+  try{
+   for(const path of [
+     ['grammar'],['grammar','practice'],['grammar','lesson8'],
+     ['ielts','dashboard'],['ielts','materials'],['ielts','sessions'],
+     ['ielts','sessions','session_123'],['ielts','vocab'],['ielts','mistakes'],
+   ]){
+     const params=['api','v1',...path];
+     const r=await GET(req('GET','http://localhost:3000/api/backend/'+params.join('/')),ctx(...params));
+     assert.equal(r.status,200,params.join('/'));
+   }
+   assert.equal(seen.length,9);
+   const bad=await GET(req(),ctx('api','v1','ielts','admin'));
+   assert.equal(bad.status,404);
+   const hostile=await GET(req(),ctx('api','v1','grammar','..'));
+   assert.equal(hostile.status,404);
+   const write=await POST(req('POST'),ctx('api','v1','ielts','sessions'));
+   assert.equal(write.status,405);
+  }finally{globalThis.fetch=old;}
+ });
+});
