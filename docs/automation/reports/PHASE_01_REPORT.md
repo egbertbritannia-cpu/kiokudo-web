@@ -32,4 +32,6 @@ A pure `src/lib/bff-read-policy.ts` helper exists on the P01 branch, but it is *
 
 P02 must keep browser review POST disabled. It may build a persistent offline queue and stable eventId contract in isolated tests, but cannot send real writes until authenticated principal and owner mapping are proven. Core review API supports eventId/cardId/rating/reviewedAt; legacy Web offline sync still targets `/api/review` rather than authenticated Core BFF. No fake review history, no production DB operations.
 
+**PR status:** No pull request was opened: the connected write action rejected the PR creation attempt. Branch is available for manual review. No new branch CI run is claimed.
+
 **Release:** NO-GO. Requires identity-provider decision, ownership strategy, real staging verification and snapshot parity.
