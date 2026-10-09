@@ -1,46 +1,30 @@
-# Kiokudo Web — Phase 3 migration status
+# Kiokudo Web — Phase 4A migration status
 
-Source baseline: `egbertbritannia-cpu/japanese-srs-system`, commit `3348f4ee49c9539fb9ea60c96e42833811c325ca`.
+The user-approved direction is **frontend/backend separation with exact existing visual design**. No redesign is authorized.
 
-## Implemented
+- Complete: copied Studio, Culture, Cards, Karuta Review, Do Bai, local Conjugation, the original nav/CSS, all art assets and retained HTML demos into Web.
+- Complete: real data read-only Cards Library and Review list connect through existing local-only `GET /api/backend/api/v1/cards` BFF.
+- Complete: original sample-based Studio/Do Bai remain clearly identified as prototypes.
+- Complete: review writes blocked in FE, no false offline event queuing; Add Card stays decommissioned.
+- Complete: art/source blob SHA visual-fidelity checks added.
+- Pending: screenshot comparisons and dynamic flows, authenticated review mutations, offline replay, real database integration, full Grammar/JPD133/IELTS/integrations, deployed staging, production cutover.
 
-- Next.js app and three unchanged HTML UI demos + gallery.
-- A **local-only** read-only BFF allowlisting `GET /api/v1/cards` and `GET /api/v1/status`, forwarding a server-held service token.
-- `/staging/cards`: renders card IDs/decks/content returned by real Core staging API; not fake data.
-- All review/card mutation methods through this BFF are deliberately disabled (405).
-- When not in Node development mode on localhost, or when `KIOKUDO_STAGING_READ_ENABLED` is not true, BFF returns 503.
+## Local staging read test
 
-## Try the integration locally
+1. In `kiokudo-core`: install deps, run `npm run staging:local -- seed ./staging-rehearsal.db`.
+2. Configure Core `.env`: long random `KIOKUDO_SERVICE_TOKEN`,
+   `KIOKUDO_DATABASE_SCOPE=staging`, `KIOKUDO_DATABASE_URL=file:./staging-rehearsal.db`,
+   `KIOKUDO_EXPECTED_STAGING_MARKER=kiokudo-local-json-fixture-not-production-v1`.
+3. Start Core `npm run dev` on local port 4000.
+4. In Web `.env.local`: set `KIOKUDO_STAGING_READ_ENABLED=true`,
+   `KIOKUDO_CORE_URL=http://127.0.0.1:4000`,
+   and `KIOKUDO_CORE_SERVICE_TOKEN` to the same private random token.
+5. Start Web `npm run dev`; use `/cards`, `/review`, `/staging/cards` and `/`.
+6. Cards list should show 316 `fixture_*` rehearsal entries from the seeded data,
+   **not** current learner progress. Review grade attempts are disabled.
 
-1. In Core: `npm install` and `npm run staging:local -- seed ./staging-rehearsal.db`.
-2. In Core `.env`, set `KIOKUDO_SERVICE_TOKEN` to a long random secret,
-   `KIOKUDO_DATABASE_SCOPE=staging`, `KIOKUDO_DATABASE_URL=file:./staging-rehearsal.db`,\n   and `KIOKUDO_EXPECTED_STAGING_MARKER=kiokudo-local-json-fixture-not-production-v1`.\n   Core reads this identity marker from the freshly seeded local SQLite file\n   before accepting API requests; never reuse the fixture marker for Turso.
-3. Start Core with `npm run dev` on `http://127.0.0.1:4000`.
-4. In Web `.env.local`, set `KIOKUDO_STAGING_READ_ENABLED=true`,
-   `KIOKUDO_CORE_URL=http://127.0.0.1:4000` and
-   `KIOKUDO_CORE_SERVICE_TOKEN` to the SAME random secret.
-5. Start Web with `npm run dev`; visit `http://localhost:3000/staging/cards`.
-6. UI should display 316 fixture cards and 2 decks with `fixture_*` IDs.
-   These are rehearsal cards, NOT current production progress.
+CI pins the separate Core repository to revision
+`74ecba7b43a379a7acaf968ef70023fc7373bc74`.
+Cross-repo CI verifies the original BFF integration flow; the Web visual-fidelity test checks unchanged source blob SHA values.
 
-Do not commit either `.env` file. Use two dedicated dev terminals. The fixture
-SQLite contains only the 3 minimal entities and must not be mistaken for a full Turso migration.
-
-## Still blocked / not done
-
-- No export of real production Turso data, no verified staging Turso credentials, no schema migration of all live tables.
-- No browser-accessible production API, no live FSRS scoring from the new FE.
-- No public Vercel staging deployment or Vercel Authentication check performed.
-- No actual backend deployment to cloud.
-- Grammar special-case, IELTS and integrations remain on legacy.
-- No cutover or changes to the legacy GitHub repo / production deployment.
-
-**Do not enable read-only BFF outside local development until user authentication and full trust boundary are audited.**
-
-## CI cross-repository version policy
-
-The Web smoke test checks out Core at an **explicit SHA**
-(`74ecba7b43a379a7acaf968ef70023fc7373bc74`, DB identity guard/FSRS parity).
-This keeps Web CI reproducible across unrelated Core commits. Bump only
-in a dedicated PR with an actual cross-repo staging smoke PASS.
-This protects CI, not production deployment versioning.
+Never put Turso credentials or database snapshots in GitHub or chat, and do not touch the old production Vercel project.
