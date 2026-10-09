@@ -20,6 +20,7 @@ Assets were copied from the pinned legacy commit in a one-time GitHub Actions mi
 | `/culture` | Exact original page | Original presentation | No new APIs |
 | `/conjugation` | Original page/engine | Local JSON verbs | Local conjugation drill preserved |
 | `/cards/new` | Original decommissioned page | None | Does not restore Add Card |
+| `/curriculum/jpd133` and `/[slot]` | Exact legacy JSX, source manifest | Bundled original JPD133 JSON | Eight curriculum recovery slots; Dò bài links go to existing prototype, not DB-backed review |
 | `/ui-demos/` | Exact original HTML files | Local static assets | Gallery remains available |
 | `/staging/cards` | Existing Phase 3 diagnostics inspector | local-only GET | Read-only |
 
