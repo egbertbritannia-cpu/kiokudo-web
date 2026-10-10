@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { isAllowedReadQuery, isAllowedReadRoute } from '@/lib/bff-read-policy';
+import { sessionFromCookieHeader, signCoreOwnerAssertion } from '@/lib/owner-auth-server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -53,6 +54,12 @@ async function forward(request: NextRequest, context: Context): Promise<Response
   if (!isAllowedReadQuery(route, request.nextUrl.search)) {
     return Response.json({error:'invalid_query'}, {status:400});
   }
+  const owner = sessionFromCookieHeader(request.headers.get('cookie'));
+  if (!owner) {
+    return Response.json({error:'authentication_required',loginUrl:'/login'}, {
+      status:401,headers:{'cache-control':'no-store'},
+    });
+  }
   const raw = process.env.KIOKUDO_CORE_URL;
   const token = process.env.KIOKUDO_CORE_SERVICE_TOKEN;
   if (!raw || !token || token.length < 24 || token.startsWith('replace-')) {
@@ -63,8 +70,15 @@ async function forward(request: NextRequest, context: Context): Promise<Response
   catch {return Response.json({error:'backend_url_invalid'}, {status:503});}
   target.pathname = '/' + route;
   target.search = request.nextUrl.search;
+  let assertion: string;
+  try {
+    assertion = signCoreOwnerAssertion(owner, 'GET', target.pathname + target.search);
+  } catch {
+    return Response.json({error:'owner_auth_not_configured'}, {status:503});
+  }
   const headers = new Headers({
-    authorization: `Bearer ${token}`,
+    authorization: 'Bearer ' + token,
+    'x-kiokudo-owner-assertion': assertion,
     accept:'application/json',
   });
   const requestId=request.headers.get('x-request-id');
