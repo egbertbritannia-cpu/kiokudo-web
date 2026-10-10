@@ -16,13 +16,28 @@ type Context = { params: Promise<{ path: string[] }> };
 function isAllowedStagingRead(request: NextRequest): boolean {
   return isStagingReadEnabled(request.nextUrl.hostname);
 }
+// An explicit server-only opt-in is required for every mutation, in addition to
+// Core's independent write flag, signed principal and verified staging marker.
+function isAllowedStagingWrite(method: string, route: string): boolean {
+  if (process.env.KIOKUDO_WEB_STAGING_WRITES_ENABLED !== 'true') return false;
+  if (method === 'POST') {
+    if (['api/v1/reviews','api/v1/reviews/batch','api/v1/grammar/practice/attempts',
+      'api/v1/ielts/sessions','api/v1/ielts/mistakes','api/v1/ielts/vocab'].includes(route)) return true;
+    if (/^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/submit$/.test(route)) return true;
+  }
+  return method === 'PUT' && /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/draft$/.test(route);
+}
 async function forward(request: NextRequest, context: Context): Promise<Response> {
   // Gate runs before even looking up the backend secret.
   if (!isAllowedStagingRead(request)) {
     return Response.json({error:'staging_preview_disabled'}, {status:503});
   }
-  if (request.method !== 'GET') {
+  const isRead = request.method === 'GET';
+  if (!isRead && !['POST','PUT'].includes(request.method)) {
     return Response.json({error:'method_not_allowed'}, {status:405});
+  }
+  if (!isRead && !hasTrustedRequestOrigin(request)) {
+    return Response.json({error:'forbidden_origin'}, {status:403});
   }
   const origin = request.headers.get('origin');
   if (origin && !hasTrustedRequestOrigin(request)) {
@@ -38,10 +53,10 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     return Response.json({error:'invalid_route'}, {status:400});
   }
   const route = path.join('/');
-  if (!isAllowedReadRoute(route)) {
-    return Response.json({error:'route_not_migrated'}, {status:404});
+  if (isRead ? !isAllowedReadRoute(route) : !isAllowedStagingWrite(request.method,route)) {
+    return Response.json({error:isRead?'route_not_migrated':'staging_write_disabled'}, {status:isRead?404:403});
   }
-  if (!isAllowedReadQuery(route, request.nextUrl.search)) {
+  if (isRead ? !isAllowedReadQuery(route, request.nextUrl.search) : Boolean(request.nextUrl.search)) {
     return Response.json({error:'invalid_query'}, {status:400});
   }
   const owner = sessionFromCookieHeader(request.headers.get('cookie'));
@@ -62,7 +77,7 @@ async function forward(request: NextRequest, context: Context): Promise<Response
   target.search = request.nextUrl.search;
   let assertion: string;
   try {
-    assertion = signCoreOwnerAssertion(owner, 'GET', target.pathname + target.search);
+    assertion = signCoreOwnerAssertion(owner, request.method, target.pathname + target.search);
   } catch {
     return Response.json({error:'owner_auth_not_configured'}, {status:503});
   }
@@ -77,8 +92,22 @@ async function forward(request: NextRequest, context: Context): Promise<Response
   }
 
   try {
+    let body: string | undefined;
+    if (!isRead) {
+      if (!(request.headers.get('content-type') ?? '').toLowerCase().startsWith('application/json')) {
+        return Response.json({error:'unsupported_media_type'}, {status:415});
+      }
+      body = await request.text();
+      if (new TextEncoder().encode(body).byteLength > 128_000) {
+        return Response.json({error:'body_too_large'}, {status:413});
+      }
+      try { const parsed = JSON.parse(body); if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('bad'); }
+      catch { return Response.json({error:'invalid_json_body'}, {status:400}); }
+      headers.set('content-type','application/json');
+    }
     const upstream=await fetch(target.toString(),{
-      method:'GET',headers,cache:'no-store',redirect:'manual',signal:AbortSignal.timeout(15000),
+      method:request.method,headers,body,cache:'no-store',
+      redirect:'manual',signal:AbortSignal.timeout(15000),
     });
     if (upstream.status>=300 && upstream.status<400) {
       return Response.json({error:'upstream_redirect_refused'}, {status:502});
