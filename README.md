@@ -1,6 +1,6 @@
 # 記憶道 — Kiokudo Web
 
-Next.js frontend for Japanese curriculum practice, Dò bài, Grammar, JPD133, culture and IELTS, with an authenticated staging BFF.
+Next.js frontend for Japanese curriculum practice, Dò bài, Grammar, JPD133, culture and IELTS, with a private, owner-scoped staging BFF.
 
 ## Removed: Add Card and Flashcard Review (2026-10-10)
 
@@ -17,7 +17,7 @@ A compact, round, icon-only **SystemSwitcher** sits in the navbar on desktop and
 - The root Japanese navbar does **not** render on IELTS routes; the existing IELTS navbar includes the same shared switcher instead. This prevents stacked navbars.
 - Legacy `/#/ielts`, `/#/ielts/session`, and `/#/ielts/review` links redirect to their canonical IELTS pages. Other retired IELTS hash subroutes fall back to `/ielts`.
 - The obsolete JA/EN banner-only toggle on the Japanese Home screen is retired to avoid two competing system switchers.
-- No backend, database, authentication, flashcard or learning-session logic changes were made as part of the navigation migration.
+- The UI does not require app login: `/login` now redirects to Japanese Home and `/ielts` is not protected by the old page middleware. See **Login-free access** below for the separate data gate.
 
 Shared routing helpers: `src/lib/system-routes.ts`; routing tests: `tests/system-switcher-routing.test.ts`.
 
@@ -31,6 +31,17 @@ npm test
 npm run build
 ```
 
-`/api/auth/login`, `/api/auth/logout`, and `/api/auth/session` handle the single-owner session. The BFF at `/api/backend/api/v1/*` allows only retained staging Grammar, curriculum and IELTS routes with signed Core owner assertions and explicit write gates. A production deployment and actual staging data acceptance require operator verification; successful CI with synthetic fixtures is not production acceptance.
+## Login-free access
+
+**No application login screen:** Japanese studio `/#/` and IELTS `/ielts`, `/ielts/session` and `/ielts/review` can be opened directly and switched using the round navbar icon. The old `/login` URL redirects home.
+
+**Backend privacy remains separate:** Without an app login, anyone able to access a publicly hosted URL could read or change learning records if the backend were made open. The BFF therefore denies no-cookie Core data requests by default on public hosts (`403 private_data_access_disabled`), but keeps the UI usable. No automatic scores or fake data are used as a substitute.
+
+- **Local development:** `KIOKUDO_LOGINLESS_LOCAL_ENABLED=true` allows localhost/127.0.0.1 to use the configured `KIOKUDO_OWNER_SUBJECT` for signed BFF→Core requests. Requires normal Core staging read/config gates; use `false` on a shared development machine.
+- **Private hosted installation:** Only AFTER separately protecting the entire deployment at the edge so nobody else can access it, set both `KIOKUDO_LOGINLESS_PRIVATE_MODE=true` and `KIOKUDO_PRIVATE_INGRESS_VERIFIED=true`, and pin `KIOKUDO_WEB_PUBLIC_ORIGIN` to the exact HTTPS host. **These environment flags are operator assertions, NOT security controls. They must never be enabled on a public/unprotected site.**
+- **Public/unprotected installation:** The navigation works without login, but staging/Core read/write requests without a valid legacy signed session are denied. Do not opt in to loginless private BFF data access on such a deployment.
+- Existing signed session/auth endpoints remain in the code for legacy compatibility; they are not part of normal navigation and the password form is removed. No Core secrets are exposed in the browser. Existing Core service token, signed method/path owner assertion, allowlist, staging provenance, CSRF checks and separate write gates remain in force.
+
+The BFF at `/api/backend/api/v1/*` only allows retained staging Grammar, curriculum and IELTS routes with signed Core owner assertions and explicit write gates. Production deployment and staging data acceptance still require operator verification; synthetic fixtures are not production acceptance.
 
 For current API details see `docs/API_ENDPOINTS.yaml`; legacy migration documentation may refer to retired FSRS workflows for historical audit only.
