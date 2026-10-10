@@ -22,7 +22,7 @@ import {
   syncPendingReviewsToServer,
 } from '@/lib/offline-db';
 import { JapaneseAudioPool } from '@/lib/audio-pool';
-import { activeReviewOwner, stageReview, pendingReviewCount, replayStoredReviews, cancelNeverSentReview } from '@/lib/fsrs-browser-replay';
+import { activeReviewOwner, stageReview, pendingReviewCount, replayStoredReviews, cancelNeverSentReview, undoAcknowledgedReview } from '@/lib/fsrs-browser-replay';
 import { KanjiStrokePlayer } from '@/components/showcase/KanjiStrokePlayer';
 
 interface CardItem {
@@ -379,10 +379,13 @@ function ReviewSessionContent() {
   const handleUndo = useCallback(async ()=>{
     const lastItem=reviewHistory[reviewHistory.length-1];
     if(!lastItem)return;
-    const cancelled=await cancelNeverSentReview(lastItem.ownerKey,lastItem.eventId);
+    let cancelled=await cancelNeverSentReview(lastItem.ownerKey,lastItem.eventId);
     if(!cancelled){
-      setUndoToast('Sự kiện đã gửi/đang gửi; cần Core undo API trước khi hoàn tác.');
-      return;
+      cancelled=await undoAcknowledgedReview(lastItem.ownerKey,lastItem.eventId);
+      if(!cancelled){
+        setUndoToast('Không thể xác nhận hoàn tác từ Core; giữ nguyên lịch sử.');
+        return;
+      }
     }
     setReviewHistory(prev=>prev.slice(0,-1));
     setCurrentIdx(lastItem.cardIdx);
@@ -391,7 +394,7 @@ function ReviewSessionContent() {
     setGradesCount(prev=>({...prev,[lastItem.grade]:Math.max(0,prev[lastItem.grade]-1)}));
     setUnsyncedCount(await pendingReviewCount(lastItem.ownerKey));
     japaneseAudio.playWashiPaper();
-    setUndoToast('Đã hủy sự kiện chưa gửi.');
+    setUndoToast('Đã hoàn tác an toàn (Core hoặc sự kiện chưa gửi).');
   },[reviewHistory]);
 
   // Phím tắt thông minh: Space để lật, 1-4 để chấm điểm, Z để hoàn tác
