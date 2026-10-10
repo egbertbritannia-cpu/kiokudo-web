@@ -164,9 +164,6 @@ export default function KiokudoStudioPage() {
   const [ieltsNewName, setIeltsNewName] = useState('');
   const [ieltsNewScore, setIeltsNewScore] = useState<number | ''>('');
 
-  // Kura state
-  const [kuraLatency, setKuraLatency] = useState(42);
-
   // Dobai state trong Studio
   const [dobaiSlot, setDobaiSlot] = useState(0);
   const [dobaiMode, setDobaiMode] = useState<'fw' | 'rv'>('fw');
@@ -203,7 +200,7 @@ export default function KiokudoStudioPage() {
       }
       const h = window.location.hash.replace(/^#\/?/, '');
       const [n, a] = h.split('/');
-      if (['karuta','cards','shodo'].includes(n)) {
+      if (['karuta','cards','shodo','kura'].includes(n)) {
         window.location.hash = '#/';
         setTab('');
         return;
@@ -460,21 +457,12 @@ export default function KiokudoStudioPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [tab, dobaiRev, dobaiBusy, dobaiSt]);
 
-  // Kura latency ticker
-  useEffect(() => {
-    if (tab !== 'kura') return;
-    const interval = setInterval(() => {
-      setKuraLatency(38 + Math.floor(Math.random() * 9));
-    }, 1800);
-    return () => clearInterval(interval);
-  }, [tab]);
-
   const goToTab = (t: string) => {
     if (t === 'ielts') {
       window.location.assign('/ielts');
       return;
     }
-    if (['karuta','cards','shodo'].includes(t)) return;
+    if (['karuta','cards','shodo','kura'].includes(t)) return;
     window.location.hash = `#/${t}`;
     setTab(t);
     window.scrollTo(0, 0);
@@ -1211,56 +1199,7 @@ export default function KiokudoStudioPage() {
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* 12. ROUTE KURA */}
-      {/* ============================================================== */}
-      {tab === 'kura' && (
-        <div>
-          <div className="hd">
-            <div>
-              <div className="e">蔵 · Kura</div>
-              <h1>Storage &amp; Integrations Vault</h1>
-            </div>
-          </div>
 
-          <div className="box fr">
-            <div className="meta">TURSO CLOUD LIBSQL · HTTPS REST EDGE</div>
-            <div className="kv" style={{ marginTop: "14px" }}>
-              <div>
-                <span><i className="dot" />Status</span>
-                <b>Optimal · <span>{kuraLatency}</span>ms</b>
-              </div>
-              <div>
-                <span>Learning modules</span>
-                <b>Grammar · JPD133 · IELTS</b>
-              </div>
-              <div>
-                <span>Learning data</span>
-                <b>Staging verification required</b>
-              </div>
-            </div>
-            <div className="meta" style={{ marginTop: "16px" }}>HEALTH INDICATOR</div>
-            <div className="bar" style={{ height: "10px", marginTop: "6px" }}>
-              <i style={{ width: "100%", background: "var(--ok)" }} />
-            </div>
-          </div>
-
-          <div className="box" style={{ marginTop: "22px" }}>
-            <div className="meta">IMPORT &amp; EXPORT SUITE</div>
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "14px" }}>
-              <button className="btn" onClick={() => showToast("Demo giao diện: Import Anki (.apkg) chưa kết nối backend")}>
-                Import Anki (.apkg)
-              </button>
-              <button className="btn" onClick={() => showToast("Demo giao diện: Import Minna Excel (.xlsx) chưa kết nối backend")}>
-                Import Minna Excel (.xlsx)
-              </button>
-              <button className="btn p" onClick={() => showToast("Demo giao diện: Export Backup Snapshot chưa kết nối backend")}>
-                Export Backup Snapshot
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
