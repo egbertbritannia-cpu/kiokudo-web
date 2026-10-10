@@ -1,6 +1,6 @@
-# Complete declared Web/Core integration endpoint index for P01-P04 (untested draft).
+# Retained Web/Core integration endpoint index after flashcard retirement.
 # Canonical detailed examples: docs/API_CONTRACT_PHASE_01_04.md
-schemaVersion: "2026-10-10-p01-p04-draft"
+schemaVersion: "2026-10-10-no-flashcards"
 implementationStatus: "CODE_WRITTEN_NOT_TESTED"
 productionReady: false
 transport:
@@ -45,34 +45,6 @@ coreEndpoints:
     browserAccess: "BFF GET"
     request: "service status"
     response: "ok"
-  - method: GET
-    path: "/api/v1/cards"
-    phase: "p02"
-    security: "owner-read"
-    browserAccess: "BFF GET"
-    request: "deck? search? limit<=2000"
-    response: "{success,data,decks}"
-  - method: POST
-    path: "/api/v1/reviews"
-    phase: "p02"
-    security: "owner-write"
-    browserAccess: "BFF opt-in"
-    request: "eventId cardId rating reviewedAt responseTimeMs?"
-    response: "{success,status,eventId,data}"
-  - method: POST
-    path: "/api/v1/reviews/batch"
-    phase: "p02"
-    security: "owner-write"
-    browserAccess: "BFF opt-in"
-    request: "reviews[1..200]"
-    response: "{success,processedCount,rejectedCount,results}"
-  - method: POST
-    path: "/api/v1/reviews/{eventId}/undo"
-    phase: "p02"
-    security: "owner-write"
-    browserAccess: "BFF opt-in"
-    request: "{}"
-    response: "{success,status,eventId,cardId}"
   - method: GET
     path: "/api/v1/grammar"
     phase: "p04"
@@ -206,3 +178,9 @@ coreEndpoints:
     browserAccess: "BFF opt-in"
     request: "id sessionId? word meaning? partOfSpeech? phonetic? contextSentence?"
     response: "{success,status?,data:{id}}"
+
+retiredEndpoints:
+  - "/api/v1/cards"
+  - "/api/v1/reviews"
+  - "/api/v1/reviews/batch"
+  - "/api/v1/reviews/{eventId}/undo"
