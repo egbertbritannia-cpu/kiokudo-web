@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getJPD133Slot } from '@/core/curriculum/jpd133-manifest';
+import { stagingCoreRead } from '@/lib/core-staging-server';
 
 export default async function JPD133SlotPage({
   params,
@@ -10,6 +11,11 @@ export default async function JPD133SlotPage({
   const { slot: slotParam } = await params;
   const slot = getJPD133Slot(slotParam);
   if (!slot) notFound();
+  let linked = new Map<string,string>();
+  try {
+    const response=await stagingCoreRead<{success:boolean;data:Array<{sourceKey:string;cardId:string;slotNumber:number}>}>('/api/v1/curriculum/jpd133/mappings');
+    if(response.success)linked=new Map(response.data.filter(x=>x.slotNumber===slot.slotNumber).map(x=>[x.sourceKey,x.cardId]));
+  }catch{/* Mapping migration or staging may not be provisioned. Show no fake linkage. */}
 
   return (
     <main style={{ maxWidth: '1000px', margin: '2rem auto', padding: '0 1.25rem 5rem' }}>
@@ -47,6 +53,7 @@ export default async function JPD133SlotPage({
               <th style={{ padding: '0.75rem' }}>Cách đọc</th>
               <th style={{ padding: '0.75rem' }}>Nghĩa</th>
               <th style={{ padding: '0.75rem' }}>Topic</th>
+              <th style={{ padding: '0.75rem' }}>FSRS Mapping</th>
             </tr>
           </thead>
           <tbody>
@@ -56,6 +63,7 @@ export default async function JPD133SlotPage({
                 <td style={{ padding: '0.75rem', color: 'var(--bengara-red)' }}>{item.reading || '—'}</td>
                 <td style={{ padding: '0.75rem' }}>{item.vietnameseMeaning}</td>
                 <td style={{ padding: '0.75rem', color: 'var(--sumi-faded)' }}>{item.topic || '—'}</td>
+                <td style={{ padding: '0.75rem' }}>{linked.has(item.id) ? 'Đã liên kết' : 'Chưa liên kết'}</td>
               </tr>
             ))}
           </tbody>
