@@ -35,7 +35,9 @@ export default function AlbionMistakeLogbook(){
             title:x.title||x.mistakeCategory||'Mistake analysis',
             note:x.rootCauseAnalysis||x.note||'',local:false,
           }));
-          setMistakes([...upstream,...local]);
+          // Keep the latest local edits even when this request resolves after
+          // the user added or deleted an entry while Core was loading.
+          setMistakes(current=>[...upstream,...current.filter(item=>item.local)]);
         }
       }).catch(()=>{});
   },[]);
