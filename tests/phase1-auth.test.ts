@@ -117,14 +117,14 @@ test('P01: login verifies origin, sets secure session cookie, logout clears it',
 
 test('P01: route/query denylist stops unknown paths, duplicates and malicious query input', async () => {
   await withFixture(async () => {
-    assert.equal(isAllowedReadRoute('api/v1/cards'), true);
+    assert.equal(isAllowedReadRoute('api/v1/cards'), false);
     assert.equal(isAllowedReadRoute('api/v1/reviews'), false);
     assert.equal(isAllowedReadRoute('api/v1/grammar/../cards'), false);
-    assert.equal(isAllowedReadQuery('api/v1/cards', '?limit=10&deck=jpd'), true);
-    assert.equal(isAllowedReadQuery('api/v1/cards','?limit=10&limit=100'), false);
-    assert.equal(isAllowedReadQuery('api/v1/cards','?userId=other'), false);
-    assert.equal(isAllowedReadQuery('api/v1/cards','?search=%0a'), false);
-    assert.equal(isAllowedReadQuery('api/v1/cards','?search=%GG'), false);
+    assert.equal(isAllowedReadQuery('api/v1/grammar/practice', '?limit=10&lessonId=all'), true);
+    assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?limit=10&limit=100'), false);
+    assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?userId=other'), false);
+    assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?lessonId=%0a'), false);
+    assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?lessonId=%GG'), false);
     assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?lessonId=all&limit=15'), true);
     assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?limit=201'), false);
   });
@@ -132,8 +132,8 @@ test('P01: route/query denylist stops unknown paths, duplicates and malicious qu
 
 test('P01: unsigned browser cannot read Core or submit a review via BFF', async () => {
   await withFixture(async () => {
-    const url = 'http://localhost:3000/api/backend/api/v1/cards?limit=10';
-    const ctx = { params: Promise.resolve({ path:['api','v1','cards'] }) };
+    const url = 'http://localhost:3000/api/backend/api/v1/grammar/practice?limit=10';
+    const ctx = { params: Promise.resolve({ path:['api','v1','grammar','practice'] }) };
     const anonymous = await coreRead(request(url), ctx);
     assert.equal(anonymous.status,401);
     const forbidden = await coreRead(request(url,'GET',{
@@ -147,7 +147,7 @@ test('P01: unsigned browser cannot read Core or submit a review via BFF', async 
 
 test('P01: Core assertions bind trusted owner to exact path/method and never permit browser writes', async () => {
   await withFixture(async () => {
-    const assertion = signCoreOwnerAssertion(owner,'GET','/api/v1/cards?limit=10');
+    const assertion = signCoreOwnerAssertion(owner,'GET','/api/v1/grammar/practice?limit=10');
     const [encoded, mac] = assertion.split('.');
     assert.equal(mac.length,43);
     const fields = JSON.parse(Buffer.from(encoded,'base64url').toString('utf8'));
@@ -156,12 +156,12 @@ test('P01: Core assertions bind trusted owner to exact path/method and never per
     assert.equal(fields.aud,'kiokudo-core');
     assert.equal(fields.method,'GET');
     assert.equal(fields.scope,'read');
-    assert.equal(fields.path,'/api/v1/cards?limit=10');
+    assert.equal(fields.path,'/api/v1/grammar/practice?limit=10');
     const expected = createHmac('sha256', process.env.KIOKUDO_INTERNAL_ASSERTION_KEY!)
       .update(encoded).digest('base64url');
     assert.equal(mac,expected);
-    assert.throws(()=>signCoreOwnerAssertion('test_owner_beta','GET','/api/v1/cards'),/unavailable/);
-    const writeAssertion=signCoreOwnerAssertion(owner,'POST','/api/v1/reviews');
+    assert.throws(()=>signCoreOwnerAssertion('test_owner_beta','GET','/api/v1/grammar'),/unavailable/);
+    const writeAssertion=signCoreOwnerAssertion(owner,'POST','/api/v1/grammar/practice/attempts');
     const [payload]=writeAssertion.split('.');
     const fields2=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));
     assert.equal(fields2.scope,'write');
