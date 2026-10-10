@@ -2,15 +2,25 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {NextRequest} from 'next/server';
 import {GET, POST} from '../src/app/api/backend/[...path]/route.js';
+import { createOwnerSession } from '../src/lib/owner-auth-server.js';
 
 const token='test-service-token-with-more-than-24-characters';
 const ctx=(...path:string[])=>({params:Promise.resolve({path})});
 function req(method='GET',uri='http://localhost:3000/api/backend/api/v1/cards',headers?:Record<string,string>){
-  return new NextRequest(uri,{method,headers});
+  const copy = new Headers(headers);
+  // All ordinary positive staging reads carry a synthetic, signed owner cookie.
+  const signed = createOwnerSession();
+  copy.set('cookie', [copy.get('cookie'),'kiokudo_owner_session='+signed].filter(Boolean).join('; '));
+  return new NextRequest(uri,{method,headers:copy});
 }
 async function withEnv(fn:()=>Promise<void>){
   const saved={
     NODE_ENV:process.env.NODE_ENV, KIOKUDO_STAGING_READ_ENABLED:process.env.KIOKUDO_STAGING_READ_ENABLED,
+    KIOKUDO_OWNER_SUBJECT:process.env.KIOKUDO_OWNER_SUBJECT,
+    KIOKUDO_SESSION_SECRET:process.env.KIOKUDO_SESSION_SECRET,
+    KIOKUDO_INTERNAL_ASSERTION_KEY:process.env.KIOKUDO_INTERNAL_ASSERTION_KEY,
+    KIOKUDO_LOGIN_PASSWORD_SCRYPT:process.env.KIOKUDO_LOGIN_PASSWORD_SCRYPT,
+    KIOKUDO_REMOTE_STAGING_READ_ENABLED:process.env.KIOKUDO_REMOTE_STAGING_READ_ENABLED,
     KIOKUDO_CORE_URL:process.env.KIOKUDO_CORE_URL, KIOKUDO_CORE_SERVICE_TOKEN:process.env.KIOKUDO_CORE_SERVICE_TOKEN,
   };
   try{
@@ -18,6 +28,11 @@ async function withEnv(fn:()=>Promise<void>){
     process.env.KIOKUDO_STAGING_READ_ENABLED='true';
     process.env.KIOKUDO_CORE_URL='http://127.0.0.1:4000';
     process.env.KIOKUDO_CORE_SERVICE_TOKEN=token;
+    process.env.KIOKUDO_OWNER_SUBJECT='test_owner_alpha';
+    process.env.KIOKUDO_SESSION_SECRET='fixture-session-key-not-a-deploy-secret-2026';
+    process.env.KIOKUDO_INTERNAL_ASSERTION_KEY='fixture-core-key-not-a-deploy-secret-2026';
+    process.env.KIOKUDO_LOGIN_PASSWORD_SCRYPT='fixture-test-hash-is-not-a-real-password';
+    process.env.KIOKUDO_REMOTE_STAGING_READ_ENABLED='false';
     await fn();
   }finally{
     for(const [key,value] of Object.entries(saved)) {
@@ -50,6 +65,7 @@ test('BFF read-only GET forwards server token and omits browser credentials',asy
       assert.equal(String(url),'http://127.0.0.1:4000/api/v1/cards?limit=10');
       assert.equal(new Headers(init?.headers).get('authorization'),`Bearer ${token}`);
       assert.equal(new Headers(init?.headers).get('cookie'),null);
+      assert.match(new Headers(init?.headers).get('x-kiokudo-owner-assertion') ?? '', /^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]{43}$/);
       assert.equal(init?.method,'GET');
       return new Response(JSON.stringify({success:true,data:[{id:'fixture',kanji:'父'}],decks:[],deckSummaries:[]}),{
         status:200,headers:{'content-type':'application/json','set-cookie':'SECRET=oops'},
