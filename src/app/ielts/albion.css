@@ -252,3 +252,17 @@
   padding:98px 22px 120px;
   background:transparent;
 }
+
+/* Root Japanese globals use #app h1 (ID-level specificity).
+ * Override that rule inside Albion only so Cormorant headings are exact. */
+#app .albion-ui h1 {
+  margin:2px 0 0;
+  font:700 clamp(2rem,4.2vw,3.1rem)/1.25 var(--mincho);
+  letter-spacing:-.01em;
+  color:var(--ink);
+}
+#app .albion-ui h1 small {
+  font:400 .8rem var(--sans);
+  color:var(--sub);
+  margin-left:10px;
+}
