@@ -20,10 +20,7 @@ interface GrammarGalleryProps {
   stats: {
     totalLessons: number;
     totalPatterns: number;
-    totalCards: number;
-    dueCards: number;
-    newCards: number;
-    reviewCards: number;
+    totalExercises: number;
   };
   allPatterns?: GrammarPatternSummary[];
 }
@@ -133,7 +130,7 @@ export function GrammarGallery({ lessons, stats, allPatterns = [] }: GrammarGall
               lineHeight: 1.6,
             }}
           >
-            32 mẫu câu ngữ pháp cốt lõi Bài 8 - 11 Minna no Nihongo kèm 204 bài tập thực hành SBT và thuật toán lặp lại ngắt quãng FSRS.
+            32 mẫu câu ngữ pháp cốt lõi Bài 8 - 11 Minna no Nihongo kèm 204 bài tập thực hành SBT và các bài luyện tập ngữ pháp.
           </p>
 
           {/* Quick Metrics Bar (VIS-GRAM-03: Woodblock Stream Progress & Metrics) */}
@@ -197,15 +194,15 @@ export function GrammarGallery({ lessons, stats, allPatterns = [] }: GrammarGall
             >
               <span style={{ fontSize: '1.5rem' }}>⏱️</span>
               <div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>FSRS Cần ôn</div>
+                <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>BÀI TẬP</div>
                 <div
                   style={{
                     fontSize: '1.2rem',
                     fontWeight: 800,
-                    color: stats.dueCards > 0 ? '#FFCDD2' : '#C8E6C9',
+                    color: '#C8E6C9',
                   }}
                 >
-                  {stats.dueCards} Thẻ
+                  {stats.totalExercises} Bài
                 </div>
               </div>
             </div>
