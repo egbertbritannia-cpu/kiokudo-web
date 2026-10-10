@@ -92,7 +92,8 @@ export default function AlbionTracker() {
         {dashboard.recentSessions?.map(s=><div className="li" key={s.id}>
           <span>• {s.title || s.section || 'IELTS session'}</span>
           <b>{s.score || (typeof s.rawScore==='number'?`${s.rawScore}/40`:'—')}
-            {s.band != null?` · Band ${s.band.toFixed(1)}`:''}</b>
+            {typeof s.band === 'number' && Number.isFinite(s.band) && s.band > 0
+              ? ` · Band ${s.band.toFixed(1)}` : ''}</b>
         </div>)}
         {tests.map((t,i)=><div className="li" key={`${t.name}-${i}`}>
           <span>• {t.name}</span><b>{t.score}/40 · Band {rawBand(t.score)}</b>
