@@ -96,12 +96,12 @@ export function signCoreOwnerAssertion(
 ): string {
   const secret = process.env.KIOKUDO_INTERNAL_ASSERTION_KEY;
   if (!configuredSecret(secret) || subject !== currentSubject() ||
-      !/^(GET|HEAD)$/.test(method) || !pathnameAndSearch.startsWith('/api/v1/')) {
+      !['GET','HEAD','POST','PUT'].includes(method) || !pathnameAndSearch.startsWith('/api/v1/')) {
     throw new Error('core_owner_assertion_unavailable');
   }
   const payload = Buffer.from(JSON.stringify({
     v: 1, sub: subject, iss: 'kiokudo-web', aud: 'kiokudo-core',
-    scope: 'read', method, path: pathnameAndSearch,
+    scope: method === 'GET' || method === 'HEAD' ? 'read' : 'write', method, path: pathnameAndSearch,
     exp: Math.floor(Date.now() / 1000) + 30,
   }), 'utf8').toString('base64url');
   return payload + '.' + signature(payload, secret);
