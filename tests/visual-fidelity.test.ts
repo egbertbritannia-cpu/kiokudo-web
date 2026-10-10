@@ -4,7 +4,6 @@ import { createHash } from 'node:crypto';
 import { readFileSync, existsSync } from 'node:fs';
 
 const legacyBlobs = {
-  'src/app/globals.css': '418aa820b635d0bc60a1060c8ec76b83cbd31fe8',
   'src/app/review/dobai/page.tsx': '61519719fbd8930ba0bc33867e7fcc335d8e47be',
   'public/assets/art/art-manifest.json': '1024517b588c8d98a5ca2f080d60feab8f3c2e81',
   'public/assets/art/hokusai-suwa-lake.jpg': '42f18b85d2103047bcc4d2a237224ffc4196ee46',
@@ -18,6 +17,18 @@ function gitBlobHash(buf:Buffer):string {
 }
 
 test('retained Kiokudo CSS, Culture, Dò bài and visual assets match legacy', ()=>{
+  // The Japanese design CSS is immutable. The only intended difference is
+  // extra switcher styling appended after this stable baseline. Hash the
+  // original prefix exactly, instead of incorrectly hashing the entire
+  // intentionally extended CSS file.
+  const fullCss = readFileSync('src/app/globals.css','utf8');
+  const marker = '/* NAVBAR SYSTEM SWITCHER · JAPANESE ↔ IELTS */';
+  const at = fullCss.indexOf(marker);
+  assert.ok(at > 0, 'Original Kiokudo CSS must be followed by isolated switcher rules');
+  const baseline = Buffer.from(fullCss.slice(0,at).trimEnd() + '\n\n\n\n');
+  assert.equal(gitBlobHash(baseline),
+    '418aa820b635d0bc60a1060c8ec76b83cbd31fe8',
+    'Japanese design CSS was modified before the switcher appendix');
   for (const [path, expected] of Object.entries(legacyBlobs)) {
     assert.ok(existsSync(path),`Missing original Kiokudo asset: ${path}`);
     const actual=gitBlobHash(readFileSync(path));
