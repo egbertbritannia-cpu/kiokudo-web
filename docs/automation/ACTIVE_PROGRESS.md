@@ -56,6 +56,8 @@
 
 ## Source delivery status — 2026-10-10 (NOT VERIFIED)
 
+**Draft branch head snapshot at end of coding session:** Core PR #8: `e711c40ee09ab04eca51e8efb449b9eb4440e4a3` (last API doc commit; source code commit `5602567521d876b77f9b07028a854f126121bb01`); Web PR #10: `bdc94de357cfa018c2e08416c0c224a12ef40d9c` (last API doc commit; Web CI pins Core source code SHA `560256...`). No tests were manually executed.
+
 - **Core draft PR #8:** https://github.com/egbertbritannia-cpu/kiokudo-core/pull/8 — API Phase 01–04, FSRS transactional undo, snapshot parity guards, staging SQL, Grammar/JPD133, IELTS revision/score/mistakes/vocab.
 - **Web draft PR #10:** https://github.com/egbertbritannia-cpu/kiokudo-web/pull/10 — staging BFF signed write gateway, owner-auth async scrypt, Dexie V2 queue, Review UI, Grammar/JPD133/IELTS UI.
 - **Every endpoint:** `docs/API_ENDPOINTS.yaml` (**28 routes**) and `docs/API_CONTRACT_PHASE_01_04.md` are present **in both draft PR branches**, not main yet.
