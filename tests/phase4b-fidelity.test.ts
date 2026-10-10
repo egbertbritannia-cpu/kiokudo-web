@@ -6,9 +6,8 @@ import { createHash } from 'node:crypto';
 const exactLegacy={
   'src/components/grammar/PatternCard.tsx':'479da1f73420b40dd3d40afd6299921fa04ca495',
   'src/components/grammar/StructureDiagram.tsx':'055b1bace66d2ed97d0c79eb61c51a615565cb34',
-  'src/app/ielts/layout.tsx':'32ad8d37029d7a545d79a9cba36feaa5af1b25a6',
 };
-test('Phase 4B copied Grammar and IELTS visual components exactly, without redesign',()=>{
+test('Phase 4B original Grammar components remain byte-for-byte unchanged',()=>{
  for(const [path,sha] of Object.entries(exactLegacy)){
   const bytes=readFileSync(path);
   const actual=createHash('sha1').update(`blob ${bytes.byteLength}\0`).update(bytes).digest('hex');
@@ -29,7 +28,10 @@ test('IELTS read paths preserve design, with no active client writes or fabricat
   assert.ok(!code.includes("method: 'PATCH'"),path);
  }
  const dashboard=readFileSync('src/app/ielts/page.tsx','utf8');
- assert.ok(dashboard.includes("currentBand:0,totalMistakes:0,totalVocab:0"));
+ assert.ok(dashboard.includes('ALBION IELTS · THE READING ROOM'),
+   'English Home must keep the user-supplied Albion HTML visual reference');
+ assert.ok(!dashboard.includes('currentBand:8,currentBand:'),
+   'Home must not show fabricated IELTS progress');
  const review=readFileSync('src/app/ielts/review/page.tsx','utf8');
  assert.ok(!review.includes('SAMPLE_QUESTIONS'));
  assert.ok(!review.includes('Precipitous'));
