@@ -1,51 +1,31 @@
+import { hasTrustedRequestOrigin } from '@/lib/origin-policy';
 import type { NextRequest } from 'next/server';
+import { isAllowedReadQuery, isAllowedReadRoute } from '@/lib/bff-read-policy';
+import { sessionFromCookieHeader, signCoreOwnerAssertion } from '@/lib/owner-auth-server';
+import { isStagingReadEnabled, stagingCoreOrigin } from '@/lib/staging-core-origin';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 type Context = { params: Promise<{ path: string[] }> };
-const allowlist = new Set([
-  'api/v1/cards','api/v1/status',
-  'api/v1/grammar','api/v1/grammar/practice',
-  'api/v1/ielts/dashboard','api/v1/ielts/materials','api/v1/ielts/sessions',
-  'api/v1/ielts/vocab','api/v1/ielts/mistakes',
-]);
-function isAllowedReadRoute(route:string):boolean {
-  return allowlist.has(route) ||
-    /^api\/v1\/grammar\/[A-Za-z0-9_-]{1,128}$/.test(route) ||
-    /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}$/.test(route);
-}
-
 /**
  * Phase 3 local staging gateway — read-only only.
  * Remote/production access MUST remain disabled until web authentication is
  * independently configured and verified. Browser never receives core secret.
  */
-function isLocalPreview(request: NextRequest): boolean {
-  const host = request.nextUrl.hostname;
-  return process.env.NODE_ENV === 'development'
-    && (host === 'localhost' || host === '127.0.0.1')
-    && process.env.KIOKUDO_STAGING_READ_ENABLED === 'true';
-}
-function validateCoreUrl(raw: string): URL {
-  const u = new URL(raw);
-  // Staging local preview permits only local core; public remote core deferred.
-  if (u.protocol !== 'http:' || !['127.0.0.1','localhost'].includes(u.hostname)
-    || u.username || u.password || u.search || u.hash || (u.pathname !== '/' && u.pathname !== '')) {
-    throw new Error('Only bare local HTTP core origin is allowed during Phase 3');
-  }
-  return u;
+function isAllowedStagingRead(request: NextRequest): boolean {
+  return isStagingReadEnabled(request.nextUrl.hostname);
 }
 async function forward(request: NextRequest, context: Context): Promise<Response> {
   // Gate runs before even looking up the backend secret.
-  if (!isLocalPreview(request)) {
+  if (!isAllowedStagingRead(request)) {
     return Response.json({error:'staging_preview_disabled'}, {status:503});
   }
   if (request.method !== 'GET') {
     return Response.json({error:'method_not_allowed'}, {status:405});
   }
   const origin = request.headers.get('origin');
-  if (origin && origin !== request.nextUrl.origin) {
+  if (origin && !hasTrustedRequestOrigin(request)) {
     return Response.json({error:'forbidden_origin'}, {status:403});
   }
   const site = request.headers.get('sec-fetch-site');
@@ -53,9 +33,22 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     return Response.json({error:'forbidden_site'}, {status:403});
   }
   const {path} = await context.params;
-  const route = Array.isArray(path) ? path.join('/') : '';
+  // Validate each decoded segment; never permit encoded slashes or traversal.
+  if (!Array.isArray(path) || path.some(segment => !/^[A-Za-z0-9_-]{1,128}$/.test(segment))) {
+    return Response.json({error:'invalid_route'}, {status:400});
+  }
+  const route = path.join('/');
   if (!isAllowedReadRoute(route)) {
     return Response.json({error:'route_not_migrated'}, {status:404});
+  }
+  if (!isAllowedReadQuery(route, request.nextUrl.search)) {
+    return Response.json({error:'invalid_query'}, {status:400});
+  }
+  const owner = sessionFromCookieHeader(request.headers.get('cookie'));
+  if (!owner) {
+    return Response.json({error:'authentication_required',loginUrl:'/login'}, {
+      status:401,headers:{'cache-control':'no-store'},
+    });
   }
   const raw = process.env.KIOKUDO_CORE_URL;
   const token = process.env.KIOKUDO_CORE_SERVICE_TOKEN;
@@ -63,16 +56,25 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     return Response.json({error:'backend_not_configured'}, {status:503});
   }
   let target:URL;
-  try { target=validateCoreUrl(raw); }
+  try { target=stagingCoreOrigin(raw); }
   catch {return Response.json({error:'backend_url_invalid'}, {status:503});}
   target.pathname = '/' + route;
   target.search = request.nextUrl.search;
+  let assertion: string;
+  try {
+    assertion = signCoreOwnerAssertion(owner, 'GET', target.pathname + target.search);
+  } catch {
+    return Response.json({error:'owner_auth_not_configured'}, {status:503});
+  }
   const headers = new Headers({
-    authorization: `Bearer ${token}`,
+    authorization: 'Bearer ' + token,
+    'x-kiokudo-owner-assertion': assertion,
     accept:'application/json',
   });
   const requestId=request.headers.get('x-request-id');
-  if (requestId) headers.set('x-request-id',requestId);
+  if (requestId && /^[A-Za-z0-9._-]{1,64}$/.test(requestId)) {
+    headers.set('x-request-id', requestId);
+  }
 
   try {
     const upstream=await fetch(target.toString(),{

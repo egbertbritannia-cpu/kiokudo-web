@@ -12,6 +12,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-audit --no-fund
+      - run: npm run test:phase1
       - run: npm test
       - run: npm run check
       - run: npm run build
@@ -27,7 +28,7 @@ jobs:
         with:
           repository: egbertbritannia-cpu/kiokudo-core
           # Update deliberately only after Core compatibility CI has passed.
-          ref: 67682872d78f37559e4c9e9d109c5c8320d418c1
+          ref: 6a7530dee4ecb1ab8e3ecc80dbf3c86f19e4c894
           path: kiokudo-core
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -45,6 +46,9 @@ jobs:
           npm run staging:local -- audit ./staging-smoke.db
       - name: Add CI-only Grammar and IELTS fixture records
         run: python3 scripts/seed-phase4b-smoke.py kiokudo-core/staging-smoke.db
+      - name: Core Phase 01 security tests
+        working-directory: kiokudo-core
+        run: npm run test:phase1
       - name: Build Core
         working-directory: kiokudo-core
         run: npm run build
@@ -55,14 +59,24 @@ jobs:
             KIOKUDO_DATABASE_SCOPE=staging \
             KIOKUDO_EXPECTED_STAGING_MARKER=kiokudo-local-json-fixture-not-production-v1 \
             KIOKUDO_DATABASE_URL=file:./staging-smoke.db \
+            KIOKUDO_OWNER_SUBJECT=test_owner_alpha \
+            KIOKUDO_INTERNAL_ASSERTION_KEY='fixture-core-key-not-a-deploy-secret-2026' \
+            KIOKUDO_SINGLE_OWNER_DATASET_ACK=true \
+            KIOKUDO_STAGING_WRITE_ENABLED=false \
             npm run start > ../core-staging.log 2>&1 &
       - name: Start local Web
         run: |
           nohup env KIOKUDO_STAGING_READ_ENABLED=true \
             KIOKUDO_CORE_URL=http://127.0.0.1:4000 \
             KIOKUDO_CORE_SERVICE_TOKEN='ci-only-service-token-never-production' \
+            KIOKUDO_OWNER_SUBJECT=test_owner_alpha \
+            KIOKUDO_SESSION_SECRET='fixture-session-key-not-a-deploy-secret-2026' \
+            KIOKUDO_INTERNAL_ASSERTION_KEY='fixture-core-key-not-a-deploy-secret-2026' \
+            KIOKUDO_LOGIN_PASSWORD_SCRYPT='07070707070707070707070707070707:93ef4177e7c26b5c5a04356abe85558bd19d30366cfc990578dc143e26dfaaf91a612727fa846ed85cac2b1f79c59182e0f5914275eb3d730dcc9a71814a1ba0' \
             npm run dev -- --hostname 127.0.0.1 > web-staging.log 2>&1 &
       - name: Smoke test real Web BFF → Core HTTP path
+        env:
+          KIOKUDO_SMOKE_PASSWORD: ci-only-owner-password-2026
         run: node scripts/smoke-cross-repo.mjs
       - name: Log diagnostics on failure
         if: failure()

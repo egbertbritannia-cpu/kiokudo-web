@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:phase1": "node --import tsx --test tests/phase1-auth.test.ts tests/bff-readonly.test.ts"
   },
   "dependencies": {
     "next": "^15.5.27",
