@@ -266,3 +266,14 @@
   color:var(--sub);
   margin-left:10px;
 }
+
+/* Exact Lexicon control states and toast motion from the HTML reference. */
+.albion-ui .gr .a { border-color:var(--no);color:var(--no); }
+.albion-ui .gr button:hover:not(:disabled) { background:var(--ink);color:var(--paper); }
+.albion-ui .gr button:hover:not(:disabled) small { color:var(--paper); }
+.albion-ui .toast { animation:albion-toast 2.7s forwards; }
+@keyframes albion-toast {
+  0% { opacity:0;transform:translate(-50%,-10px); }
+  10%,85% { opacity:1;transform:translate(-50%,0); }
+  100% { opacity:0; }
+}
