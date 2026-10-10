@@ -23,6 +23,12 @@ const ENAV = [
 
 export default function IeltsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  React.useEffect(() => {
+    const oldTitle = document.title;
+    document.title = 'Albion IELTS · The Reading Room';
+    return () => { document.title = oldTitle; };
+  }, []);
+
   const navPath = pathname === '/ielts/review' ? '/ielts/mistakes' :
     pathname === '/ielts/session' ? '/ielts/tracker' : pathname;
 
