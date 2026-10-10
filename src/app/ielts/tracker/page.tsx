@@ -47,6 +47,12 @@ export default function AlbionTracker() {
     });
   }, []);
 
+  useEffect(()=>{
+    if(!error)return;
+    const timer=window.setTimeout(()=>setError(''),2700);
+    return ()=>window.clearTimeout(timer);
+  },[error]);
+
   function recordTest() {
     const numeric = Number(score);
     if(!testName.trim() || score.trim()==='' || !Number.isInteger(numeric) || numeric<0 || numeric>40) {
