@@ -50,6 +50,19 @@ export class IndexedDbReviewOutbox extends Dexie implements ReviewOutboxStore {
     });
   }
 
+  /** Requeue auth-blocked events only after a freshly verified online owner session. */
+  async rearmAfterAuthentication(ownerKey:string):Promise<void> {
+    if(!ownerKey)throw new Error('owner_required');
+    await this.transaction('rw',this.events,async()=>{
+      const events=await this.events.where('ownerKey').equals(ownerKey).toArray();
+      for(const event of events){
+        if(event.status!=='blocked_auth')continue;
+        await this.events.put({...event,status:'uncertain',nextAttemptAt:0,
+          attemptToken:undefined,leaseUntil:undefined,lastError:undefined});
+      }
+    });
+  }
+
   async cancelUnsent(ownerKey: string, eventId: string): Promise<boolean> {
     if (!ownerKey) return false;
     return this.transaction('rw', this.events, async () => {
