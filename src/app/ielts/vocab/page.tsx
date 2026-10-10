@@ -22,6 +22,7 @@ export default function AlbionVocab() {
   // This recreates the original HTML's Lexicon presentation. No FSRS, grading
   // API, card CRUD or SRS queue is involved in this English-only word preview.
   const [words,setWords]=useState<Word[]>(REFERENCE_WORDS);
+  const [initialWords,setInitialWords]=useState<Word[]>(REFERENCE_WORDS);
   const [index,setIndex]=useState(0);
   const [revealed,setRevealed]=useState(false);
 
@@ -41,7 +42,7 @@ export default function AlbionVocab() {
               definition:v.definition||'',collocation:v.collocation||'',
               example:v.contextSentence||'',
             }));
-          if(source.length){setWords(source);setIndex(0);setRevealed(false);}
+          if(source.length){setInitialWords(source);setWords(source);setIndex(0);setRevealed(false);}
         }
       }).catch(()=>{});
   },[]);
@@ -68,7 +69,7 @@ export default function AlbionVocab() {
   if(index>=words.length)return <div className="kt box fr" style={{textAlign:'center',padding:'50px 20px'}}>
     <div className="jp" style={{font:'700 3rem var(--mincho)',color:'var(--shu)'}}>Fin.</div>
     <h1>Đã ôn {words.length} từ học thuật</h1>
-    <button className="btn p" style={{marginTop:14}} onClick={()=>{setWords(REFERENCE_WORDS);setIndex(0);setRevealed(false);}}>Ôn lại</button>
+    <button className="btn p" style={{marginTop:14}} onClick={()=>{setWords(initialWords);setIndex(0);setRevealed(false);}}>Ôn lại</button>
   </div>;
 
   const w=words[index];
