@@ -11,7 +11,6 @@ export const NAV_ITEMS = [
   { href: '/#/dobai', tab: 'dobai', kanji: '復', label: 'Dò bài' },
   { href: '/#/dojo', tab: 'dojo', kanji: '道', label: 'Dojo' },
   { href: '/#/grammar', tab: 'grammar', kanji: '文', label: 'Grammar' },
-  { href: '/#/kura', tab: 'kura', kanji: '蔵', label: 'Kura' },
 ];
 
 /**
