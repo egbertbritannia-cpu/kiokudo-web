@@ -1254,12 +1254,12 @@ export default function KiokudoStudioPage() {
                 <b>Optimal · <span>{kuraLatency}</span>ms</b>
               </div>
               <div>
-                <span>Secured Cloud Flashcards</span>
-                <b>676 cards · Zero-Regression ✓</b>
+                <span>Learning modules</span>
+                <b>Grammar · JPD133 · IELTS</b>
               </div>
               <div>
-                <span>Offline Buffer (Dexie.js IndexedDB)</span>
-                <b>100% synchronized</b>
+                <span>Learning data</span>
+                <b>Staging verification required</b>
               </div>
             </div>
             <div className="meta" style={{ marginTop: "16px" }}>HEALTH INDICATOR</div>
