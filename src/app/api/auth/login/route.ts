@@ -24,9 +24,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400, headers });
   }
+  // Public serverless deployments require rate limiting at the trusted ingress.
+  // Do not accept unlimited password guesses until the operator enables this guard.
+  if (process.env.NODE_ENV === 'production' && process.env.KIOKUDO_PUBLIC_LOGIN_RATE_LIMIT_ACK !== 'true') {
+    return NextResponse.json({ error: 'login_rate_limit_unconfigured' }, { status: 503, headers });
+  }
   const password = body && typeof body === 'object' && !Array.isArray(body)
     ? (body as Record<string, unknown>).password : undefined;
-  if (!verifyOwnerPassword(password)) {
+  if (!await verifyOwnerPassword(password)) {
     return NextResponse.json({ error: 'invalid_credentials' }, { status: 401, headers });
   }
   let session: string;
