@@ -21,6 +21,9 @@ export default function LoginPage() {
     try {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
       if (!response.ok) throw new Error('logout_failed');
+      // Clear offline replay identity on explicit logout. Persisted events are
+      // partitioned and may be recovered only after fresh authentication.
+      localStorage.removeItem('kiokudo_active_owner_key_v1');
       setAuthenticated(false);
       router.refresh();
     } catch {
