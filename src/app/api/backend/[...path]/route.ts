@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { isAllowedReadQuery, isAllowedReadRoute } from '@/lib/bff-read-policy';
 import { sessionFromCookieHeader, signCoreOwnerAssertion } from '@/lib/owner-auth-server';
+import { isStagingReadEnabled, stagingCoreOrigin } from '@/lib/staging-core-origin';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -11,24 +12,12 @@ type Context = { params: Promise<{ path: string[] }> };
  * Remote/production access MUST remain disabled until web authentication is
  * independently configured and verified. Browser never receives core secret.
  */
-function isLocalPreview(request: NextRequest): boolean {
-  const host = request.nextUrl.hostname;
-  return process.env.NODE_ENV === 'development'
-    && (host === 'localhost' || host === '127.0.0.1')
-    && process.env.KIOKUDO_STAGING_READ_ENABLED === 'true';
-}
-function validateCoreUrl(raw: string): URL {
-  const u = new URL(raw);
-  // Staging local preview permits only local core; public remote core deferred.
-  if (u.protocol !== 'http:' || !['127.0.0.1','localhost'].includes(u.hostname)
-    || u.username || u.password || u.search || u.hash || (u.pathname !== '/' && u.pathname !== '')) {
-    throw new Error('Only bare local HTTP core origin is allowed during Phase 3');
-  }
-  return u;
+function isAllowedStagingRead(request: NextRequest): boolean {
+  return isStagingReadEnabled(request.nextUrl.hostname);
 }
 async function forward(request: NextRequest, context: Context): Promise<Response> {
   // Gate runs before even looking up the backend secret.
-  if (!isLocalPreview(request)) {
+  if (!isAllowedStagingRead(request)) {
     return Response.json({error:'staging_preview_disabled'}, {status:503});
   }
   if (request.method !== 'GET') {
@@ -66,7 +55,7 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     return Response.json({error:'backend_not_configured'}, {status:503});
   }
   let target:URL;
-  try { target=validateCoreUrl(raw); }
+  try { target=stagingCoreOrigin(raw); }
   catch {return Response.json({error:'backend_url_invalid'}, {status:503});}
   target.pathname = '/' + route;
   target.search = request.nextUrl.search;
