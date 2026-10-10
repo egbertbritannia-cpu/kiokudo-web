@@ -7,19 +7,19 @@
 ## CURRENT CHECKPOINT
 
 - **CURRENT_PHASE:** `01`
-- **CURRENT_WORK_ITEM:** `P01-ASYNC-SCRYPT-RATE-LIMIT`
-- **PHASE_01_STATUS:** `PARTIAL / SOURCE_VERIFIED_MAIN / CI_VERIFIED_PRIOR_BRANCH / REAL_STAGING_NOT_VERIFIED`
-- **LAST_SOURCE_AUDIT:** `2026-10-10 ~17:42 +07`; không chạy fresh CI/tests trong lần audit này.
+- **CURRENT_WORK_ITEM:** `P01-REVIEW-DRAFT-PR10-AND-CORE-PR8`
+- **PHASE_01_STATUS:** `PARTIAL / NEW_CODE_ON_DRAFT_BRANCHES / TESTS_NOT_RUN / REAL_STAGING_NOT_VERIFIED`
+- **LAST_SOURCE_AUDIT:** `2026-10-10 ~17:42 +07`. **LAST_CODE_DRAFT_DELIVERY:** `2026-10-10` (Core PR #8, Web PR #10; no manual tests).
 - **LAST_SCHEDULED_RUN:** lượt cũ ~08:45 +07 báo cáo checkpoint write bị chặn; lịch đã tạm tắt. **Không lập hoặc kích hoạt lịch mới từ checkpoint.**
 - **WEB_MAIN_CODE_BASE_SHA:** `873233f12031bf3c7fa40fce8d7897bec9183584` (PR #9 đã merge; sau commit này chỉ có docs/checkpoint/audit commits tại thời điểm audit).
 - **CORE_MAIN_CODE_BASE_SHA:** `7cb95fada09375a265ebbb2f6cfca6316dfb53f9` (PR #6 đã merge; Core auth code trên main).
-- **WEB_LATEST_VERIFIED_DOCS_COMMIT:** `55256455e449fbe740db769e8cd7763430612540` (báo cáo audit mới; checkpoint/log commits có thể mới hơn).
+- **WEB_LATEST_VERIFIED_DOCS_COMMIT:** `fba9a0c11276053b341fe2a89d2225b0025aaf04` ([P01–P04 code delivery report](reports/CODE_DELIVERY_P01_P04_20261010.md); checkpoint/log later).
 - **CORE_PIN_IN_WEB_CI:** `6a7530dee4ecb1ab8e3ecc80dbf3c86f19e4c894` (Core PR head được fixture smoke dùng, không phải Core main merge SHA hiện hành).
 - **LEGACY_REFERENCE_PIN:** `3348f4ee49c9539fb9ea60c96e42833811c325ca` (read-only).
-- **CURRENT_GO_NO_GO:** `NO_GO` — chưa kiểm chứng real staging, dữ liệu owner và Review writes.
+- **CURRENT_GO_NO_GO:** `NO_GO` — code mới trên draft branches, chưa kiểm thử hoặc merge; chưa nghiệm thu real staging, dữ liệu owner và Review writes.
 - **ALL_PHASES_DONE:** `false`; `DONE_VERIFIED_COUNT: 0/5`.
 - **PRODUCTION_MODIFIED_IN_THIS_AUDIT:** `false`
-- **FRESH_TESTS_RUN_IN_THIS_AUDIT:** `0` (source audit only; prior PR CI evidence dưới đây).
+- **FRESH_TESTS_RUN_IN_THIS_AUDIT:** `0` (code session 10/10 cũng **0 tests by request**; prior PR CI evidence chỉ hỗ trợ baseline).
 
 ## VERIFIED NOW — logic trên main, khác với kết luận cũ
 
@@ -52,10 +52,23 @@
 - **VERIFIED_RELEASE_READINESS_PERCENT:** `NOT_MEASURABLE`. Quyết định GO/NO_GO: `NO_GO`.
 - **Acceptance rule:** tick `[x]` khi mọi AC của phase đạt, có code/CI phù hợp và evidence real staging nếu AC đòi hỏi; PR open và fixture-only = chưa done.
 
+
+
+## Source delivery status — 2026-10-10 (NOT VERIFIED)
+
+- **Core draft PR #8:** https://github.com/egbertbritannia-cpu/kiokudo-core/pull/8 — API Phase 01–04, FSRS transactional undo, snapshot parity guards, staging SQL, Grammar/JPD133, IELTS revision/score/mistakes/vocab.
+- **Web draft PR #10:** https://github.com/egbertbritannia-cpu/kiokudo-web/pull/10 — staging BFF signed write gateway, owner-auth async scrypt, Dexie V2 queue, Review UI, Grammar/JPD133/IELTS UI.
+- **Every endpoint:** `docs/API_ENDPOINTS.yaml` (**28 routes**) and `docs/API_CONTRACT_PHASE_01_04.md` are present **in both draft PR branches**, not main yet.
+- **Details:** [Code delivery report](reports/CODE_DELIVERY_P01_P04_20261010.md).
+- **TESTS_NOT_EXECUTED = true** by user request; CI might automatically trigger when GitHub PRs are opened, but outcome was not reviewed or claimed.
+- **CODE_ON_BRANCH ≠ IMPLEMENTED_ON_MAIN ≠ DONE_VERIFIED**; previous approximate 65% management score is intentionally **not increased** by unreviewed code.
+- **NO_AUTO_MERGE / NO_DEPLOY / NO_PRODUCTION / NO_REAL_DB_EXPORT.**
+
 ## NEXT_ACTION — thứ tự ưu tiên cho lượt tiếp
 
-1. **P01-ASYNC-SCRYPT-RATE-LIMIT (current):** thay `scryptSync` trong `src/lib/owner-auth-server.ts`/login handler bằng async `scrypt` không chặn event loop, bổ sung unit tests (correct password/wrong config/invalid hash/cancel/repeated concurrent requests). Bổ sung public login throttling ở tầng provider hoặc app có rate-limit đáng tin; không giả vờ rate limit chỉ bằng in-memory khi chạy serverless. Tạo branch/PR, không auto merge/deploy.
-2. **P01-WEB-CORE-CI-PIN:** kiểm tra Web `main` với Core `7cb95f...`, sau đó pin compatible Core merged SHA trong Web CI thay cho prior branch head; xác minh test/check/build và signed route negative cases trên code main+PR.
+1. **P01-REVIEW-DRAFT-PR10-AND-CORE-PR8 (current):** trên [Web draft PR #10](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/10) đã viết async scrypt, default-off BFF signed write guard và outbox FE; trên [Core draft PR #8](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/8) đã viết review undo/parity/Grammar/IELTS APIs cùng staging-only migration. **Chưa chạy tests/check/build theo yêu cầu; chưa merge**. Nhiệm vụ tiếp: xem review source và contract 28 endpoints, sau đó mới test/CI ở lượt khác khi được phép.
+
+2. **P01-WEB-CORE-CI-PIN:** workflow Web trên draft PR #10 đã pin Core draft PR #8 tại `ac52b6e...` để chuẩn bị tương thích; cần xác minh pin mới sau mọi Core code update, chạy test/check/build trong lượt sau (lượt này chủ ý NOT_EXECUTED). Không merge chỉ dựa vào code review.
 3. **P01-STAGING-OWNER-PROVENANCE (BLOCKED_EXTERNAL):** operator xác nhận DB staging riêng, exactly-one-owner data provenance, origin URLs, keys/secrets trong protected dashboard, HTTPS và rate limiting. Test end-to-end với staging **chỉ khi operator ủy quyền**, không truy cập Turso production. Khi blocker hết, nghiệm thu P01 AC và tick; kế đó mới chuyển P02.
 
 ### Resume protocol
