@@ -5,3 +5,4 @@ Mỗi lượt scheduled task thêm một dòng ngắn với timestamp Asia/Ho_Ch
 | Thời điểm | Phase | Thực hiện | Evidence | Kết quả / bước tiếp theo |
 | --- | --- | --- | --- | --- |
 | 2026-10-10 07:41 +07 | bootstrap | Khởi tạo checkpoint kế thừa 5 lượt cũ; không claim code mới | P01/P02 reports ở các nhánh; P03/P04 local-only reported | Phase 01 PARTIAL → P01-AUTH-IDENTITY-OWNER; NO_GO |
+| 2026-10-10 (manual) | 01 | Wire BFF read policy; validate route/query/path and forwarded request ID; Draft PR #9 | [PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9), head `86b82d54df769975a16d85093923b59454c1f13c` | IMPLEMENTED_UNVERIFIED; tests/check/build NOT_EXECUTED theo yêu cầu; giữ P01 PARTIAL, next principal/owner scoping |
