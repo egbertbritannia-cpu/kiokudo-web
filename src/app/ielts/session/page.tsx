@@ -130,6 +130,25 @@ export default function IeltsSessionTracker() {
         sessionId,section,testType,materialId,
         testNumber:materialTitle.slice(0,120),
       });
+      // A lost submit response must be reconciled against canonical persisted
+      // session status before any new draft is written or fake success shown.
+      if(created.data.sessionStatus==='completed'||created.data.sessionStatus==='reviewed'){
+        const verify=await fetch(`/api/backend/api/v1/ielts/sessions/${sessionId}`,{
+          cache:'no-store',credentials:'same-origin',
+        });
+        const checked:unknown=await verify.json().catch(()=>null);
+        const detail=checked&&typeof checked==='object'?(checked as {data?:{id?:string;sessionStatus?:string}}).data:null;
+        if(!verify.ok||detail?.id!==sessionId||
+           !['completed','reviewed'].includes(String(detail?.sessionStatus)))throw new Error('submission_verification_failed');
+        localStorage.removeItem(storageId+'_submit_req');
+        localStorage.removeItem(storageId+'_draft_req');
+        localStorage.removeItem(storageId+'_draft_payload');
+        localStorage.removeItem(storageId);
+        localStorage.removeItem(localKey);
+        setSavedNotification('Core đã xác nhận phiên đã nộp trước đó.');
+        window.alert('Phiên IELTS đã có xác nhận lưu trên Core.');
+        return;
+      }
       const data=Object.entries(answers).filter(([q])=>Number.isInteger(Number(q))&&Number(q)>0&&Number(q)<=40)
         .map(([q,answer])=>({number:Number(q),answer:String(answer)}));
       if(writingTask1.trim())data.push({number:41,answer:writingTask1});
@@ -140,10 +159,23 @@ export default function IeltsSessionTracker() {
       if(!draftRequestId){
         draftRequestId=crypto.randomUUID();localStorage.setItem(draftRequestKey,draftRequestId);
       }
+      const frozenKey=storageId+'_draft_payload';
+      // A lost response is retried with an identical immutable request body.
+      // New answers are never silently submitted under an old request ID.
+      const frozen=localStorage.getItem(frozenKey);
+      let frozenAnswers= data;
+      if(frozen){
+        const parsed:unknown=JSON.parse(frozen);
+        if(!Array.isArray(parsed))throw new Error('invalid_frozen_draft');
+        frozenAnswers=parsed as typeof data;
+      }else{
+        localStorage.setItem(frozenKey,JSON.stringify(data));
+      }
       const saved=await mutate(`/api/v1/ielts/sessions/${sessionId}/draft`,'PUT',{
-        requestId:draftRequestId,expectedRevision:created.data.revision,answers:data,
+        requestId:draftRequestId,expectedRevision:created.data.revision,answers:frozenAnswers,
       });
       localStorage.removeItem(draftRequestKey);
+      localStorage.removeItem(frozenKey);
       const submitKey=storageId+'_submit_req';
       let submitRequestId=localStorage.getItem(submitKey);
       if(!submitRequestId){
