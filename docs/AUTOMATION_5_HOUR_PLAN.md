@@ -106,13 +106,13 @@ Kiokudo là ứng dụng học cá nhân, không cần biến thành hệ thốn
 
 **Nguồn chi tiết và trường `NEXT_ACTION` nằm ở [ACTIVE_PROGRESS.md](automation/ACTIVE_PROGRESS.md).** Bảng tick này là bản tóm tắt ở ngay trong plan theo yêu cầu. Mỗi lần một phase thật sự đạt `DONE_VERIFIED`, sửa `[ ]` thành `[x]` và thêm SHA/PR/evidence. Khi chưa đạt, luôn giữ `[ ]`.
 
-- [ ] **P01 — Baseline + Authentication/BFF** — `PARTIAL` (báo cáo cũ 2/10 tạm tính). **Đang thực hiện:** xác minh trusted principal, per-user ownership, deny-by-default BFF; chạy negative tests và review branch.
+- [ ] **P01 — Baseline + Authentication/BFF** — `PARTIAL`, **4/10 tạm tính** (Web auth PR #9 + Core auth PR #6 đã merge trên main; prior CI fixture PASS; real staging/security gates vẫn thiếu). **Đang thực hiện:** async scrypt/login throttling; re-pin Web CI Core merge; verify actual staging owner provenance.
 - [ ] **P02 — FSRS + Offline + Undo** — `PARTIAL` (2/10 tạm tính). Outbox pure tests từng PASS cục bộ nhưng chưa UI/IndexedDB/CI/browser E2E.
 - [ ] **P03 — DB staging + Snapshot parity** — `PARTIAL/BLOCKED_EXTERNAL` (2/8 tạm tính). Local patch/tests có báo cáo; chưa commit đầy đủ, chưa real staging.
 - [ ] **P04 — Grammar/JPD133 + IELTS** — `PARTIAL` (1/12 tạm tính). Domain contract tested local, chưa persistence E2E.
 - [ ] **P05 — E2E + Release gate** — `PARTIAL/BLOCKED_EXTERNAL` (1/5 tạm tính). Release NO-GO.
 
-**Current phase: P01.** Previous total **8/45 điểm tạm tính**; không coi đó là 8 điểm code merged. Mọi điểm mới phải dựa trên test/PR/CI thật. **Không tự merge hoặc deploy, không chạm Turso production.**
+**Current phase: P01.** Tổng kiểm toán lại **10/45 điểm kế hoạch tạm tính** (= P01 4 + P02 2 + P03 2 + P04 1 + P05 1); cộng baseline lịch sử 55/100 thành **~65/100 ước lượng quản lý**, **không phải tỷ lệ code đã nghiệm thu hay production readiness**. **0/5 phase DONE_VERIFIED**. Chi tiết chứng cứ: [code-flow audit 10/10/2026](automation/reports/CODE_LOGIC_PROGRESS_AUDIT_20261010.md) và [ACTIVE_PROGRESS](automation/ACTIVE_PROGRESS.md). **Không tự merge hoặc deploy, không chạm Turso production.**
 
 ### Điều kiện bàn giao một lần chạy
 
