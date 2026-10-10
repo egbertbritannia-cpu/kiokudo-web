@@ -14,6 +14,7 @@ const fixedRoutes = new Set<string>([
   'api/v1/ielts/sessions',
   'api/v1/ielts/vocab',
   'api/v1/ielts/mistakes',
+  'api/v1/curriculum/jpd133/mappings',
 ]);
 
 const idPattern = /^[A-Za-z0-9_-]{1,128}$/;
@@ -22,6 +23,7 @@ const allowedKeys: Record<string, ReadonlySet<string>> = {
   'api/v1/cards': new Set(['deck', 'search', 'limit']),
   'api/v1/grammar/practice': new Set(['lessonId', 'limit']),
   'api/v1/ielts/sessions': new Set(['limit']),
+  'api/v1/curriculum/jpd133/mappings': new Set(['slot']),
 };
 
 function hasControlCharacters(value: string): boolean {
@@ -68,6 +70,9 @@ export function isAllowedReadQuery(route: string, search: string): boolean {
         if (!isLimit(value, max)) return false;
         break;
       }
+      case 'slot':
+        if (!['1','2','3','4','5','6','8','10'].includes(value)) return false;
+        break;
       case 'lessonId':
         if (value !== 'all' && !idPattern.test(value)) return false;
         break;
