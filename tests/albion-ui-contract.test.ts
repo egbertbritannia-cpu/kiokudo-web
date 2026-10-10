@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const source = (path:string) => readFileSync(join(process.cwd(),path),'utf8');
@@ -52,7 +52,6 @@ test('Original design does not bring back deleted FSRS/card write endpoints',()=
 });
 
 test('Retired Albion Vocabulary route no longer has a page or navigation entry', () => {
-  const { existsSync } = require('node:fs') as typeof import('node:fs');
   assert.equal(existsSync('src/app/ielts/vocab/page.tsx'),false);
   const config = source('next.config.ts');
   assert.ok(config.includes("source: '/ielts/vocab', destination: '/ielts'"));
