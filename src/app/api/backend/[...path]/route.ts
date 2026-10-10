@@ -2,6 +2,7 @@ import { hasTrustedRequestOrigin } from '@/lib/origin-policy';
 import type { NextRequest } from 'next/server';
 import { isAllowedReadQuery, isAllowedReadRoute } from '@/lib/bff-read-policy';
 import { sessionFromCookieHeader, signCoreOwnerAssertion } from '@/lib/owner-auth-server';
+import { loginlessOwnerForHost } from '@/lib/loginless-access';
 import { isStagingReadEnabled, stagingCoreOrigin } from '@/lib/staging-core-origin';
 
 export const dynamic = 'force-dynamic';
@@ -58,10 +59,13 @@ async function forward(request: NextRequest, context: Context): Promise<Response
   if (isRead ? !isAllowedReadQuery(route, request.nextUrl.search) : Boolean(request.nextUrl.search)) {
     return Response.json({error:'invalid_query'}, {status:400});
   }
-  const owner = sessionFromCookieHeader(request.headers.get('cookie'));
+  // A real signed owner session still works, but is no longer necessary for local
+  // development or an operator-verified private deployment (never public by default).
+  const owner = sessionFromCookieHeader(request.headers.get('cookie')) ??
+    loginlessOwnerForHost(request.nextUrl.hostname);
   if (!owner) {
-    return Response.json({error:'authentication_required',loginUrl:'/login'}, {
-      status:401,headers:{'cache-control':'no-store'},
+    return Response.json({error:'private_data_access_disabled'}, {
+      status:403,headers:{'cache-control':'no-store'},
     });
   }
   const raw = process.env.KIOKUDO_CORE_URL;
