@@ -5,7 +5,7 @@
  * Do not substitute the prior Oxford-blue IELTS dashboard theme.
  * Scope is intentional: Japanese system styles must remain untouched.
  */
-.albion-ui {
+.english-mode.albion-ui {
   --paper:#F3ECDB;--card:#FBF7EC;--ink:#1B2A22;--sub:#5B675C;
   --line:#CDBF9E;--shu:#7A1F2B;--gold:#A8842F;--sumi:#163425;
   --ok:#2F6B3E;--no:#7A1F2B;
