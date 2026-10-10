@@ -8,6 +8,19 @@ The user-facing flashcard library `/cards`, creation page `/cards/new`, FSRS stu
 
 The separate **Dò bài** feature (`/review/dobai`), **Grammar**, **JPD133 curriculum**, **IELTS**, **Culture**, and **Conjugation** stay supported. Historical card rows in staging/legacy SQLite may still be referenced for migration fidelity; no production data or history was deleted.
 
+## Switching between Japanese and IELTS
+
+A compact, round, icon-only **SystemSwitcher** sits in the navbar on desktop and mobile. It is a normal accessible link (keyboard Enter, focus ring, tooltip and accessible name).
+
+- Japanese studio keeps the existing hash routes such as `/#/`, `/#/grammar`, and `/#/dobai`. The icon links to `/ielts`.
+- IELTS uses canonical Next.js routes `/ielts`, `/ielts/session`, and `/ielts/review`. The icon links back to `/#/`.
+- The root Japanese navbar does **not** render on IELTS routes; the existing IELTS navbar includes the same shared switcher instead. This prevents stacked navbars.
+- Legacy `/#/ielts`, `/#/ielts/session`, and `/#/ielts/review` links redirect to their canonical IELTS pages. Other retired IELTS hash subroutes fall back to `/ielts`.
+- The obsolete JA/EN banner-only toggle on the Japanese Home screen is retired to avoid two competing system switchers.
+- No backend, database, authentication, flashcard or learning-session logic changes were made as part of the navigation migration.
+
+Shared routing helpers: `src/lib/system-routes.ts`; routing tests: `tests/system-switcher-routing.test.ts`.
+
 ## Development
 
 ```bash
