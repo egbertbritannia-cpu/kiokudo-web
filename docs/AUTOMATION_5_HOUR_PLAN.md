@@ -106,11 +106,13 @@ Kiokudo là ứng dụng học cá nhân, không cần biến thành hệ thốn
 
 **Nguồn chi tiết và trường `NEXT_ACTION` nằm ở [ACTIVE_PROGRESS.md](automation/ACTIVE_PROGRESS.md).** Bảng tick này là bản tóm tắt ở ngay trong plan theo yêu cầu. Mỗi lần một phase thật sự đạt `DONE_VERIFIED`, sửa `[ ]` thành `[x]` và thêm SHA/PR/evidence. Khi chưa đạt, luôn giữ `[ ]`.
 
-- [ ] **P01 — Baseline + Authentication/BFF** — `PARTIAL`, **4/10 tạm tính** (Web auth PR #9 + Core auth PR #6 đã merge trên main; prior CI fixture PASS; real staging/security gates vẫn thiếu). **Đang thực hiện:** async scrypt/login throttling; re-pin Web CI Core merge; verify actual staging owner provenance.
-- [ ] **P02 — FSRS + Offline + Undo** — `PARTIAL` (2/10 tạm tính). Outbox pure tests từng PASS cục bộ nhưng chưa UI/IndexedDB/CI/browser E2E.
-- [ ] **P03 — DB staging + Snapshot parity** — `PARTIAL/BLOCKED_EXTERNAL` (2/8 tạm tính). Local patch/tests có báo cáo; chưa commit đầy đủ, chưa real staging.
-- [ ] **P04 — Grammar/JPD133 + IELTS** — `PARTIAL` (1/12 tạm tính). Domain contract tested local, chưa persistence E2E.
+- [ ] **P01 — Baseline + Authentication/BFF** — `PARTIAL`, **4/10 tạm tính** (Web PR #9/Core PR #6 đã merge; async scrypt + staging write BFF hiện nằm ở **Web draft PR #10**, chưa test, chưa merge; ingress throttle/staging gates vẫn thiếu).
+- [ ] **P02 — FSRS + Offline + Undo** — `PARTIAL` (2/10 tạm tính). Đã viết code queue IndexedDB + Karuta UI trên **Web draft PR #10**, undo/tombstones trên **Core draft PR #8**; **chưa test/merge, browser E2E chưa nghiệm thu**.
+- [ ] **P03 — DB staging + Snapshot parity** — `PARTIAL/BLOCKED_EXTERNAL` (2/8 tạm tính). Bản vá snapshot validator đã commit trên **Core draft PR #8**, chưa test hoặc merge; chưa real staging/verified production export.
+- [ ] **P04 — Grammar/JPD133 + IELTS** — `PARTIAL` (1/12 tạm tính). API + FE code đã viết trên **Core draft PR #8 / Web draft PR #10**, docs `API_ENDPOINTS.yaml` gồm 28 endpoint; chưa test/merge/schema migration/E2E; Google/media còn cần chọn provider.
 - [ ] **P05 — E2E + Release gate** — `PARTIAL/BLOCKED_EXTERNAL` (1/5 tạm tính). Release NO-GO.
+
+**Code delivery:** [Core draft PR #8](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/8) + [Web draft PR #10](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/10); [source handoff](automation/reports/CODE_DELIVERY_P01_P04_20261010.md). `CODE_WRITTEN_UNTESTED` — viết code không đồng nghĩa nghiệm thu phase, không tăng %.
 
 **Current phase: P01.** Tổng kiểm toán lại **10/45 điểm kế hoạch tạm tính** (= P01 4 + P02 2 + P03 2 + P04 1 + P05 1); cộng baseline lịch sử 55/100 thành **~65/100 ước lượng quản lý**, **không phải tỷ lệ code đã nghiệm thu hay production readiness**. **0/5 phase DONE_VERIFIED**. Chi tiết chứng cứ: [code-flow audit 10/10/2026](automation/reports/CODE_LOGIC_PROGRESS_AUDIT_20261010.md) và [ACTIVE_PROGRESS](automation/ACTIVE_PROGRESS.md). **Không tự merge hoặc deploy, không chạm Turso production.**
 
