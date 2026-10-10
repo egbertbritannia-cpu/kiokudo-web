@@ -129,7 +129,33 @@ function PracticeContent() {
     };
     setRecords(prev => [...prev.filter(r => r.exerciseId !== current.id), newRecord]);
 
-    // Local practice only. No server FSRS or synthetic-card writes in Phase 4B.
+    // Record real exercise outcome only when the signed staging-write gate is
+    // operator-enabled. Local scoring remains explicit if the network fails.
+    if (process.env.NEXT_PUBLIC_KIOKUDO_STAGING_WRITES_ENABLED === 'true') {
+      try {
+        const idKey=`kiokudo_grammar_attempt_${current.id}`;
+        const eventId=sessionStorage.getItem(idKey)??crypto.randomUUID();
+        sessionStorage.setItem(idKey,eventId);
+        const key=`${idKey}_timestamp`;
+        const answeredAt=sessionStorage.getItem(key)??new Date().toISOString();
+        sessionStorage.setItem(key,answeredAt);
+        const response=await fetch('/api/backend/api/v1/grammar/practice/attempts',{
+          method:'POST',credentials:'same-origin',cache:'no-store',
+          headers:{'content-type':'application/json'},
+          body:JSON.stringify({eventId,exerciseId:current.id,answer:optionKey,answeredAt}),
+        });
+        const result:unknown=await response.json().catch(()=>null);
+        if(!response.ok||!result||typeof result!=='object'||
+           (result as {success?:boolean}).success!==true){
+          console.warn('[Grammar] Chưa nhận được xác nhận ghi bài tập từ Core.');
+        }else{
+          sessionStorage.removeItem(idKey);
+          sessionStorage.removeItem(key);
+        }
+      }catch{
+        console.warn('[Grammar] Đã chấm cục bộ, chưa được xác nhận lưu trên Core.');
+      }
+    }
   };
 
   const handleNext = () => {

@@ -26,6 +26,7 @@ const envKeys = [
   'KIOKUDO_STAGING_READ_ENABLED', 'KIOKUDO_REMOTE_STAGING_READ_ENABLED',
   'KIOKUDO_CORE_URL', 'KIOKUDO_CORE_SERVICE_TOKEN',
   'KIOKUDO_CORE_ALLOWED_HOST', 'KIOKUDO_WEB_PUBLIC_ORIGIN',
+  'KIOKUDO_WEB_STAGING_WRITES_ENABLED', 'KIOKUDO_PUBLIC_LOGIN_RATE_LIMIT_ACK',
 ] as const;
 
 async function withFixture(run: () => Promise<void>) {
@@ -58,9 +59,9 @@ function request(uri: string, method = 'GET', init: {
 
 test('P01: scrypt password and owner session reject wrong, tampered and foreign identity', async () => {
   await withFixture(async () => {
-    assert.equal(verifyOwnerPassword(password), true);
-    assert.equal(verifyOwnerPassword('incorrect-test-password'), false);
-    assert.equal(verifyOwnerPassword(24), false);
+    assert.equal(await verifyOwnerPassword(password), true);
+    assert.equal(await verifyOwnerPassword('incorrect-test-password'), false);
+    assert.equal(await verifyOwnerPassword(24), false);
     const cookie = createOwnerSession();
     assert.equal(verifyOwnerSession(cookie), owner);
     assert.equal(sessionFromCookieHeader('foo=bar; ' + SESSION_COOKIE + '=' + cookie), owner);
@@ -140,7 +141,7 @@ test('P01: unsigned browser cannot read Core or submit a review via BFF', async 
     }),ctx);
     assert.equal(forbidden.status,401);
     const review = await coreWrite(request(url,'POST'),ctx);
-    assert.equal(review.status,405);
+    assert.equal(review.status,403);
   });
 });
 
@@ -160,7 +161,11 @@ test('P01: Core assertions bind trusted owner to exact path/method and never per
       .update(encoded).digest('base64url');
     assert.equal(mac,expected);
     assert.throws(()=>signCoreOwnerAssertion('test_owner_beta','GET','/api/v1/cards'),/unavailable/);
-    assert.throws(()=>signCoreOwnerAssertion(owner,'POST','/api/v1/reviews'),/unavailable/);
+    const writeAssertion=signCoreOwnerAssertion(owner,'POST','/api/v1/reviews');
+    const [payload]=writeAssertion.split('.');
+    const fields2=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));
+    assert.equal(fields2.scope,'write');
+    assert.equal(fields2.method,'POST');
   });
 });
 

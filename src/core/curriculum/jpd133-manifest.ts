@@ -50,17 +50,36 @@ const SLOT_METADATA: ReadonlyArray<Omit<JPD133SlotDefinition, 'vocabularyList'>>
 
 const source = vocabularySource as SourceVocabularyItem[];
 
+/**
+ * Stable source key: canonical page + vocabulary fields, independent of array
+ * sorting. Identical repeated records get a suffix in their original sequence.
+ * This is NOT a Core card ID: persistent mapping must come from the Core API.
+ */
+function canonicalSource(item: SourceVocabularyItem): string {
+  return [item.page,item.word.normalize('NFC'),item.reading?.normalize('NFC') ?? '',
+    item.meaning.normalize('NFC'),item.topic?.normalize('NFC') ?? ''].join('\u001f');
+}
+function hashSource(input: string): string {
+  let a=2166136261,b=2166136261^0x9e3779b9;
+  for (const ch of input) {
+    const value=ch.codePointAt(0)!;
+    a=Math.imul(a^value,16777619);
+    b=Math.imul(b^(value>>>8),16777619);
+  }
+  return (a>>>0).toString(16).padStart(8,'0')+(b>>>0).toString(16).padStart(8,'0');
+}
 function vocabularyForPage(page: number): JPD133VocabularyItem[] {
-  return source
-    .filter((item) => item.page === page)
-    .map((item, index) => ({
-      id: `jpd133-p${page}-${index + 1}`,
-      kanji: item.word,
-      reading: item.reading,
-      vietnameseMeaning: item.meaning,
-      topic: item.topic,
-      sourcePage: item.page,
-    }));
+  const duplicateCount=new Map<string,number>();
+  return source.filter(item=>item.page===page).map(item=>{
+    const canonical=canonicalSource(item);
+    const count=(duplicateCount.get(canonical)??0)+1;
+    duplicateCount.set(canonical,count);
+    return {
+      id:`jpd133-p${page}-${hashSource(canonical)}-${count}`,
+      kanji:item.word,reading:item.reading,vietnameseMeaning:item.meaning,
+      topic:item.topic,sourcePage:item.page,
+    };
+  });
 }
 
 const slots: JPD133SlotDefinition[] = SLOT_METADATA.map((slot) => ({
