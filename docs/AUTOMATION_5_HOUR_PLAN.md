@@ -1,10 +1,10 @@
-# KIOKUDO — KẾ HOẠCH THỰC THI 5 PHASE / 5 PHIÊN CÁCH NHAU 1 GIỜ
+# KIOKUDO — KẾ HOẠCH THỰC THI 5 PHASE / TỰ ĐỘNG TIẾP TỤC MỖI GIỜ
 
 **Nguồn điều phối duy nhất / ACTIVE MASTER:** phiên bản 10/09/2026. Phạm vi: dự án frontend/backend separation Kiokudo, gồm `egbertbritannia-cpu/kiokudo-web` và `egbertbritannia-cpu/kiokudo-core`; baseline cũ là `egbertbritannia-cpu/japanese-srs-system`. Thay thế kế hoạch 7 phase ở `docs/AUTOMATION_7_HOUR_PLAN.md`. **Tổng nội dung đặc tả của 5 phase vẫn vượt 10.000 từ**; các tài liệu cũ được gộp đầy đủ dưới các mục III của 5 tài liệu mới.
 
 ## 1. Điểm xuất phát và cách đo kết quả
 
-Ước lượng **55/100 điểm công việc đã hoàn thành**, **45/100 điểm còn lại**. Con số 45 là trọng số lập kế hoạch, không phải thời lượng cam kết hoặc KPI đo tự động. Một lượt kích hoạt chỉ mở một phiên để thực thi **một phần việc đủ nhỏ có thể làm và kiểm chứng**. Không ép AI tự hoàn thành cả phase trong một giờ; một phase lớn như Grammar/JPD133+IELTS có thể cần các lượt sau để tiếp tục. Kế hoạch 5 phiên bảo đảm chuỗi hành động có thứ tự, không cam kết đạt 100 sau giờ thứ năm.
+Ước lượng **55/100 điểm công việc đã hoàn thành**, **45/100 điểm còn lại**. Con số 45 là trọng số lập kế hoạch, không phải thời lượng cam kết hoặc KPI đo tự động. Một lượt kích hoạt chỉ mở một phiên để thực thi **một phần việc đủ nhỏ có thể làm và kiểm chứng**. Không ép AI tự hoàn thành cả phase trong một giờ; một phase lớn như Grammar/JPD133+IELTS có thể cần các lượt sau để tiếp tục. Kế hoạch mới có **5 phase độc lập với số lượt chạy**: mỗi giờ bắt đầu bằng checkpoint, làm tiếp phase chưa hoàn thành, cập nhật tiến độ và chỉ chuyển phase khi nghiệm thu. Không cam kết thời điểm đạt 100%.
 
 Web giữ nguyên UI/asset từ phiên bản legacy: Studio, Cards, Review, Do Bai, Culture, Conjugation, JPD133, Grammar và IELTS. Core đã có Fastify, staging-only FSRS review APIs, SQLite fixtures, read-only Grammar/IELTS contracts. Web hiện có nhiều luồng read-only/prototype và chưa được cutover. Dữ liệu học Turso production, per-user auth, offline sync/undo, full module writes, deployed real staging và production cutover vẫn chưa được chứng minh đầy đủ. Không biến “đã có route/JSX/API GET” thành “đã hoàn thành nghiệp vụ”.
 
@@ -21,18 +21,16 @@ Web giữ nguyên UI/asset từ phiên bản legacy: Studio, Cards, Review, Do B
 
 **Lưu ý:** số điểm có thể đạt tối đa là 10+10+8+12+5, nhưng kết quả thật phải ghi `earned` theo từng acceptance criterion kèm bằng chứng. Phase 04 có trọng số lớn nhất, nên ưu tiên các vertical slice và module contract safety; không tự tuyên bố cả hai module đã đầy đủ khi chưa test.
 
-## 3. Lịch thực thi và giới hạn tài khoản
+## 3. Lịch thực thi liên tục (cập nhật 10/10/2026)
 
-Lịch mục tiêu theo múi giờ Việt Nam (Asia/Ho_Chi_Minh), có thể đổi nếu người dùng yêu cầu:
-- **00:14 ngày 10/10/2026**: lượt 01, baseline + Auth.
-- **01:14 ngày 10/10/2026**: lượt 02, FSRS/offline.
-- **02:14 ngày 10/10/2026**: lượt 03, data parity.
-- **03:14 ngày 10/10/2026**: lượt 04, Grammar/JPD133 + IELTS.
-- **04:14 ngày 10/10/2026**: lượt 05, E2E + readiness.
+Một **recurring ChatGPT Task** được lập lịch **mỗi 1 giờ** theo giờ Việt Nam; số lần chạy **không giới hạn theo số phase**. Lịch chỉ kích hoạt một phiên xử lý; không phải một tiến trình chạy liên tục suốt cả giờ. Mỗi lượt phải đọc trước [ACTIVE_PROGRESS.md](automation/ACTIVE_PROGRESS.md) — file checkpoint giữ `CURRENT_PHASE`, `CURRENT_WORK_ITEM`, SHA/PR gần nhất, checklist đã qua, blocker và `NEXT_ACTION`. Có thể xem [RUN_LOG.md](automation/RUN_LOG.md) để nhận biết lần chạy gần nhất. Không tự khám phá lại toàn bộ repo trừ khi HEAD/đặc tả đã thay đổi hoặc cần vì một lỗi.
 
-Hệ thống ChatGPT chỉ cho phép tối đa 5 tác vụ đang hoạt động trên tài khoản tại thời điểm lập kế hoạch; đã có một tác vụ SERF riêng không được sửa. Do đó, thay vì cố tạo thêm một task và gặp giới hạn, lịch Kiokudo sử dụng **bốn tác vụ hoạt động cho năm lượt chạy**: task số 4 có lịch lặp chính xác hai lần liên tiếp; trong lần đầu xử lý phase 04 và lần thứ hai phase 05. Phải nhận dạng phase theo thời điểm lịch được ấn định, không suy đoán “phase tiếp theo” từ trạng thái báo cáo, vì retry hoặc phase trước bị blocker có thể thay đổi tiến độ. Giữ mỗi báo cáo có `phase_id` và timestamp độc lập.
-
-Nếu tác vụ nhận báo cáo chạy khác thời gian định trước, vẫn phải xác định phase từ slot scheduling rõ ràng. Nếu không thể xác định lần chạy của task kép, **dừng thay đổi code** và báo ambiguity, không làm nhầm release gate thành implementation phase. Các lịch không cho phép agent bypass quyền hạ tầng: cần quyền GitHub hoặc runtime thích hợp để làm code; không có quyền thì báo blocker trung thực.
+- Nếu Phase 01 PARTIAL, lượt sau tiếp tục Phase 01; tương tự cho Phase 02–05.
+- Chỉ đánh dấu `[x]` một phase nếu **DONE_VERIFIED** theo acceptance + CI/code integration + evidence; `READY_FOR_REVIEW` chưa phải done.
+- **Không chuyển phase theo giờ.** Chỉ chuyển đến phase tiếp theo sau khi status được cập nhật an toàn trên GitHub. Ngay cả khi ngoài lịch đã có công việc cục bộ P02/P03/P04, phải kiểm chứng và tích hợp sau khi gate phía trước đủ.
+- Khi không có việc khả thi vì external blockers, giữ nguyên phase, ghi rõ hành động người dùng cần làm; không tạo dữ liệu giả để tăng %.
+- Một recurring task có thể tiếp tục chạy sau khi hoàn thành nếu nền tảng không hỗ trợ nó tự dừng. Khi all phase DONE_VERIFIED thì thông báo người dùng tắt task, hoặc chỉ tự vô hiệu hóa nếu công cụ sẵn có và có phản hồi thành công.
+- Những giờ cũ của kế hoạch `5 giờ` đã kết thúc ngày 10/10/2026 và **không còn điều khiển** các lượt mới.
 
 ## 4. Sơ đồ phụ thuộc và cổng chặn
 
@@ -54,12 +52,12 @@ Thứ tự làm việc không hàm ý rằng all phases đã hoàn tất khi lư
 
 ## 5. Hợp đồng thực thi cho mỗi lượt
 
-1. Đọc FULL tài liệu master này và file phase được chỉ định. Đọc `docs/MIGRATION.md` của Web/Core và report lượt trước nếu có. Chụp lại HEAD SHA các repo.
+1. Đọc [ACTIVE_PROGRESS.md](automation/ACTIVE_PROGRESS.md) trước; xác minh `CURRENT_PHASE` và đọc file phase tương ứng. Chỉ đọc các phần master/reports/code liên quan khi cần; so HEAD SHA mới của Web/Core với checkpoint trước để tránh lặp audit toàn repo.
 2. Đặt status ban đầu từ bằng chứng hiện tại, không từ tiêu đề commit. Phân biệt `DOC_ONLY`, `CODE_IMPLEMENTED`, `TEST_VERIFIED`, `REAL_STAGING_VERIFIED`, `PRODUCTION_APPROVED`.
 3. Chọn work package ưu tiên cao nhất chưa làm, phù hợp công cụ hiện có; viết hoặc sửa code/docs nếu có quyền. Với việc lớn, ưu tiên một vertical slice có test tốt thay vì nửa tá stub không chạy.
 4. Với changes hai repo, đảm bảo contract và Core SHA pin trong Web. Thay đổi nên nằm trong branch/PR được review; không ép merge. Không cấu hình secrets bằng cách nhắn tin.
 5. Chạy `npm run check`, `npm test`, `npm run build`, Python tests/Core integration hoặc regression test phù hợp **khi tool cho phép**, ghi tên lệnh và kết quả; nếu không chạy, đánh `NOT_EXECUTED` và nói vì sao.
-6. Cập nhật `docs/automation/reports/PHASE_XX_REPORT.md` hoặc báo cáo kết quả trực tiếp khi write access không sẵn. Không điền số PASS/100% mà không có chứng cứ.
+6. **Bắt buộc cập nhật checkpoint** tại `docs/automation/ACTIVE_PROGRESS.md` (current phase, item, status, last SHA, blocker, next action) và thêm một dòng ở `docs/automation/RUN_LOG.md`; nếu phase DONE_VERIFIED, đánh dấu [x] ở bảng master bên dưới; ghi `docs/automation/reports/PHASE_XX_REPORT.md` khi phù hợp. Nếu GitHub từ chối ghi, nêu `CHECKPOINT_WRITE_BLOCKED` và không claim saved.
 7. Báo cáo tiếng Việt: `DONE_VERIFIED`, `IMPLEMENTED_UNVERIFIED`, `BLOCKED_EXTERNAL`, `NOT_DONE`; status và `earned/possible`; SHA/PR; tests executed; next-phase handoff.
 
 ## 6. Mẫu report bắt buộc
@@ -100,6 +98,22 @@ Các tài liệu cũ `docs/automation/PHASE_01_BASELINE.md` đến `PHASE_07_E2E
 
 ## 9. Mục tiêu tối ưu hóa và báo cáo thực tế
 
-Kiokudo là ứng dụng học cá nhân, không cần biến thành hệ thống doanh nghiệp. Tuy vậy, vì deployment public và dữ liệu học lịch sử, cần tối thiểu một cơ chế identity và write safety vững chắc. Không lãng phí lượt chạy để thêm role management nhiều tầng, AI/LLM features không được yêu cầu hoặc redesign UI. Tránh scope creep; phát hiện chức năng nào thực sự chỉ là demo thì để nó là demo cho đến khi scope có phê duyệt. Đặt correctness trước tốc độ: 5 lượt chạy là lịch lấy mẫu thực thi có kiểm chứng, không phải deadline ép bỏ qua an toàn.
+Kiokudo là ứng dụng học cá nhân, không cần biến thành hệ thống doanh nghiệp. Tuy vậy, vì deployment public và dữ liệu học lịch sử, cần tối thiểu một cơ chế identity và write safety vững chắc. Không lãng phí lượt chạy để thêm role management nhiều tầng, AI/LLM features không được yêu cầu hoặc redesign UI. Tránh scope creep; phát hiện chức năng nào thực sự chỉ là demo thì để nó là demo cho đến khi scope có phê duyệt. Đặt correctness trước tốc độ: mỗi lượt theo giờ chỉ thực hiện các công việc có thể kiểm chứng, không có deadline cố định cho một phase.
 
 **Kết quả được mong đợi cuối chuỗi** là một audit trail đáng tin, code/PR có test trong khả năng, bản đồ blockers và phương án phát hành rõ ràng; production migration thực chỉ diễn ra khi có chuẩn bị và ủy quyền riêng.
+
+## 10. CHECKLIST TIẾN ĐỘ CHẠY LẶP THEO GIỜ (LIVE, cập nhật cùng checkpoint)
+
+**Nguồn chi tiết và trường `NEXT_ACTION` nằm ở [ACTIVE_PROGRESS.md](automation/ACTIVE_PROGRESS.md).** Bảng tick này là bản tóm tắt ở ngay trong plan theo yêu cầu. Mỗi lần một phase thật sự đạt `DONE_VERIFIED`, sửa `[ ]` thành `[x]` và thêm SHA/PR/evidence. Khi chưa đạt, luôn giữ `[ ]`.
+
+- [ ] **P01 — Baseline + Authentication/BFF** — `PARTIAL` (báo cáo cũ 2/10 tạm tính). **Đang thực hiện:** xác minh trusted principal, per-user ownership, deny-by-default BFF; chạy negative tests và review branch.
+- [ ] **P02 — FSRS + Offline + Undo** — `PARTIAL` (2/10 tạm tính). Outbox pure tests từng PASS cục bộ nhưng chưa UI/IndexedDB/CI/browser E2E.
+- [ ] **P03 — DB staging + Snapshot parity** — `PARTIAL/BLOCKED_EXTERNAL` (2/8 tạm tính). Local patch/tests có báo cáo; chưa commit đầy đủ, chưa real staging.
+- [ ] **P04 — Grammar/JPD133 + IELTS** — `PARTIAL` (1/12 tạm tính). Domain contract tested local, chưa persistence E2E.
+- [ ] **P05 — E2E + Release gate** — `PARTIAL/BLOCKED_EXTERNAL` (1/5 tạm tính). Release NO-GO.
+
+**Current phase: P01.** Previous total **8/45 điểm tạm tính**; không coi đó là 8 điểm code merged. Mọi điểm mới phải dựa trên test/PR/CI thật. **Không tự merge hoặc deploy, không chạm Turso production.**
+
+### Điều kiện bàn giao một lần chạy
+
+Mỗi lượt lưu: `last_run_at`, `current_phase`, `work_item`, `last_verified_SHAs`, `done_now`, `test_evidence`, `blockers`, `next_action`; không scan lại phần không thay đổi. Nếu bị chặn việc ghi checkpoint, báo lỗi và tạo bản trạng thái thay thế để đối chiếu, không tuyên bố đã cập nhật GitHub. Việc tắt recurring task khi DONE cần được xác nhận thực tế.
