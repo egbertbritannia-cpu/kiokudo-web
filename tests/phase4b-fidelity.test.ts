@@ -36,5 +36,5 @@ test('IELTS read paths preserve design, with no active client writes or fabricat
  const review=readFileSync('src/app/ielts/review/page.tsx','utf8');
  assert.ok(!review.includes('SAMPLE_QUESTIONS'));
  assert.ok(!review.includes('Precipitous'));
- assert.ok(review.includes('Staging chỉ đọc'));
+ assert.ok(review.includes('/api/backend/api/v1/ielts/'),'IELTS persistence must go through BFF');
 });
