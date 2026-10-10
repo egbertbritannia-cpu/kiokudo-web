@@ -6,7 +6,7 @@ import { createOwnerSession } from '../src/lib/owner-auth-server.js';
 
 const token='test-service-token-with-more-than-24-characters';
 const ctx=(...path:string[])=>({params:Promise.resolve({path})});
-function req(method='GET',uri='http://localhost:3000/api/backend/api/v1/cards',headers?:Record<string,string>){
+function req(method='GET',uri='http://localhost:3000/api/backend/api/v1/grammar',headers?:Record<string,string>){
   const copy = new Headers(headers);
   // All ordinary positive staging reads carry a synthetic, signed owner cookie.
   const signed = createOwnerSession();
@@ -43,17 +43,17 @@ async function withEnv(fn:()=>Promise<void>){
 }
 test('BFF refuses remote production/previews regardless of token',async()=>{
   await withEnv(async()=>{
-    const r=await GET(req('GET','https://web.example.com/api/backend/api/v1/cards'),ctx('api','v1','cards'));
+    const r=await GET(req('GET','https://web.example.com/api/backend/api/v1/grammar'),ctx('api','v1','grammar'));
     assert.equal(r.status,503);
     assert.equal((await r.json()).error,'staging_preview_disabled');
   });
 });
 test('BFF never forwards write methods or unknown paths',async()=>{
   await withEnv(async()=>{
-    assert.equal((await POST(req('POST'),ctx('api','v1','reviews'))).status,405);
+    assert.equal((await POST(req('POST','http://localhost:3000/api/backend/api/v1/reviews',{origin:'http://localhost:3000'}),ctx('api','v1','reviews'))).status,403);
     assert.equal((await GET(req(),ctx('api','v1','reviews'))).status,404);
-    assert.equal((await GET(req('GET',undefined,{'sec-fetch-site':'cross-site'}),ctx('api','v1','cards'))).status,403);
-    assert.equal((await GET(req('GET',undefined,{origin:'https://attacker.example'}),ctx('api','v1','cards'))).status,403);
+    assert.equal((await GET(req('GET',undefined,{'sec-fetch-site':'cross-site'}),ctx('api','v1','grammar'))).status,403);
+    assert.equal((await GET(req('GET',undefined,{origin:'https://attacker.example'}),ctx('api','v1','grammar'))).status,403);
   });
 });
 test('BFF read-only GET forwards server token and omits browser credentials',async()=>{
@@ -72,7 +72,7 @@ test('BFF read-only GET forwards server token and omits browser credentials',asy
       });
     };
     try{
-      const r=await GET(req('GET','http://localhost:3000/api/backend/api/v1/cards?limit=10',{cookie:'usercookie=value'}),ctx('api','v1','cards'));
+      const r=await GET(req('GET','http://localhost:3000/api/backend/api/v1/cards?limit=10',{cookie:'usercookie=value'}),ctx('api','v1','grammar','practice'));
       assert.equal(r.status,200);
       assert.equal(r.headers.get('set-cookie'),null);
       assert.equal(r.headers.get('cache-control'),'no-store');
@@ -84,7 +84,7 @@ test('BFF read-only GET forwards server token and omits browser credentials',asy
 test('BFF fails closed if missing service credential',async()=>{
   await withEnv(async()=>{
     delete process.env.KIOKUDO_CORE_SERVICE_TOKEN;
-    const r=await GET(req(),ctx('api','v1','cards'));
+    const r=await GET(req(),ctx('api','v1','grammar'));
     assert.equal(r.status,503);
   });
 });
@@ -115,7 +115,7 @@ test('Phase4B BFF forwards only whitelisted Grammar and IELTS GETs',async()=>{
    const hostile=await GET(req(),ctx('api','v1','grammar','..'));
    assert.equal(hostile.status,400,'traversal must be rejected as an invalid route');
    const write=await POST(req('POST'),ctx('api','v1','ielts','sessions'));
-   assert.equal(write.status,405);
+   assert.equal(write.status,403);
   }finally{globalThis.fetch=old;}
  });
 });
