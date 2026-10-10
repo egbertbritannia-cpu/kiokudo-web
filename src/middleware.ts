@@ -22,7 +22,10 @@ async function validOwnerCookie(token: string | undefined): Promise<boolean> {
   if (parts.length !== 2 || !/^[A-Za-z0-9_-]{43}$/.test(parts[1])) return false;
   try {
     const payloadBytes = decodeBase64Url(parts[0]);
-    const signature = decodeBase64Url(parts[1]);
+    const signatureBytes = decodeBase64Url(parts[1]);
+    // WebCrypto requires an ArrayBuffer-owned view (not SharedArrayBufferLike).
+    const signature = new Uint8Array(signatureBytes.length);
+    signature.set(signatureBytes);
     const key = await crypto.subtle.importKey(
       'raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' },
       false, ['verify'],
