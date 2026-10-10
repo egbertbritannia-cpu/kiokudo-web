@@ -4,18 +4,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { JapaneseArtBackdrop } from '@/components/art/JapaneseArtBackdrop';
 
-interface CardItem {
-  k: string;
-  r: string;
-  on: string;
-  v: string;
-  d: string;
-  s: number;
-  p: number;
-  e: string;
-  ev: string;
-}
-
 interface DobaiCardItem {
   k: string;
   r: string;
@@ -25,14 +13,6 @@ interface DobaiCardItem {
   s: number;
   t: string;
 }
-
-const INITIAL_CARDS: CardItem[] = [
-  { k: "曖昧", r: "あいまい", on: "アイマイ", v: "Mơ hồ, không rõ ràng", d: "Chuukyuu", s: 4.2, p: 1, e: "曖昧な返事をするな", ev: "Đừng trả lời mập mờ." },
-  { k: "躊躇", r: "ちゅうちょ", on: "チュウチョ", v: "Do dự, chần chừ", d: "Chuukyuu", s: 6.8, p: 0, e: "躊躇せずに発言する", ev: "Phát biểu không ngần ngại." },
-  { k: "木漏れ日", r: "こもれび", on: "—", v: "Ánh nắng xuyên qua kẽ lá", d: "Life", s: 12.1, p: 3, e: "木漏れ日の中を歩く", ev: "Đi dạo dưới nắng xuyên kẽ lá." },
-  { k: "上げる", r: "あげる", on: "ジョウ", v: "cho, tặng", d: "JPD133", s: 0.8, p: 0, e: "私は山田さんに本をあげました。", ev: "Tôi đã tặng sách cho bạn Yamada." },
-  { k: "両親", r: "りょうしん", on: "リョウシン", v: "bố mẹ, song thân", d: "JPD133", s: 28, p: 0, e: "両親は元気です。", ev: "Bố mẹ tôi khỏe." }
-];
 
 const INITIAL_DOBAI_CARDS: DobaiCardItem[] = [
   { k: "父", r: "ちち", v: "bố (của mình)", e: "父は医者です。", ev: "Bố tôi là bác sĩ.", s: 1, t: "Gia đình" },
@@ -148,64 +128,13 @@ const PQ: [string, string[], number, string][] = [
 
 const BD = (n: number) => n >= 39 ? 9 : n >= 37 ? 8.5 : n >= 35 ? 8 : n >= 33 ? 7.5 : n >= 30 ? 7 : n >= 27 ? 6.5 : 6;
 
-function pn(a: number): string {
-  return a === 0 ? "Heiban [0]" : a === 1 ? "Atamadaka [1]" : "Nakadaka [" + a + "]";
-}
-
-function renderPitchSvg(r: string, a: number) {
-  const m = [...r].filter(c => !"ゃゅょぁぃぅぇぉ".includes(c));
-  const n = m.length;
-  const h: number[] = [];
-  for (let i = 0; i <= n; i++) {
-    h.push(a === 0 ? (i === 0 ? 0 : 1) : a === 1 ? (i === 0 ? 1 : 0) : (i === 0 ? 0 : i < a ? 1 : 0));
-  }
-  const X = (i: number) => 20 + i * 30;
-  const Y = (v: number) => v ? 10 : 34;
-  const pts = h.map((v, i) => X(i) + "," + Y(v)).join(" ");
-  return (
-    <svg width={n * 30 + 36} height="48" aria-label="Pitch accent">
-      <polyline points={pts} fill="none" stroke="var(--gold)" strokeWidth="2" />
-      {h.map((v, i) => (
-        <circle
-          key={i}
-          cx={X(i)}
-          cy={Y(v)}
-          r={i === n ? 4 : 5}
-          fill={i === n ? "var(--paper)" : "var(--ink)"}
-          stroke="var(--ink)"
-        />
-      ))}
-    </svg>
-  );
-}
-
 export default function KiokudoStudioPage() {
   const [tab, setTab] = useState<string>('');
   const [lessonId, setLessonId] = useState<string>('1');
-  const [cards, setCards] = useState<CardItem[]>(INITIAL_CARDS);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // Home Gate language switcher
   const [homeLang, setHomeLang] = useState<'ja' | 'en'>('ja');
-
-  // Karuta Arena state
-  const [karutaQ, setKarutaQ] = useState<CardItem[]>([]);
-  const [karutaIdx, setKarutaIdx] = useState(0);
-  const [karutaRev, setKarutaRev] = useState(false);
-
-  // Cards library search & filter
-  const [cardSearch, setCardSearch] = useState('');
-  const [cardDeck, setCardDeck] = useState('All');
-  const [cardSort, setCardSort] = useState<'s' | 'k'>('s');
-
-  // Shodo Desk state
-  const [shodoForm, setShodoForm] = useState({
-    d: "JPD133",
-    k: "あげる",
-    r: "あげる (あげます)",
-    v: "cho, tặng (tôi cho người khác)\n[Người cho] は [Người nhận] に N を あげます",
-    e: "私は山田さんに本を{{c1::あげました}}。"
-  });
 
   // Dojo verb conjugation state
   const [dojoForm, setDojoForm] = useState('te');
@@ -271,6 +200,11 @@ export default function KiokudoStudioPage() {
     const handleHash = () => {
       const h = window.location.hash.replace(/^#\/?/, '');
       const [n, a] = h.split('/');
+      if (['karuta','cards','shodo'].includes(n)) {
+        window.location.hash = '#/';
+        setTab('');
+        return;
+      }
       if (n === 'lesson') {
         setTab('lesson');
         if (a) setLessonId(a);
@@ -282,28 +216,6 @@ export default function KiokudoStudioPage() {
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
-
-  // Karuta init
-  const startKaruta = useCallback(() => {
-    setKarutaQ([...cards].sort(() => Math.random() - 0.5));
-    setKarutaIdx(0);
-    setKarutaRev(false);
-  }, [cards]);
-
-  useEffect(() => {
-    if (tab === 'karuta') {
-      startKaruta();
-    }
-  }, [tab, startKaruta]);
-
-  const handleKarutaGrade = (g: number) => {
-    if (!karutaRev) return;
-    if (g === 0) {
-      setKarutaQ(prev => [...prev, prev[karutaIdx]]);
-    }
-    setKarutaIdx(i => i + 1);
-    setKarutaRev(false);
-  };
 
   // Dojo pick random verb
   const pickDojoVerb = useCallback(() => {
@@ -537,20 +449,13 @@ export default function KiokudoStudioPage() {
         } else if (k === "p" || k === "P") {
           dobaiSpeak();
         }
-      } else if (tab === 'karuta') {
-        if (e.key === " ") {
-          e.preventDefault();
-          if (!karutaRev) setKarutaRev(true);
-        } else if ("1234".includes(e.key)) {
-          handleKarutaGrade(Number(e.key) - 1);
-        }
       } else if (tab === 'dojo') {
         if (e.key === 'Enter') handleDojoSubmit();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [tab, dobaiRev, dobaiBusy, dobaiSt, karutaRev, karutaIdx]);
+  }, [tab, dobaiRev, dobaiBusy, dobaiSt]);
 
   // Kura latency ticker
   useEffect(() => {
@@ -561,27 +466,8 @@ export default function KiokudoStudioPage() {
     return () => clearInterval(interval);
   }, [tab]);
 
-  const saveShodoCard = (next: boolean) => {
-    if (!shodoForm.k.trim()) return showToast("Cần nhập từ vựng");
-    const newCard: CardItem = {
-      k: shodoForm.k,
-      r: shodoForm.r.split(" ")[0],
-      on: "—",
-      v: shodoForm.v.split("\n")[0],
-      d: shodoForm.d,
-      s: 0,
-      p: 0,
-      e: shodoForm.e.replace(/\{\{c1::(.*?)\}\}/g, "$1"),
-      ev: "",
-    };
-    setCards(prev => [newCard, ...prev]);
-    showToast(`Đã lưu thẻ “${shodoForm.k}”`);
-    if (next) {
-      setShodoForm({ d: "JPD133", k: "", r: "", v: "", e: "" });
-    }
-  };
-
   const goToTab = (t: string) => {
+    if (['karuta','cards','shodo'].includes(t)) return;
     window.location.hash = `#/${t}`;
     setTab(t);
     window.scrollTo(0, 0);
@@ -659,7 +545,6 @@ export default function KiokudoStudioPage() {
           <div style={{ textAlign: "center", marginTop: "28px", display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
             <button className="btn p" onClick={() => goToTab('portal')}>門 Vào Cổng Văn Hóa Honmaru</button>
             <button className="btn" onClick={() => goToTab('dobai')}>復 Vào Bàn Dò Bài</button>
-            <button className="btn" onClick={() => goToTab('karuta')}>札 Vào Karuta Arena</button>
           </div>
         </div>
       )}
@@ -788,29 +673,12 @@ export default function KiokudoStudioPage() {
               </div>
               <button className="go" onClick={() => goToTab('dobai')}><i>稽</i>DRILL NOW</button>
             </div>
-            <div className="stats rv-item on">
-              <div className="stat"><small>TỔNG THẺ</small><b>676</b><span>thẻ · ổn định</span><div className="k">札</div></div>
-              <div className="stat"><small>ĐẾN HẠN HÔM NAY</small><b style={{ color: "var(--shu)" }}>12</b><span>thẻ · ưu tiên</span><div className="k">急</div></div>
-              <div className="stat"><small>MỤC TIÊU GHI NHỚ</small><b>94%</b><span>retention · FSRS v4.5</span><div className="k">憶</div></div>
-              <div className="stat"><small>ĐỘ TRỄ BJORK</small><b>1.4s</b><span>phản xạ trung bình</span><div className="k">速</div></div>
-            </div>
-            <div className="cols">
-              <div className="panel rv-item on">
-                <h3>HÀNG ĐỢI ÔN TẬP ƯU TIÊN</h3>
-                <div className="q"><span className="n">壱</span><div><div className="w">曖昧<small>あいまい</small></div><div className="e">Mơ hồ, không rõ ràng · Atamadaka [1]</div><div className="s">S 4.2d · REPS 5</div></div><button className="lnk" onClick={() => goToTab('dobai')}>Ôn thẻ</button></div>
-                <div className="q"><span className="n">弐</span><div><div className="w">躊躇<small>ちゅうちょ</small></div><div className="e">Do dự, chần chừ · Heiban [0]</div><div className="s">S 6.8d · REPS 7</div></div><button className="lnk" onClick={() => goToTab('dobai')}>Ôn thẻ</button></div>
-                <div className="q"><span className="n">参</span><div><div className="w">木漏れ日<small>こもれび</small></div><div className="e">Ánh nắng xuyên qua kẽ lá · Nakadaka [3]</div><div className="s">S 12.1d · REPS 9</div></div><button className="lnk" onClick={() => goToTab('dobai')}>Ôn thẻ</button></div>
-                <div className="q"><span className="n">四</span><div><div className="w">一期一会<small>いちごいちえ</small></div><div className="e">Đời người gặp một lần, quý trọng duyên</div><div className="s">S 18.5d · REPS 11</div></div><button className="lnk" onClick={() => goToTab('dobai')}>Ôn thẻ</button></div>
-                <div className="q"><span className="n">五</span><div><div className="w">切磋琢磨<small>せっさたくま</small></div><div className="e">Cùng nhau rèn giũa nâng cao thực lực</div><div className="s">S 24.0d · REPS 14</div></div><button className="lnk" onClick={() => goToTab('dobai')}>Ôn thẻ</button></div>
-              </div>
-              <div className="panel rv-item on">
-                <h3>短冊帳 · DANH MỤC BỘ THẺ</h3>
-                <div className="decks">
-                  <div className="tan"><i>語</i><div>JPD133 · Từ vựng Kotoba<small>252 thẻ · 250 mới · 2 đã học</small></div><button className="lnk" onClick={() => goToTab('cards')}>Bắt đầu</button></div>
-                  <div className="tan"><i>漢</i><div>JPD133 · Chữ Kanji<small>232 thẻ · 232 đã học</small></div><button className="lnk" onClick={() => goToTab('karuta')}>Ôn tập</button></div>
-                  <div className="tan"><i>五</i><div>JLPT N5 · Từ vựng cốt lõi<small>78 thẻ · 78 mới</small></div><button className="lnk" onClick={() => goToTab('dobai')}>Bắt đầu</button></div>
-                  <div className="tan"><i>文</i><div>JPD133 · Ngữ pháp Bunbou<small>96 thẻ · 32 quy tắc · Unit 8 hoàn thành 8/8</small></div><button className="lnk" onClick={() => goToTab('grammar')}>Luyện tập</button></div>
-                </div>
+            <div className="panel rv-item on">
+              <h3>LỘ TRÌNH HỌC TẬP</h3>
+              <div className="decks">
+                <div className="tan"><i>復</i><div>Luyện Dò bài<small>Thực hành phản xạ tiếng Nhật</small></div><button className="lnk" onClick={() => goToTab('dobai')}>Bắt đầu</button></div>
+                <div className="tan"><i>文</i><div>Ngữ pháp<small>Học cấu trúc và luyện bài tập</small></div><button className="lnk" onClick={() => goToTab('grammar')}>Mở Grammar</button></div>
+                <div className="tan"><i>英</i><div>IELTS<small>Học và theo dõi bài luyện</small></div><button className="lnk" onClick={() => goToTab('ielts')}>Mở IELTS</button></div>
               </div>
             </div>
           </section>
@@ -984,255 +852,6 @@ export default function KiokudoStudioPage() {
                   )}
                 </div>
               </aside>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* 4. ROUTE KARUTA ARENA */}
-      {/* ============================================================== */}
-      {tab === 'karuta' && (
-        <div className="kt">
-          {karutaIdx >= karutaQ.length ? (
-            <div className="kt box fr" style={{ textAlign: "center", padding: "60px 20px" }}>
-              <div style={{ font: "400 5rem var(--brush)", color: "var(--shu)" }}>完</div>
-              <h1>Đã dò xong {karutaQ.length} thẻ</h1>
-              <button className="btn p" style={{ marginTop: "14px" }} onClick={startKaruta}>Dò lại</button>
-            </div>
-          ) : (
-            <>
-              <div className="hd">
-                <div>
-                  <div className="e">札 · Karuta Card Arena</div>
-                  <h1>Review Queue<small>All Cards</small></h1>
-                </div>
-                <div className="meta">Question <b>{karutaIdx + 1}</b> of {karutaQ.length}</div>
-              </div>
-              <div className="bar" style={{ marginBottom: "22px" }}>
-                <i style={{ width: `${(karutaIdx / karutaQ.length) * 100}%` }} />
-              </div>
-
-              {karutaQ[karutaIdx] && (
-                <div className="tile">
-                  <div className="c">札</div>
-                  <div className="meta">{karutaRev ? "[REVEALED]" : "[QUESTION]"}</div>
-                  <div style={{ margin: "22px 0 6px" }}>
-                    <div className="kana">{karutaQ[karutaIdx].r}</div>
-                    <div className="k">{karutaQ[karutaIdx].k}</div>
-                  </div>
-
-                  {karutaRev ? (
-                    <>
-                      <div className="sub">({karutaQ[karutaIdx].v})</div>
-                      <div className="two">
-                        <div><small>KUN-YOMI</small>{karutaQ[karutaIdx].r}</div>
-                        <div><small>ON-YOMI</small>{karutaQ[karutaIdx].on}</div>
-                      </div>
-                      <div>
-                        {renderPitchSvg(karutaQ[karutaIdx].r, karutaQ[karutaIdx].p)}
-                        <div className="meta">Tokyo Pitch Accent: {pn(karutaQ[karutaIdx].p)}</div>
-                      </div>
-                      <div className="ctx">
-                        <small className="sub">CONTEXT SENTENCE (i+1)</small><br />
-                        「{karutaQ[karutaIdx].e}」<br />
-                        <span className="sub">{karutaQ[karutaIdx].ev}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <p className="sub" style={{ marginTop: "60px" }}>Nhẩm nghĩa và cách đọc, rồi bấm Space.</p>
-                      <button className="btn" style={{ marginTop: "20px" }} onClick={() => setKarutaRev(true)}>
-                        Hiện đáp án (Space)
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-
-              <div className="gr">
-                {[
-                  ["Again", "< 1 min"],
-                  ["Hard", "~ 1.2 d"],
-                  ["Good", "~ 3.5 d"],
-                  ["Easy", "~ 7.0 d"]
-                ].map((x, j) => (
-                  <button
-                    key={j}
-                    className={j === 0 ? "a" : ""}
-                    disabled={!karutaRev}
-                    onClick={() => handleKarutaGrade(j)}
-                  >
-                    {x[0].toUpperCase()}
-                    <small>{x[1]} · Key {j + 1}</small>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* 5. ROUTE CARDS LIBRARY */}
-      {/* ============================================================== */}
-      {tab === 'cards' && (
-        <div>
-          <div className="hd">
-            <div>
-              <div className="e">短冊帳 · Tanzakucho</div>
-              <h1>Card Library<small>{cards.length} cards (demo · thật: 676)</small></h1>
-            </div>
-            <button className="btn p" onClick={() => goToTab('shodo')}>+ New Card</button>
-          </div>
-
-          <div className="row r3" style={{ gridTemplateColumns: "2fr 1fr 1fr", marginBottom: "18px" }}>
-            <input
-              className="in"
-              placeholder="Tìm Kanji, Hiragana…"
-              value={cardSearch}
-              onChange={e => setCardSearch(e.target.value)}
-            />
-            <select className="sel" value={cardDeck} onChange={e => setCardDeck(e.target.value)}>
-              {["All", "JPD133", "Chuukyuu", "Life"].map(x => (
-                <option key={x} value={x}>{x}</option>
-              ))}
-            </select>
-            <select className="sel" value={cardSort} onChange={e => setCardSort(e.target.value as any)}>
-              <option value="s">Sort: Stability</option>
-              <option value="k">Sort: Kanji</option>
-            </select>
-          </div>
-
-          {(() => {
-            const filtered = cards.filter(c =>
-              (cardDeck === 'All' || c.d === cardDeck) &&
-              (c.k + c.r + c.v).toLowerCase().includes(cardSearch.toLowerCase())
-            );
-            filtered.sort((a, b) => cardSort === 's' ? a.s - b.s : a.k.localeCompare(b.k));
-
-            return (
-              <>
-                <div className="box tb">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>KANJI &amp; FURIGANA</th>
-                        <th>READING &amp; PHONETICS</th>
-                        <th>VIETNAMESE</th>
-                        <th>DECK</th>
-                        <th>FSRS</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filtered.length ? filtered.map(c => (
-                        <tr key={c.k}>
-                          <td><ruby>{c.k}<rt>{c.r}</rt></ruby></td>
-                          <td>{c.r}<br /><span className="sub" style={{ fontSize: ".78rem" }}>{pn(c.p)}</span></td>
-                          <td>{c.v}</td>
-                          <td><span className="tag">{c.d}</span></td>
-                          <td>S: {c.s}d</td>
-                          <td>
-                            <button className="lnk" onClick={() => showToast("Demo: mở thẻ trong Shodo Desk")}>Edit</button>
-                            <button
-                              className="lnk"
-                              style={{ color: "var(--sub)" }}
-                              onClick={() => {
-                                setCards(prev => prev.filter(x => x.k !== c.k));
-                                showToast("Đã xóa thẻ");
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      )) : (
-                        <tr><td colSpan={6} className="sub">Không có thẻ phù hợp.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="meta" style={{ marginTop: "12px" }}>Showing 1 - {filtered.length} of {cards.length} cards</div>
-              </>
-            );
-          })()}
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* 6. ROUTE SHODO DESK */}
-      {/* ============================================================== */}
-      {tab === 'shodo' && (
-        <div>
-          <div className="hd">
-            <div>
-              <div className="e">書道 · Shodo Desk</div>
-              <h1>AI Card Composer</h1>
-            </div>
-            <div className="meta">Enter = lưu thẻ</div>
-          </div>
-
-          <div className="row r2">
-            <div className="box">
-              <label className="l" style={{ marginTop: 0 }}>1 · Deck</label>
-              <select className="sel" value={shodoForm.d} onChange={e => setShodoForm({ ...shodoForm, d: e.target.value })}>
-                <option value="JPD133">JPD133</option>
-                <option value="Chuukyuu">Chuukyuu</option>
-                <option value="Life">Life</option>
-              </select>
-
-              <label className="l">2 · Từ vựng / Kanji</label>
-              <input className="in jp" value={shodoForm.k} onChange={e => setShodoForm({ ...shodoForm, k: e.target.value })} />
-
-              <label className="l">3 · Cách đọc Hiragana</label>
-              <input className="in" value={shodoForm.r} onChange={e => setShodoForm({ ...shodoForm, r: e.target.value })} />
-
-              <label className="l">4 · Nghĩa tiếng Việt &amp; ghi chú</label>
-              <textarea className="in" rows={3} value={shodoForm.v} onChange={e => setShodoForm({ ...shodoForm, v: e.target.value })} />
-
-              <label className="l">5 · Câu ví dụ (hỗ trợ &#123;&#123;c1::cloze&#125;&#125;)</label>
-              <input className="in jp" value={shodoForm.e} onChange={e => setShodoForm({ ...shodoForm, e: e.target.value })} />
-
-              <div className="cop">
-                <b>AI Copilot</b><br />
-                • Nhận diện quy tắc Minna Bài 7 (Cho / Nhận)<br />
-                • Tự gán Tokyo Pitch Accent Heiban [0]<br />
-                <button
-                  className="btn"
-                  style={{ marginTop: "10px" }}
-                  onClick={() => {
-                    showToast("Copilot đã áp dụng: Bài 7 · Heiban [0]");
-                    setShodoForm(prev => ({
-                      ...prev,
-                      v: prev.v.includes("Bài 7") ? prev.v : prev.v + "\n(Minna Bài 7 · Heiban [0])",
-                    }));
-                  }}
-                >
-                  Apply Copilot
-                </button>
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "18px", flexWrap: "wrap" }}>
-                <button className="btn p" onClick={() => saveShodoCard(false)}>Save Card (Enter)</button>
-                <button className="btn" onClick={() => saveShodoCard(true)}>Save &amp; Create Next</button>
-              </div>
-            </div>
-
-            <div className="box fr pv">
-              <div className="meta" style={{ textAlign: "left" }}>LIVE CARD PREVIEW · [QUESTION]</div>
-              <div style={{ margin: "20px 0" }}>
-                <div className="k">{shodoForm.k}</div>
-                <div className="sub">{shodoForm.r}</div>
-              </div>
-              <div className="m">{shodoForm.v}</div>
-              <div
-                className="jp"
-                style={{ fontSize: "1.05rem" }}
-                dangerouslySetInnerHTML={{
-                  __html: shodoForm.e.replace(/\{\{c1::(.*?)\}\}/g, '<span class="cz">$1</span>')
-                }}
-              />
             </div>
           </div>
         </div>
@@ -1447,7 +1066,6 @@ export default function KiokudoStudioPage() {
 
               <div style={{ marginTop: "22px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 <button className="btn p" onClick={() => goToTab('practice')}>Practice 12 Exercises Now</button>
-                <button className="btn" onClick={() => goToTab('cards')}>View FSRS Grammar Cards</button>
               </div>
             </div>
           )}
@@ -1636,12 +1254,12 @@ export default function KiokudoStudioPage() {
                 <b>Optimal · <span>{kuraLatency}</span>ms</b>
               </div>
               <div>
-                <span>Secured Cloud Flashcards</span>
-                <b>676 cards · Zero-Regression ✓</b>
+                <span>Learning modules</span>
+                <b>Grammar · JPD133 · IELTS</b>
               </div>
               <div>
-                <span>Offline Buffer (Dexie.js IndexedDB)</span>
-                <b>100% synchronized</b>
+                <span>Learning data</span>
+                <b>Staging verification required</b>
               </div>
             </div>
             <div className="meta" style={{ marginTop: "16px" }}>HEALTH INDICATOR</div>

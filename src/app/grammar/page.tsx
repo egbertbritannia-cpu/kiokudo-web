@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: '文法 · Ngữ pháp Nhật Bản | Japanese SRS System',
-  description: 'Học và ôn luyện 32 cấu trúc ngữ pháp Bài 8 - 11 giáo trình JPD133 kèm 204 bài tập SBT và FSRS Spaced Repetition.',
+  description: 'Học và ôn luyện 32 cấu trúc ngữ pháp Bài 8 - 11 giáo trình JPD133 kèm các bài tập SBT và luyện phản xạ ngữ pháp.',
 };
 
 async function GrammarData() {

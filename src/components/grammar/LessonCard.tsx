@@ -18,18 +18,14 @@ interface LessonCardProps {
     inkanChar?: string;
     description: string;
     stats?: {
-      totalCards: number;
-      dueCards: number;
-      newCards: number;
-      masteryRate: number;
+      totalExercises: number;
     };
   };
 }
 
 export function LessonCard({ lesson }: LessonCardProps) {
   const accent = lesson.accentColor || '#1B4268';
-  const dueCount = lesson.stats?.dueCards || 0;
-  const newCount = lesson.stats?.newCards || 0;
+  const exerciseCount = lesson.stats?.totalExercises || 0;
 
   return (
     <div
@@ -153,7 +149,7 @@ export function LessonCard({ lesson }: LessonCardProps) {
           {lesson.description}
         </p>
 
-        {/* FSRS Stats Pills */}
+        {/* Curriculum and practice counts */}
         <div
           style={{
             display: 'flex',
@@ -166,22 +162,22 @@ export function LessonCard({ lesson }: LessonCardProps) {
           }}
         >
           <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>CẦN ÔN (DUE)</div>
+            <div style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>CẤU TRÚC</div>
             <div
               style={{
                 fontSize: '1.1rem',
                 fontWeight: 800,
-                color: dueCount > 0 ? '#D9381E' : '#2B6B3D',
+                color: '#2B6B3D',
               }}
             >
-              {dueCount}
+              {lesson.patternCount}
             </div>
           </div>
           <div style={{ width: '1px', background: '#E6E1DA' }} />
           <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>MỚI (NEW)</div>
+            <div style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>BÀI TẬP</div>
             <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1B4268' }}>
-              {newCount}
+              {exerciseCount}
             </div>
           </div>
         </div>

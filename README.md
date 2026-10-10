@@ -1,46 +1,23 @@
 # 記憶道 — Kiokudo Web
 
-Kiokudo Frontend — **faithful migration of the existing Kiokudo UI**, not a redesign.
+Next.js frontend for Japanese curriculum practice, Dò bài, Grammar, JPD133, culture and IELTS, with an authenticated staging BFF.
 
-> **Phase 4B read-only staging preview.** The original `japanese-srs-system` remains the live production application. No production cutover or Turso production connection has occurred.
+## Removed: Add Card and Flashcard Review (2026-10-10)
 
-## Preserved UI
+The user-facing flashcard library `/cards`, creation page `/cards/new`, FSRS study page `/review`, and staging cards inspector `/staging/cards` have been removed. The Studio's Karuta/flashcard, Cards and Shodo composer subviews (`/#/karuta`, `/#/cards`, `/#/shodo`) no longer render. Navigation, flashcard-only client outbox, FSRS worker and BFF `/api/v1/cards` and `/api/v1/reviews*` access have been removed.
 
-The visual design from legacy commit `3348f4ee49c9539fb9ea60c96e42833811c325ca` was copied directly:
-
-- `/`: Kiokudo Studio, its existing ten hash views and navigation.
-- `/cards`: traditional woodblock/washi Cards Library, backed by **read-only** Core cards API.
-- `/review`: preserved existing Karuta/Review look; **grading deliberately disabled** until authenticated BFF + offline queue parity passes.
-- `/review/dobai`: original prototype UI (local sample cards; does not persist FSRS).
-- `/culture`: original culture portal.
-- `/conjugation`: original local verb conjugation drill UI and engine.
-- `/grammar`, `/grammar/[lessonId]`: original Japanese Grammar catalog and lesson cards, staging Core read-only GET.
-- `/grammar/practice`: original drill design; local answer scoring only, **no FSRS save**.
-- `/ielts`: original IELTS dashboard using real staging GET responses (no fabricated history/band).
-- `/ielts/session`: original examination timer / local draft, **cloud save disabled**.
-- `/ielts/review`: original analysis/Vocab Vault design, **all write actions disabled**.
-- `/cards/new`: original decommissioned Add Card route.
-- `/ui-demos/`: all three original standalone HTML prototypes remain.
-- `/staging/cards`: previous local-only read-only integration inspector.
-
-Studio, Culture, Dò bài and the original global CSS/navbar, artwork and art manifest are **byte-for-byte identical** to legacy. The original Cards/Review UI markup is preserved; only backend data URLs, failure messages and staging write-guard behavior have changed. `tests/visual-fidelity.test.ts` guards this.
+The separate **Dò bài** feature (`/review/dobai`), **Grammar**, **JPD133 curriculum**, **IELTS**, **Culture**, and **Conjugation** stay supported. Historical card rows in staging/legacy SQLite may still be referenced for migration fidelity; no production data or history was deleted.
 
 ## Development
 
 ```bash
 npm install
 cp .env.example .env.local
-npm run dev
+npm run check
+npm test
+npm run build
 ```
 
-The local BFF remains fail-closed without explicit staging configuration. To read actual cards through a disposable local database, follow [migration instructions](docs/MIGRATION.md) and Core's separate local fixture seed.
+`/api/auth/login`, `/api/auth/logout`, and `/api/auth/session` handle the single-owner session. The BFF at `/api/backend/api/v1/*` allows only retained staging Grammar, curriculum and IELTS routes with signed Core owner assertions and explicit write gates. A production deployment and actual staging data acceptance require operator verification; successful CI with synthetic fixtures is not production acceptance.
 
-### Do not misrepresent prototypes as live
-
-The Studio hash subviews and standalone Dò bài are still the same original in-memory prototypes. The new Review page does **not** save grades, return success, or enqueue false events. No Add Card API is present. The PWA service worker and telemetry are not mounted until their destination routes and privacy boundary have been migrated.
-
-## Migration next
-
-Authentication and per-user scoping in the BFF; transactional FSRS writes plus stable offline event IDs, review undo semantics, grammar/JPD133 persistent ID mapping, IELTS session/log/mistake/vocab **write** contracts, Google/media integrations, screenshot regression and production-backend parity remain pending.
-
-See [Phase 4 fidelity matrix](docs/PHASE4_UI_FIDELITY.md) and [Phase 4B Grammar/IELTS scope](docs/PHASE4B_GRAMMAR_IELTS.md).
+For current API details see `docs/API_ENDPOINTS.yaml`; legacy migration documentation may refer to retired FSRS workflows for historical audit only.

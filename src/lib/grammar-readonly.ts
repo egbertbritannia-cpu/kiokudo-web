@@ -1,8 +1,7 @@
 import { stagingCoreRead } from './core-staging-server';
 
 interface GrammarStats {
- totalLessons:number; totalPatterns:number; totalCards:number;
- dueCards:number;newCards:number;reviewCards:number;
+ totalLessons:number; totalPatterns:number; totalExercises:number;
 }
 type Lesson=Record<string,any>;
 interface IndexResponse {

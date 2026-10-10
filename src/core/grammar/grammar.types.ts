@@ -89,12 +89,6 @@ export interface GrammarExercise {
   createdAt: Date;
 }
 
-export interface GrammarCardGenerationSpec {
-  pattern: GrammarPattern;
-  deckId: string;
-  cardTypes: Array<'recognition' | 'production' | 'cloze' | 'contrast'>;
-}
-
 export interface GrammarDrillSession {
   lessonId?: string;
   exercises: GrammarExercise[];
@@ -104,5 +98,4 @@ export interface GrammarDrillSession {
   incorrectCount: number;
   skippedCount: number;
   sessionStartedAt: Date;
-  cardGrades: Record<string, 'Again' | 'Hard' | 'Good' | 'Easy'>;
 }

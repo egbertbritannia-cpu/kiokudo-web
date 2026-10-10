@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 
 describe('Kiokudo Web bootstrap invariants', () => {
-  it('preserves all three static demos', () => {
-    for (const path of ['kiokudo-cultural-gate','ban-do-bai','kiokudo-studio']) {
+  it('preserves surviving non-flashcard static demos', () => {
+    for (const path of ['kiokudo-cultural-gate','ban-do-bai']) {
       assert.ok(existsSync(`public/ui-demos/${path}.html`));
     }
   });
