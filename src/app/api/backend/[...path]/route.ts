@@ -8,11 +8,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 type Context = { params: Promise<{ path: string[] }> };
-/**
- * Phase 3 local staging gateway — read-only only.
- * Remote/production access MUST remain disabled until web authentication is
- * independently configured and verified. Browser never receives core secret.
- */
+/** Authenticated BFF for retained learning modules only. */
 function isAllowedStagingRead(request: NextRequest): boolean {
   return isStagingReadEnabled(request.nextUrl.hostname);
 }
@@ -21,10 +17,9 @@ function isAllowedStagingRead(request: NextRequest): boolean {
 function isAllowedStagingWrite(method: string, route: string): boolean {
   if (process.env.KIOKUDO_WEB_STAGING_WRITES_ENABLED !== 'true') return false;
   if (method === 'POST') {
-    if (['api/v1/reviews','api/v1/reviews/batch','api/v1/grammar/practice/attempts',
+    if (['api/v1/grammar/practice/attempts',
       'api/v1/ielts/sessions','api/v1/ielts/mistakes','api/v1/ielts/vocab',
       'api/v1/curriculum/jpd133/mappings'].includes(route)) return true;
-    if (/^api\/v1\/reviews\/[A-Za-z0-9_-]{1,256}\/undo$/.test(route)) return true;
     if (/^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/submit$/.test(route)) return true;
   }
   return method === 'PUT' && (
