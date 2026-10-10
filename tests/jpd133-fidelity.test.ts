@@ -8,7 +8,6 @@ const originals = {
   'data/jpd133_vocab.json': '22e18bac5b96c938aaa595bde6c735503411d99e',
   'src/core/curriculum/jpd133-manifest.ts': '5f51a5d6a2ccd6eb1837a2fe0739d371dd07ccf1',
   'src/app/curriculum/jpd133/page.tsx': 'e46f712e2f6ebb7e3ab22ae89b6cb161a4fa55c3',
-  'src/app/curriculum/jpd133/[slot]/page.tsx': '7cb03e806eafb36d4d2beebc0977d602bf5d9d51',
 };
 function gitSha(path:string){
  const b=readFileSync(path);
