@@ -1,11 +1,5 @@
-/**
- * Strict, read-only route/query contract for the localhost staging BFF.
- *
- * This policy is not authentication. It must not be reused as permission to
- * forward POST/PUT/PATCH/DELETE or to expose a shared Core service token.
- */
+/** Strict allowlist for retained Grammar, JPD133 and IELTS staging reads. */
 const fixedRoutes = new Set<string>([
-  'api/v1/cards',
   'api/v1/status',
   'api/v1/grammar',
   'api/v1/grammar/practice',
@@ -20,7 +14,6 @@ const fixedRoutes = new Set<string>([
 const idPattern = /^[A-Za-z0-9_-]{1,128}$/;
 
 const allowedKeys: Record<string, ReadonlySet<string>> = {
-  'api/v1/cards': new Set(['deck', 'search', 'limit']),
   'api/v1/grammar/practice': new Set(['lessonId', 'limit']),
   'api/v1/ielts/sessions': new Set(['limit']),
   'api/v1/curriculum/jpd133/mappings': new Set(['slot']),
@@ -65,8 +58,7 @@ export function isAllowedReadQuery(route: string, search: string): boolean {
 
     switch (key) {
       case 'limit': {
-        const max = route === 'api/v1/cards' ? 2000
-          : route === 'api/v1/grammar/practice' ? 200 : 100;
+        const max = route === 'api/v1/grammar/practice' ? 200 : 100;
         if (!isLimit(value, max)) return false;
         break;
       }
@@ -75,12 +67,6 @@ export function isAllowedReadQuery(route: string, search: string): boolean {
         break;
       case 'lessonId':
         if (value !== 'all' && !idPattern.test(value)) return false;
-        break;
-      case 'deck':
-        if (!value || value.length > 128) return false;
-        break;
-      case 'search':
-        if (value.length > 256) return false;
         break;
       default:
         return false;
