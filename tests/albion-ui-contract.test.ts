@@ -5,14 +5,17 @@ import { join } from 'node:path';
 
 const source = (path:string) => readFileSync(join(process.cwd(),path),'utf8');
 
-test('English navbar matches the six sections and crest from the supplied Albion HTML', () => {
+test('English navbar preserves the five surviving Albion sections and crest', () => {
   const layout = source('src/app/ielts/layout.tsx');
-  for (const label of ['Home','Tracker','Writing','Speaking','Vocab','Logbook']) {
+  for (const label of ['Home','Tracker','Writing','Speaking','Logbook']) {
     assert.ok(layout.includes(`label: '${label}'`), label);
   }
   assert.match(layout,/className="crest">A<\/span>ALBION/);
   assert.match(layout,/className="pill"/);
   assert.match(layout,/<SystemSwitcher \/>/);
+  assert.doesNotMatch(layout,/label: 'Vocab'/);
+  assert.doesNotMatch(layout,/href="\/ielts\/vocab"/);
+  assert.doesNotMatch(layout,/Study Words/);
 });
 
 test('The isolated Albion CSS preserves original palette, typefaces and panel geometry', () => {
@@ -34,7 +37,6 @@ test('Every Albion section exists and keeps the reference screen heading', () =>
     ['tracker/page.tsx','The Cambridge Ledger'],
     ['writing/page.tsx','The Writing Desk'],
     ['speaking/page.tsx','The Conversation Room'],
-    ['vocab/page.tsx','The Lexicon'],
     ['mistakes/page.tsx','The Errata Book'],
   ]) {
     assert.ok(source('src/app/ielts/'+route).includes(heading),route);
@@ -43,8 +45,15 @@ test('Every Albion section exists and keeps the reference screen heading', () =>
 
 test('Original design does not bring back deleted FSRS/card write endpoints',()=>{
   for(const route of ['page.tsx','tracker/page.tsx','writing/page.tsx',
-    'speaking/page.tsx','vocab/page.tsx','mistakes/page.tsx']){
+    'speaking/page.tsx','mistakes/page.tsx']){
     const jsx = source('src/app/ielts/'+route);
     assert.doesNotMatch(jsx,/\/api\/v1\/(cards|reviews)/);
   }
+});
+
+test('Retired Albion Vocabulary route no longer has a page or navigation entry', () => {
+  const { existsSync } = require('node:fs') as typeof import('node:fs');
+  assert.equal(existsSync('src/app/ielts/vocab/page.tsx'),false);
+  const config = source('next.config.ts');
+  assert.ok(config.includes("source: '/ielts/vocab', destination: '/ielts'"));
 });
