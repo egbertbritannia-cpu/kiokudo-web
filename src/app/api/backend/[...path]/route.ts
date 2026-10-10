@@ -27,7 +27,10 @@ function isAllowedStagingWrite(method: string, route: string): boolean {
     if (/^api\/v1\/reviews\/[A-Za-z0-9_-]{1,256}\/undo$/.test(route)) return true;
     if (/^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/submit$/.test(route)) return true;
   }
-  return method === 'PUT' && /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/draft$/.test(route);
+  return method === 'PUT' && (
+    /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/(draft|score)$/.test(route) ||
+    /^api\/v1\/ielts\/mistakes\/[A-Za-z0-9_-]{1,128}$/.test(route)
+  );
 }
 async function forward(request: NextRequest, context: Context): Promise<Response> {
   // Gate runs before even looking up the backend secret.
