@@ -56,6 +56,12 @@ export default function AlbionMistakeLogbook(){
     try{localStorage.setItem('albion_local_mistakes_v1',JSON.stringify(next.filter(x=>x.local)));}catch{}
   }
 
+  useEffect(()=>{
+    if(!notice)return;
+    const timer=window.setTimeout(()=>setNotice(''),2700);
+    return ()=>window.clearTimeout(timer);
+  },[notice]);
+
   return <>
     <div className="hd">
       <div><div className="e">The Errata Book</div><h1>Mistake Logbook</h1></div>
@@ -90,6 +96,6 @@ export default function AlbionMistakeLogbook(){
         <button className="btn p" style={{marginTop:16}} onClick={saveLocal}>Add to logbook</button>
       </div>
     </div>
-    {notice&&<p className="meta" role="status">{notice}</p>}
+    {notice&&<div className="toast" role="status">{notice}</div>}
   </>;
 }
