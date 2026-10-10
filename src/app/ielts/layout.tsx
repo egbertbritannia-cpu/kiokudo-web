@@ -17,7 +17,7 @@ const ENAV = [
   { href: '/ielts/tracker', roman: 'Ⅱ', label: 'Tracker' },
   { href: '/ielts/writing', roman: 'Ⅲ', label: 'Writing' },
   { href: '/ielts/speaking', roman: 'Ⅳ', label: 'Speaking' },
-  { href: '/ielts/mistakes', roman: 'Ⅵ', label: 'Logbook' },
+  { href: '/ielts/mistakes', roman: 'Ⅴ', label: 'Logbook' },
 ];
 
 export default function IeltsLayout({ children }: { children: React.ReactNode }) {
