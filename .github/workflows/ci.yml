@@ -27,8 +27,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: egbertbritannia-cpu/kiokudo-core
-          # Update deliberately only after Core compatibility CI has passed.
-          ref: 6a7530dee4ecb1ab8e3ecc80dbf3c86f19e4c894
+          # P01-P04 draft integration pin (Core PR #8). NOT release-approved; re-pin after review.
+          ref: ac52b6eee0857b9c7dcb62fd42e54d50c1347404
           path: kiokudo-core
           persist-credentials: false
       - uses: actions/setup-node@v4
