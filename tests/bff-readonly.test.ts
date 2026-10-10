@@ -65,7 +65,7 @@ test('BFF read-only GET forwards server token and omits browser credentials',asy
       assert.equal(String(url),'http://127.0.0.1:4000/api/v1/cards?limit=10');
       assert.equal(new Headers(init?.headers).get('authorization'),`Bearer ${token}`);
       assert.equal(new Headers(init?.headers).get('cookie'),null);
-      assert.match(new Headers(init?.headers).get('x-kiokudo-owner-assertion') ?? '', /^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]{43}$/);
+      assert.match(new Headers(init?.headers).get('x-kiokudo-owner-assertion') ?? '', /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/);
       assert.equal(init?.method,'GET');
       return new Response(JSON.stringify({success:true,data:[{id:'fixture',kanji:'父'}],decks:[],deckSummaries:[]}),{
         status:200,headers:{'content-type':'application/json','set-cookie':'SECRET=oops'},
@@ -113,7 +113,7 @@ test('Phase4B BFF forwards only whitelisted Grammar and IELTS GETs',async()=>{
    const bad=await GET(req(),ctx('api','v1','ielts','admin'));
    assert.equal(bad.status,404);
    const hostile=await GET(req(),ctx('api','v1','grammar','..'));
-   assert.equal(hostile.status,404);
+   assert.equal(hostile.status,400,'traversal must be rejected as an invalid route');
    const write=await POST(req('POST'),ctx('api','v1','ielts','sessions'));
    assert.equal(write.status,405);
   }finally{globalThis.fetch=old;}
