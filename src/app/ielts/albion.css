@@ -242,3 +242,13 @@
 @media(prefers-reduced-motion:reduce){
   .albion-ui *{animation:none!important;transition:none!important}
 }
+
+/* Match the original main padding even though legacy globals.css still has
+ * a stronger #app > .english-mode > main reset from the previous IELTS UI. */
+#app > .english-mode.albion-ui > main.albion-main {
+  max-width:1120px;
+  width:100%;
+  margin:0 auto;
+  padding:98px 22px 120px;
+  background:transparent;
+}
