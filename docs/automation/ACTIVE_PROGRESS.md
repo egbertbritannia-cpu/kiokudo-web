@@ -5,16 +5,16 @@
 ## Current checkpoint (đọc phần này trước)
 
 - **CURRENT_PHASE:** `01`
-- **CURRENT_WORK_ITEM:** `P01-AUTH-OPERATOR-CONFIG-REVIEW`
+- **CURRENT_WORK_ITEM:** `P01-CORE-PR6-REVIEW-REAL-STAGING`
 - **PHASE_01_STATUS:** `PARTIAL / TEST_VERIFIED_ON_BRANCH`
-- **LAST_SCHEDULED_RUN:** `NOT_YET_STARTED`
-- **LAST_VERIFIED_PROGRESS_CHANGE:** `2026-10-10 ~08:22 +07` — real GitHub Actions PASS for both PR branches using synthetic isolated staging, NOT real staging certification.
-- **WEB_MAIN_HEAD_LAST_REPORTED:** `2e133016b1e5bbe44378f6620b5c04ad00585fac` — xác minh GitHub main trước PR #9; thay đổi BFF nằm trên branch riêng, chưa merge.
+- **LAST_SCHEDULED_RUN:** `2026-10-10 08:45 +07` — một lượt lịch mới được báo cáo đã chạy rồi bị tạm tắt; report lưu GitHub của lượt đó chưa được xác nhận. Không coi là test/commit mới.
+- **LAST_VERIFIED_PROGRESS_CHANGE:** `2026-10-10 17:35 +07` — trạng thái code/main được đối chiếu lại: Web PR #9 đã merge, Core PR #6 vẫn open; real staging chưa verified.
+- **WEB_MAIN_HEAD_LAST_REPORTED:** `873233f12031bf3c7fa40fce8d7897bec9183584` — **verified current main via compare: identical**; Web PR #9 code/auth đã nằm trên main.
 - **CORE_MAIN_HEAD_LAST_REPORTED:** `67682872d78f37559e4c9e9d109c5c8320d418c1` — xác minh GitHub main, không đổi trong lần coding thủ công.
 - **LEGACY_REFERENCE_PIN:** `3348f4ee49c9539fb9ea60c96e42833811c325ca` — chỉ đối chiếu read-only.
-- **NEXT_ACTION:** [Phase 01 test evidence](reports/PHASE_01_TEST_REPORT_20261010.md) confirms [Web CI run 38012855155](https://github.com/egbertbritannia-cpu/kiokudo-web/actions/runs/38012855155) and [Core CI run 38012513903](https://github.com/egbertbritannia-cpu/kiokudo-core/actions/runs/38012513903) SUCCESS with local synthetic fixtures. Review **both draft PRs together**, provision actual staging-only secrets in protected settings, verify single-owner data provenance and signed principal on real staging, arrange infrastructure rate limiting for public password login, then run approved staged security/E2E/visual checks. Do NOT auto-merge/deploy, touch production, or enable browser review writes. Phase 01 remains PARTIAL until external acceptance.
-- **LAST_COMMIT_OR_PR_FOR_CHECKPOINT:** [Web PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) head `674f089fe9585823725c039fab09daeed7d76bf3` (13 P01 tests, 23 all Web tests, typecheck/build and fixture two-server smoke PASS); [Core PR #6](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/6) head `6a7530dee4ecb1ab8e3ecc80dbf3c86f19e4c894` (4 P01 tests, 26 Node tests, 14 Python tests, typecheck/build PASS). Tests executed by GitHub Actions, no local checkout; both branches unmerged.
-- **BLOCKER_NOW:** fixture CI PASS but no real staging deployment/owner provenance. Operator must configure owner subject, password digest, HMAC secrets, trusted HTTPS public and Core staging hosts and explicit single-owner dataset ACK only after verification. Public login needs infra-level rate limiting. Existing data has no multi-user owner columns; two Draft PRs unmerged. Release NO_GO.
+- **NEXT_ACTION:** [Phase 01 test evidence](reports/PHASE_01_TEST_REPORT_20261010.md) confirms [Web CI run 38012855155](https://github.com/egbertbritannia-cpu/kiokudo-web/actions/runs/38012855155) and [Core CI run 38012513903](https://github.com/egbertbritannia-cpu/kiokudo-core/actions/runs/38012513903) SUCCESS with local synthetic fixtures. Web PR #9 đã được merge vào main: kiểm tra kết quả merge/CI của chính main; tiếp tục **review Core PR #6 còn mở**, provision actual staging-only secrets in protected settings, verify single-owner data provenance and signed principal on real staging, arrange infrastructure rate limiting for public password login, then run approved staged security/E2E/visual checks. Do NOT auto-merge/deploy, touch production, or enable browser review writes. Phase 01 remains PARTIAL until external acceptance.
+- **LAST_COMMIT_OR_PR_FOR_CHECKPOINT:** [Web PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) **MERGED via main commit `873233f12031bf3c7fa40fce8d7897bec9183584`** (prior branch CI: 13 P01 tests, 23 all Web tests, typecheck/build and fixture two-server smoke PASS); [Core PR #6](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/6) head `6a7530dee4ecb1ab8e3ecc80dbf3c86f19e4c894` (4 P01 tests, 26 Node tests, 14 Python tests, typecheck/build PASS). Tests executed by GitHub Actions on branches, no local checkout; **Web has since merged; Core PR #6 remains open**. Do not infer real staging verification.
+- **BLOCKER_NOW:** fixture CI PASS but no real staging deployment/owner provenance. Operator must configure owner subject, password digest, HMAC secrets, trusted HTTPS public and Core staging hosts and explicit single-owner dataset ACK only after verification. Public login needs infra-level rate limiting. Existing data has no multi-user owner columns; Web PR #9 merged, Core PR #6 still open. User-approved real staging setup incomplete. Release NO_GO.
 - **RELEASE_GATE:** `NO_GO`
 - **ALL_PHASES_DONE:** `false`
 - **PRODUCTION_CHANGED_BY_AUTOMATION:** `false`
@@ -35,7 +35,7 @@
 
 | Phase | Tick | Status | Ước lượng cũ (KHÔNG tự động tính là code đã tích hợp) | Điều kiện để tick |
 | --- | --- | --- | --- | --- |
-| 01 Baseline + Auth/BFF | [ ] | PARTIAL / TEST_VERIFIED_BRANCH | 2/10 | Principal/owner isolation + BFF negative tests + code/CI verified |
+| 01 Baseline + Auth/BFF | [ ] | PARTIAL / WEB_MAIN_MERGED_CORE_PR_OPEN | 2/10 (stale provisional score) | Principal/owner isolation + BFF negative tests + code/CI verified |
 | 02 FSRS/offline/undo | [ ] | PARTIAL | 2/10 | IndexedDB persistence, replay, canonical ack, safe undo, integrated tests |
 | 03 DB parity/migration | [ ] | PARTIAL / BLOCKED_EXTERNAL | 2/8 | Patch merged/CI + isolated staging + provenance + verified parity |
 | 04 Grammar/JPD133+IELTS | [ ] | PARTIAL | 1/12 | Stable mapping, authenticated persistence, module integration/E2E |
@@ -44,7 +44,7 @@
 
 ## Bằng chứng cũ và tình trạng tích hợp (không tự động suy ra đã merge)
 
-- Phase 01 report cũ: [P01 branch trước](https://github.com/egbertbritannia-cpu/kiokudo-web/blob/agent/kiokudo-p01-bff-query-guard-20261010/docs/automation/reports/PHASE_01_REPORT.md). **Bổ sung thủ công 10/10:** [Draft PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) đã wire read-only policy vào BFF route thật và guard query/path, code trên branch mới chưa merge; tests/typecheck/build **NOT_EXECUTED theo yêu cầu người dùng**. No verified user principal, browser writes remain disabled.
+- Phase 01 report cũ: [P01 branch trước](https://github.com/egbertbritannia-cpu/kiokudo-web/blob/agent/kiokudo-p01-bff-query-guard-20261010/docs/automation/reports/PHASE_01_REPORT.md). **Trạng thái kiểm tra lại 10/10 17:35:** [Web PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) đã wire read-only policy vào BFF route thật và guard query/path, Web code đã merge trong commit main `873233f`; tests được xác minh từ CI nhánh PR trước merge, chưa xác minh staging thật. No verified user principal, browser writes remain disabled.
 - Phase 02 report: [P02 on branch](https://github.com/egbertbritannia-cpu/kiokudo-web/blob/agent/kiokudo-p02-outbox-20261010/docs/automation/reports/PHASE_02_REPORT.md). Unit tests 10/10 reported PASS cục bộ; pure outbox branch `agent/kiokudo-p02-outbox-20261010`; IndexedDB adapter chưa commit; UI chưa tích hợp, no Core authenticated writes.
 - Phase 03: bản vá snapshot validator và regression tests 32/32 PASS **theo báo cáo lượt trước trên bản vá cục bộ**; branch Core `agent/kiokudo-p03-snapshot-guards-20261010` có thể chưa khác `main`; cần kiểm tra trước khi tạo PR. Không có real production snapshot/staging verification.
 - Phase 04: JPD133/IELTS contract 18/18 PASS **cục bộ theo báo cáo trước**; branch `agent/kiokudo-p04-domain-contracts-20261010` chưa xác minh code committed. Không có confirmed Grammar/IELTS persistence.
@@ -70,10 +70,15 @@
 
 ### Gợi ý danh sách việc P01 đang chờ
 
-- `P01-AUTH-IDENTITY-OWNER`: implemented signed single-owner Web session and signed Core assertion, owner dataset ACK gate, no per-row ownership migration; **CODE_IMPLEMENTED_UNVERIFIED / BLOCKED_EXTERNAL (secrets, staging provenance, public brute-force controls)**.
-- `P01-BFF-READ-GUARDS`: implemented strict path/query allowlist, owner cookie gate and assertion-forwarding on Web PR #9, signed SSR Grammar reads and gated HTTPS staging; **CODE_IMPLEMENTED_UNVERIFIED** (not merged, no tests).
+- `P01-AUTH-IDENTITY-OWNER`: implemented signed single-owner Web session and signed Core assertion, owner dataset ACK gate, no per-row ownership migration; **WEB_MAIN_MERGED_CORE_PR_OPEN / BLOCKED_EXTERNAL (Core review, secrets, staging provenance, public brute-force controls)**.
+- `P01-BFF-READ-GUARDS`: implemented strict path/query allowlist, owner cookie gate and assertion-forwarding on Web PR #9, signed SSR Grammar reads and gated HTTPS staging; **WEB_MAIN_MERGED** (GitHub branch CI previously PASS; no verified real-staging test).
 - `P01-NEGATIVE-AUTH-TESTS`: synthetic unauthenticated, forged/expired/wrong-issuer/wrong-owner and write-disabled scenarios **PASS on GitHub Actions**. Production auth/reliability/security negative tests remain pending.
 - `P01-CONTRACT-CI`: Web/Core Draft PRs and SHA-pinned cross-repo fixture smoke **PASS on CI**; real staging and merge still pending.
 - `P01-ACCEPTANCE`: validate P01 AC matrix; chuyển phase 02 khi tất cả gates đạt; **TODO**.
 
 Sau mỗi lượt, chỉ viết next actions của work item còn dang dở, không nhân bản tất cả checklists.
+
+
+## Lưu ý đối chiếu trạng thái ngày 10/10/2026, ~17:35 +07
+
+Đã xác minh `kiokudo-web/main` HEAD là `873233f12031bf3c7fa40fce8d7897bec9183584` chứa Phase 01 auth/BFF merge PR #9, `kiokudo-core/main` HEAD là `67682872d78f37559e4c9e9d109c5c8320d418c1` và Core PR #6 còn open. **Con số 63% chỉ là 55% baseline + 8 điểm kế hoạch tạm tính cũ, không phải tính toán tiến độ dựa trên code mới nhất**. Phải thiết lập hai chỉ số riêng: (a) implementation on main và (b) production-release verification. Không cộng điểm mới từ nhánh hoặc code mới merge cho đến khi nghiệm thu lại bằng CI/staging. Không phase nào được tick. Bước tiếp: review Core PR #6, kiểm thử tương thích Web main ↔ Core PR, cấu hình staging và real principal/ownership provenance, hoàn thiện rate limit rồi audit gates P01.
