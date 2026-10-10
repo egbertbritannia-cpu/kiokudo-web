@@ -74,20 +74,6 @@ coreEndpoints:
     request: "eventId exerciseId answer answeredAt"
     response: "{success,eventId,status,data}"
   - method: GET
-    path: "/api/v1/curriculum/jpd133/mappings"
-    phase: "p04"
-    security: "owner-read"
-    browserAccess: "BFF GET"
-    request: "slot?"
-    response: "{success,data:[{sourceKey,slotNumber,sourcePage,cardId}]}"
-  - method: POST
-    path: "/api/v1/curriculum/jpd133/mappings"
-    phase: "p04"
-    security: "operator-import"
-    browserAccess: "BFF opt-in"
-    request: "sourceKey slotNumber sourcePage cardId"
-    response: "{success,status,data}"
-  - method: GET
     path: "/api/v1/ielts/dashboard"
     phase: "p04"
     security: "owner-read"
@@ -184,3 +170,4 @@ retiredEndpoints:
   - "/api/v1/reviews"
   - "/api/v1/reviews/batch"
   - "/api/v1/reviews/{eventId}/undo"
+  - "/api/v1/curriculum/jpd133/mappings"
