@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 interface MistakeRecord {
   qNum: number;
+  id?: string;
   category: string;
   rootCause: string;
   actionPlan: string;
@@ -74,8 +75,11 @@ export default function IeltsReviewDesk() {
   const [section, setSection] = useState<'Reading' | 'Listening'>('Reading');
   const [testType, setTestType] = useState<'academic' | 'general'>('academic');
   const [rawScore, setRawScore] = useState<number>(0);
+  const [hasRecordedScore,setHasRecordedScore] = useState(false);
+  const [revision,setRevision] = useState<number|null>(null);
+  const [scoreDirty,setScoreDirty] = useState(false);
   const [analyzingQuestion, setAnalyzingQuestion] = useState<number | null>(null);
-  const [questionList, setQuestionList] = useState<Array<{ qNum: number; yourAnswer: string; correctAnswer: string; isCorrect: boolean }>>([]);
+  const [questionList, setQuestionList] = useState<Array<{ qNum: number; logId?: string; yourAnswer: string; correctAnswer: string; isCorrect: boolean }>>([]);
   const [isSynced, setIsSynced] = useState(false);
 
   // Mistakes
@@ -111,7 +115,12 @@ export default function IeltsReviewDesk() {
         .then((json) => {
           if (json?.success && json?.data) {
             const s = json.data;
-            if (s.rawScore !== null && s.rawScore !== undefined) setRawScore(s.rawScore);
+            if (s.rawScore !== null && s.rawScore !== undefined) {
+              setRawScore(s.rawScore);
+              setHasRecordedScore(true);
+              setScoreDirty(false);
+            }
+            if (typeof s.revision === 'number') setRevision(s.revision);
             if (s.section === 'Reading' || s.section === 'Listening') setSection(s.section);
             if (s.testType === 'academic' || s.testType === 'general') setTestType(s.testType);
             if (s.testNumber) setMaterialTitle(s.testNumber);
@@ -121,6 +130,7 @@ export default function IeltsReviewDesk() {
             if (s.logs && Array.isArray(s.logs) && s.logs.length > 0) {
               const mapped = s.logs.slice(0, 10).map((l: any) => ({
                 qNum: l.questionNumber,
+                logId: l.id,
                 yourAnswer: l.userAnswer || '—',
                 correctAnswer: l.correctAnswer || '—',
                 isCorrect: l.isCorrect ?? false,
@@ -135,6 +145,7 @@ export default function IeltsReviewDesk() {
                 const qNum = m.logId ? parseInt(m.logId.split('_q')[1] || `${idx + 1}`, 10) : idx + 2;
                 loadedMistakes[qNum] = {
                   qNum,
+                  id:m.id,
                   category: m.mistakeCategory || 'Distraction',
                   rootCause: m.rootCauseAnalysis || '',
                   actionPlan: m.actionPlanForImprovement || '',
@@ -166,10 +177,36 @@ export default function IeltsReviewDesk() {
       .catch((err) => console.warn('Could not load vocab from database:', err));
   }, []);
 
-  const currentBand = isSynced ? calculateBand(rawScore, section, testType) : 0;
+  const currentBand = hasRecordedScore || scoreDirty ? calculateBand(rawScore,section,testType) : null;
 
-  const handleScoreChange = (_newScore: number) => {
-    window.alert('Staging chỉ đọc: chưa thể cập nhật band score.');
+  const handleScoreChange = (newScore:number) => {
+    setRawScore(newScore);
+    setScoreDirty(true);
+  };
+
+  const handleSaveScore = async () => {
+    if(!currentSessionId||revision===null||!scoreDirty){
+      window.alert('Chưa có phiên hoặc dữ liệu phiên chưa hỗ trợ ghi điểm.');
+      return;
+    }
+    const key=`kiokudo_score_req_${currentSessionId}`;
+    const requestId=localStorage.getItem(key)??crypto.randomUUID();
+    localStorage.setItem(key,requestId);
+    try{
+      const res=await fetch(`/api/backend/api/v1/ielts/sessions/${encodeURIComponent(currentSessionId)}/score`,{
+        method:'PUT',credentials:'same-origin',cache:'no-store',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({requestId,expectedRevision:revision,rawScore,band:calculateBand(rawScore,section,testType),source:'manual'}),
+      });
+      const payload:unknown=await res.json().catch(()=>null);
+      if(!res.ok||!payload||typeof payload!=='object'||(payload as {success?:boolean}).success!==true)
+        throw new Error('Core score write unconfirmed');
+      const data=(payload as {data?:{revision?:number}}).data;
+      if(typeof data?.revision!=='number')throw new Error('Revision acknowledgement missing');
+      setRevision(data.revision);setHasRecordedScore(true);setScoreDirty(false);
+      localStorage.removeItem(key);
+      window.alert('Đã lưu điểm do bạn nhập trên Core staging.');
+    }catch{window.alert('Chưa nhận xác nhận từ Core; điểm mới chưa được ghi nhận.')}
   };
 
   const openMistakeModal = (qNum: number) => {
@@ -187,11 +224,56 @@ export default function IeltsReviewDesk() {
   };
 
   const saveMistake = async () => {
-    window.alert('Staging chỉ đọc: chưa thể ghi lỗi IELTS.');
+    if(!currentSessionId||analyzingQuestion===null)return;
+    const matchingLog=questionList.find(x=>x.qNum===analyzingQuestion)?.logId;
+    if(!matchingLog){window.alert('Câu hỏi chưa có bản ghi trên Core.');return}
+    const key=`kiokudo_mistake_${currentSessionId}_${analyzingQuestion}`;
+    const existing=mistakes[analyzingQuestion];
+    const eventId=existing?.id??localStorage.getItem(key)??crypto.randomUUID();
+    localStorage.setItem(key,eventId);
+    const body={id:eventId,sessionId:currentSessionId,logId:matchingLog,
+      category:activeCategory,rootCause:activeRootCause,actionPlan:activeActionPlan};
+    const url=existing?.id
+      ?`/api/backend/api/v1/ielts/mistakes/${encodeURIComponent(eventId)}`
+      :'/api/backend/api/v1/ielts/mistakes';
+    try{
+      const res=await fetch(url,{
+        method:existing?.id?'PUT':'POST',credentials:'same-origin',cache:'no-store',
+        headers:{'content-type':'application/json'},body:JSON.stringify(body),
+      });
+      const payload:unknown=await res.json().catch(()=>null);
+      if(!res.ok||!payload||typeof payload!=='object'||(payload as {success?:boolean}).success!==true)
+        throw new Error('Missing mistake acknowledgement');
+      setMistakes(prev=>({...prev,[analyzingQuestion]:{
+        id:eventId,qNum:analyzingQuestion,category:activeCategory,
+        rootCause:activeRootCause,actionPlan:activeActionPlan,
+      }}));
+      localStorage.removeItem(key);
+      setAnalyzingQuestion(null);
+    }catch{window.alert('Chưa lưu được phân tích lỗi trên Core; hãy thử lại.')}
   };
 
   const handleAddVocab = async () => {
-    window.alert('Staging chỉ đọc: chưa thể thêm từ vào Vocab Vault.');
+    if(!newWord.trim())return;
+    const key=`kiokudo_vocab_req_${newWord.trim().normalize('NFC')}`;
+    const eventId=localStorage.getItem(key)??crypto.randomUUID();
+    localStorage.setItem(key,eventId);
+    try{
+      const response=await fetch('/api/backend/api/v1/ielts/vocab',{
+        method:'POST',credentials:'same-origin',cache:'no-store',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:eventId,sessionId:currentSessionId,word:newWord.trim(),
+          meaning:newMeaning,partOfSpeech:newPos,phonetic:newPhonetic,contextSentence:newSentence}),
+      });
+      const payload:unknown=await response.json().catch(()=>null);
+      if(!response.ok||!payload||typeof payload!=='object'||(payload as {success?:boolean}).success!==true)
+        throw new Error('Vocab not persisted');
+      setVocabList(prev=>[...prev,{id:eventId,word:newWord.trim(),partOfSpeech:newPos,
+        phonetic:newPhonetic,meaning:newMeaning,contextSentence:newSentence}]);
+      localStorage.removeItem(key);
+      setShowVocabModal(false);
+      setNewWord('');setNewMeaning('');setNewSentence('');setNewPhonetic('');
+    }catch{window.alert('Chưa được Core xác nhận thêm từ vựng.')}
   };
 
   return (
@@ -274,7 +356,7 @@ export default function IeltsReviewDesk() {
               color: '#137333',
               fontWeight: 'bold',
             }}>
-              ● LibSQL Cloud Synced
+              ● Đã đọc từ Core staging
             </span>
           )}
         </div>
@@ -295,6 +377,11 @@ export default function IeltsReviewDesk() {
               onChange={(e) => handleScoreChange(Number(e.target.value))}
               style={{ width: '100%', marginTop: '0.5rem', accentColor: 'var(--primary-color)' }}
             />
+            <button type="button" onClick={handleSaveScore}
+              disabled={!currentSessionId || !scoreDirty || revision===null}
+              style={{ marginTop: '0.65rem',padding: '0.45rem 0.75rem' }}>
+              Lưu điểm do tôi nhập
+            </button>
           </div>
 
           <div style={{ padding: '1rem', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
@@ -302,10 +389,10 @@ export default function IeltsReviewDesk() {
               Estimated Band
             </div>
             <div style={{ fontSize: '2.4rem', color: '#059669', fontWeight: 'bold', fontVariantNumeric: 'tabular-nums' }}>
-              {currentBand.toFixed(1)}
+              {currentBand === null ? '—' : currentBand.toFixed(1)}
             </div>
             <div style={{ fontSize: '0.8rem', color: '#666' }}>
-              Quy chuẩn thang điểm Cambridge
+              Điểm ước tính theo đáp án do bạn nhập
             </div>
           </div>
 
@@ -314,7 +401,7 @@ export default function IeltsReviewDesk() {
               Lỗi cần phân tích
             </div>
             <div style={{ fontSize: '2.4rem', color: 'var(--error-color)', fontWeight: 'bold' }}>
-              {40 - rawScore} câu
+              {hasRecordedScore ? 40 - rawScore : '—'} câu
             </div>
             <div style={{ fontSize: '0.8rem', color: '#666' }}>
               Đã phân tích: {Object.keys(mistakes).length} lỗi
