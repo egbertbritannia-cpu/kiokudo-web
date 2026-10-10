@@ -137,16 +137,17 @@ test('P01: route/query denylist stops unknown paths, duplicates and malicious qu
   });
 });
 
-test('P01: unsigned browser cannot read Core or submit a review via BFF', async () => {
+test('P01: private Core access stays denied when loginless local is disabled', async () => {
   await withFixture(async () => {
     const url = 'http://localhost:3000/api/backend/api/v1/grammar/practice?limit=10';
     const ctx = { params: Promise.resolve({ path:['api','v1','grammar','practice'] }) };
     const anonymous = await coreRead(request(url), ctx);
-    assert.equal(anonymous.status,401);
+    assert.equal(anonymous.status,403);
+    assert.equal((await anonymous.json()).error,'private_data_access_disabled');
     const forbidden = await coreRead(request(url,'GET',{
       headers:{cookie:'kiokudo_owner_session=untrusted'},
     }),ctx);
-    assert.equal(forbidden.status,401);
+    assert.equal(forbidden.status,403);
     const review = await coreWrite(request(url,'POST'),ctx);
     assert.equal(review.status,403);
   });
