@@ -81,3 +81,26 @@ export async function replayStoredReviews(ownerKey:string):
     return await replayOwner(db,ownerKey,sendReview);
   }finally{db.close()}
 }
+
+
+/** A sent review is undoable only after Core explicitly acknowledges its reversal. */
+export async function undoAcknowledgedReview(ownerKey:string,eventId:string):Promise<boolean>{
+  const verified=await activeReviewOwner();
+  if(!verified||verified!==ownerKey)return false;
+  const db=store();
+  try {
+    const event=(await db.list(ownerKey)).find(x=>x.eventId===eventId);
+    if(!event||event.status!=='acknowledged')return false;
+    const res=await fetch(`${endpoint}/${encodeURIComponent(eventId)}/undo`,{
+      method:'POST',credentials:'same-origin',cache:'no-store',
+      headers:{'content-type':'application/json'},body:'{}',
+    });
+    if(!res.ok)return false;
+    const body:unknown=await res.json().catch(()=>null);
+    if(!body||typeof body!=='object')return false;
+    const b=body as Record<string,unknown>;
+    if(b.success!==true||b.eventId!==eventId||!['undone','already_undone'].includes(String(b.status)))return false;
+    await db.events.delete(eventId);
+    return true;
+  }finally{db.close()}
+}
