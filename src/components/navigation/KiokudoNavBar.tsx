@@ -1,6 +1,9 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
+import { isIeltsPath } from '@/lib/system-routes';
+import { SystemSwitcher } from './SystemSwitcher';
 
 export const NAV_ITEMS = [
   { href: '/#/', tab: '', kanji: '家', label: 'Home' },
@@ -8,7 +11,6 @@ export const NAV_ITEMS = [
   { href: '/#/dobai', tab: 'dobai', kanji: '復', label: 'Dò bài' },
   { href: '/#/dojo', tab: 'dojo', kanji: '道', label: 'Dojo' },
   { href: '/#/grammar', tab: 'grammar', kanji: '文', label: 'Grammar' },
-  { href: '/#/ielts', tab: 'ielts', kanji: '英', label: 'IELTS' },
   { href: '/#/kura', tab: 'kura', kanji: '蔵', label: 'Kura' },
 ];
 
@@ -16,6 +18,7 @@ export const NAV_ITEMS = [
  * KiokudoNavBar - Copy y chang 100% từ doc/kiokudo-studio.html
  */
 export function KiokudoNavBar() {
+  const pathname = usePathname();
   const [currentHash, setCurrentHash] = React.useState('');
 
   React.useEffect(() => {
@@ -28,6 +31,9 @@ export function KiokudoNavBar() {
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   }, []);
+
+  // IELTS has its own existing navbar; never display both navbars together.
+  if (isIeltsPath(pathname)) return null;
 
   const isCurrent = (tab: string) => {
     if (tab === '' && currentHash === '') return true;
@@ -58,6 +64,7 @@ export function KiokudoNavBar() {
         <a className="cta" href="/#/dobai">
           <b>復</b> Dò bài
         </a>
+        <SystemSwitcher />
       </nav>
 
       {/* 2. MOBILE PILL NAV (COPY Y CHANG KIOKUDO-STUDIO.HTML) */}
