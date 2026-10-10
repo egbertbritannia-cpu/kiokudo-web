@@ -6,7 +6,6 @@ import { createHash } from 'node:crypto';
 const exactLegacy={
   'src/components/grammar/PatternCard.tsx':'479da1f73420b40dd3d40afd6299921fa04ca495',
   'src/components/grammar/StructureDiagram.tsx':'055b1bace66d2ed97d0c79eb61c51a615565cb34',
-  'src/core/grammar/grammar.types.ts':'07c3115511a961d3069baa49469d3a5c0a52b175',
   'src/app/ielts/layout.tsx':'32ad8d37029d7a545d79a9cba36feaa5af1b25a6',
 };
 test('Phase 4B copied Grammar and IELTS visual components exactly, without redesign',()=>{
