@@ -4,8 +4,6 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 const exactLegacy={
-  'src/components/grammar/GrammarGallery.tsx':'fefcbd5815cd9dc3363a2996c8be7388af965e3f',
-  'src/components/grammar/LessonCard.tsx':'22cd5eea7e3d94426c50e5ec8ee0d42ed5de895d',
   'src/components/grammar/PatternCard.tsx':'479da1f73420b40dd3d40afd6299921fa04ca495',
   'src/components/grammar/StructureDiagram.tsx':'055b1bace66d2ed97d0c79eb61c51a615565cb34',
   'src/core/grammar/grammar.types.ts':'07c3115511a961d3069baa49469d3a5c0a52b175',
