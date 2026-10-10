@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { signCoreOwnerAssertion, verifyOwnerSession, SESSION_COOKIE } from './owner-auth-server';
+import { isStagingReadEnabled, stagingCoreOrigin } from './staging-core-origin';
 
 /**
  * Server-only local staging Core reader, deliberately NOT a browser DB client.
@@ -7,20 +8,18 @@ import { signCoreOwnerAssertion, verifyOwnerSession, SESSION_COOKIE } from './ow
  * Real production activation requires separate authenticated architecture review.
  */
 export async function stagingCoreRead<T>(path:string):Promise<T> {
-  if(process.env.NODE_ENV!=='development' || process.env.KIOKUDO_STAGING_READ_ENABLED!=='true') {
+  if (!isStagingReadEnabled()) {
     throw new Error('staging_preview_disabled');
   }
-  if(!/^\/api\/v1\/(grammar(?:\/[A-Za-z0-9_-]{1,128})?)$/.test(path)) {
+  if (!/^\/api\/v1\/(grammar(?:\/[A-Za-z0-9_-]{1,128})?)$/.test(path)) {
     throw new Error('staging_route_not_allowed');
   }
-  const origin=process.env.KIOKUDO_CORE_URL;
-  const token=process.env.KIOKUDO_CORE_SERVICE_TOKEN;
-  if(!origin||!token||token.length<24||token.startsWith('replace-'))throw new Error('core_not_configured');
-  const url=new URL(origin);
-  if(url.protocol!=='http:'||!['localhost','127.0.0.1'].includes(url.hostname)||
-    url.username||url.password||url.search||url.hash||!['','/'].includes(url.pathname)) {
-    throw new Error('core_not_local_staging');
+  const origin = process.env.KIOKUDO_CORE_URL;
+  const token = process.env.KIOKUDO_CORE_SERVICE_TOKEN;
+  if (!origin || !token || token.length < 24 || token.startsWith('replace-')) {
+    throw new Error('core_not_configured');
   }
+  const url = stagingCoreOrigin(origin);
   url.pathname=path;
   const owner=verifyOwnerSession((await cookies()).get(SESSION_COOKIE)?.value);
   if(!owner)throw new Error('authentication_required');
