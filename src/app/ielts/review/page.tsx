@@ -268,7 +268,7 @@ export default function IeltsReviewDesk() {
       const payload:unknown=await response.json().catch(()=>null);
       if(!response.ok||!payload||typeof payload!=='object'||(payload as {success?:boolean}).success!==true)
         throw new Error('Vocab not persisted');
-      setVocabList(prev=>[...prev,{id:eventId,word:newWord.trim(),partOfSpeech:newPos,
+      setVocabList(prev=>[...prev.filter(item=>item.id!==eventId),{id:eventId,word:newWord.trim(),partOfSpeech:newPos,
         phonetic:newPhonetic,meaning:newMeaning,contextSentence:newSentence}]);
       localStorage.removeItem(key);
       setShowVocabModal(false);
@@ -367,7 +367,7 @@ export default function IeltsReviewDesk() {
               Raw Score
             </div>
             <div style={{ fontSize: '2.4rem', color: 'var(--primary-color)', fontWeight: 'bold', fontVariantNumeric: 'tabular-nums' }}>
-              {rawScore} / 40
+              {hasRecordedScore || scoreDirty ? rawScore : '—'} / 40
             </div>
             <input
               type="range"
