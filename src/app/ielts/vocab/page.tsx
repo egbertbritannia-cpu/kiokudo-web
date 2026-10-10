@@ -19,15 +19,18 @@ const REFERENCE_WORDS:Word[] = [
 ];
 
 export default function AlbionVocab() {
+  // This recreates the original HTML's Lexicon presentation. No FSRS, grading
+  // API, card CRUD or SRS queue is involved in this English-only word preview.
   const [words,setWords]=useState<Word[]>(REFERENCE_WORDS);
   const [index,setIndex]=useState(0);
-  const [fromCore,setFromCore]=useState(false);
+  const [revealed,setRevealed]=useState(false);
+
   useEffect(()=>{
     fetch('/api/backend/api/v1/ielts/vocab',{cache:'no-store'})
       .then(res=>res.ok?res.json():null)
       .then(json=>{
         if(json?.success&&Array.isArray(json.data)&&json.data.length){
-          const source:Word[] = json.data.filter((x:{word?:unknown})=>typeof x.word==='string')
+          const source:Word[]=json.data.filter((x:{word?:unknown})=>typeof x.word==='string')
             .map((v:{
               id?:string;word:string;phonetic?:string;partOfSpeech?:string;
               primaryMeaning?:string;meaning?:string;definition?:string;
@@ -38,42 +41,72 @@ export default function AlbionVocab() {
               definition:v.definition||'',collocation:v.collocation||'',
               example:v.contextSentence||'',
             }));
-          if(source.length){setWords(source);setIndex(0);setFromCore(true);}
+          if(source.length){setWords(source);setIndex(0);setRevealed(false);}
         }
       }).catch(()=>{});
   },[]);
 
-  const word=words[index];
-  if(!word)return null;
+  function next(repeat:boolean) {
+    if(!revealed||index>=words.length)return;
+    if(repeat)setWords(prev=>[...prev,prev[index]]);
+    setIndex(i=>i+1);
+    setRevealed(false);
+  }
+
+  useEffect(()=>{
+    function keys(e:KeyboardEvent) {
+      const target=e.target as HTMLElement | null;
+      if(target?.closest('button,input,textarea,select,[contenteditable="true"]'))return;
+      if(e.key===' '&&!revealed){e.preventDefault();setRevealed(true);}
+      else if(e.key==='1'&&revealed)next(true);
+      else if(e.key==='2'&&revealed)next(false);
+    }
+    document.addEventListener('keydown',keys);
+    return ()=>document.removeEventListener('keydown',keys);
+  });
+
+  if(index>=words.length)return <div className="kt box fr" style={{textAlign:'center',padding:'50px 20px'}}>
+    <div className="jp" style={{font:'700 3rem var(--mincho)',color:'var(--shu)'}}>Fin.</div>
+    <h1>Đã ôn {words.length} từ học thuật</h1>
+    <button className="btn p" style={{marginTop:14}} onClick={()=>{setWords(REFERENCE_WORDS);setIndex(0);setRevealed(false);}}>Ôn lại</button>
+  </div>;
+
+  const w=words[index];
   return <div className="kt">
     <div className="hd">
       <div><div className="e">The Lexicon</div><h1>Academic Vocabulary</h1></div>
       <div className="meta"><b>{index+1}</b> / {words.length}</div>
     </div>
     <div className="bar" style={{marginBottom:22}}>
-      <i style={{width:`${(index+1)/words.length*100}%`}}/>
+      <i style={{width:`${index/words.length*100}%`}}/>
     </div>
     <div className="tile">
       <div className="c">A</div>
-      <div className="meta">[WORD]</div>
-      <div className="k" style={{marginTop:26,fontSize:'3rem'}}>{word.word}</div>
-      <div className="kana">{word.phonetic} · {word.partOfSpeech}</div>
-      <div style={{marginTop:16,fontWeight:600}}>{word.meaning}</div>
-      <div className="sub" style={{fontSize:'.9rem'}}>{word.definition}</div>
-      <div className="two">
-        <div><small>COLLOCATION</small>{word.collocation||'—'}</div>
-        <div><small>LEVEL</small>Band 7+</div>
-      </div>
-      <div className="ctx">{word.example||'—'}</div>
+      <div className="meta">{revealed?'[DEFINITION]':'[WORD]'}</div>
+      <div className="k" style={{marginTop:26,fontSize:'3rem'}}>{w.word}</div>
+      <div className="kana">{w.phonetic} · {w.partOfSpeech}</div>
+      {revealed
+        ? <>
+            <div style={{marginTop:16,fontWeight:600}}>{w.meaning}</div>
+            <div className="sub" style={{fontSize:'.9rem'}}>{w.definition}</div>
+            <div className="two">
+              <div><small>COLLOCATION</small>{w.collocation}</div>
+              <div><small>LEVEL</small>Band 7+</div>
+            </div>
+            <div className="ctx">{w.example}</div>
+          </>
+        : <>
+            <p className="sub" style={{marginTop:70}}>Nhớ nghĩa trong đầu, rồi bấm Space.</p>
+            <button className="btn" style={{marginTop:18}} onClick={()=>setRevealed(true)}>Reveal (Space)</button>
+          </>}
     </div>
     <div className="gr">
-      <button type="button" disabled={index===0} onClick={()=>setIndex(i=>Math.max(0,i-1))}>
-        PREVIOUS<small>Browse words</small>
+      <button className="a" type="button" disabled={!revealed} onClick={()=>next(true)}>
+        AGAIN<small>Key 1</small>
       </button>
-      <button type="button" onClick={()=>setIndex(i=>(i+1)%words.length)}>
-        NEXT<small>Browse words</small>
+      <button type="button" disabled={!revealed} onClick={()=>next(false)}>
+        GOOD<small>Key 2</small>
       </button>
     </div>
-    {!fromCore&&<p className="meta" style={{marginTop:14}}>Ví dụ từ vựng theo bản thiết kế Albion; không phải tiến độ đã lưu.</p>}
   </div>;
 }
