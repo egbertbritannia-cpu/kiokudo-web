@@ -28,6 +28,13 @@ test('old studio IELTS hashes resolve to real IELTS pages', () => {
   assert.equal(legacyIeltsHashToPath('#ielts'), '/ielts');
   assert.equal(legacyIeltsHashToPath('#/ielts/session'), '/ielts/session');
   assert.equal(legacyIeltsHashToPath('#/ielts/review'), '/ielts/review');
+  assert.equal(legacyIeltsHashToPath('#/en'), '/ielts');
+  assert.equal(legacyIeltsHashToPath('#/en/tracker'), '/ielts/tracker');
+  assert.equal(legacyIeltsHashToPath('#/en/writing'), '/ielts/writing');
+  assert.equal(legacyIeltsHashToPath('#/en/speaking'), '/ielts/speaking');
+  assert.equal(legacyIeltsHashToPath('#/en/vocab'), '/ielts/vocab');
+  assert.equal(legacyIeltsHashToPath('#/en/mistakes'), '/ielts/mistakes');
+  assert.equal(legacyIeltsHashToPath('#/ielts/tracker'), '/ielts/tracker');
   assert.equal(legacyIeltsHashToPath('#/ielts/unknown'), '/ielts');
   assert.equal(legacyIeltsHashToPath('#/dobai'), null);
   assert.equal(legacyIeltsHashToPath('#/grammar'), null);
