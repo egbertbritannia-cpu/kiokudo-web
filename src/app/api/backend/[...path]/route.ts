@@ -1,3 +1,4 @@
+import { hasTrustedRequestOrigin } from '@/lib/origin-policy';
 import type { NextRequest } from 'next/server';
 import { isAllowedReadQuery, isAllowedReadRoute } from '@/lib/bff-read-policy';
 import { sessionFromCookieHeader, signCoreOwnerAssertion } from '@/lib/owner-auth-server';
@@ -24,7 +25,7 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     return Response.json({error:'method_not_allowed'}, {status:405});
   }
   const origin = request.headers.get('origin');
-  if (origin && origin !== request.nextUrl.origin) {
+  if (origin && !hasTrustedRequestOrigin(request)) {
     return Response.json({error:'forbidden_origin'}, {status:403});
   }
   const site = request.headers.get('sec-fetch-site');
