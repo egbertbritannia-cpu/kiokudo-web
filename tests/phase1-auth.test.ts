@@ -7,6 +7,7 @@ import {
   verifyOwnerPassword, signCoreOwnerAssertion,
 } from '../src/lib/owner-auth-server.js';
 import { isAllowedReadRoute, isAllowedReadQuery } from '../src/lib/bff-read-policy.js';
+import { hasTrustedRequestOrigin } from '../src/lib/origin-policy.js';
 import { isStagingReadEnabled, stagingCoreOrigin } from '../src/lib/staging-core-origin.js';
 import { POST as login } from '../src/app/api/auth/login/route.js';
 import { POST as logout } from '../src/app/api/auth/logout/route.js';
@@ -24,7 +25,7 @@ const envKeys = [
   'KIOKUDO_INTERNAL_ASSERTION_KEY', 'KIOKUDO_LOGIN_PASSWORD_SCRYPT',
   'KIOKUDO_STAGING_READ_ENABLED', 'KIOKUDO_REMOTE_STAGING_READ_ENABLED',
   'KIOKUDO_CORE_URL', 'KIOKUDO_CORE_SERVICE_TOKEN',
-  'KIOKUDO_CORE_ALLOWED_HOST',
+  'KIOKUDO_CORE_ALLOWED_HOST', 'KIOKUDO_WEB_PUBLIC_ORIGIN',
 ] as const;
 
 async function withFixture(run: () => Promise<void>) {
@@ -188,5 +189,31 @@ test('P01: middleware blocks unauthenticated learner pages and allows valid sign
     const cookie = SESSION_COOKIE + '=' + createOwnerSession();
     const allowed = await middleware(request(location,'GET',{headers:{cookie}}));
     assert.equal(allowed.headers.get('x-middleware-next'),'1');
+  });
+});
+
+
+test('P01: same-origin CSRF policy tolerates only local host aliases and pins public HTTPS origin', async () => {
+  await withFixture(async () => {
+    assert.equal(hasTrustedRequestOrigin(request('http://localhost:3000/api/auth/login','POST',{
+      headers:{origin:'http://127.0.0.1:3000',host:'127.0.0.1:3000'},
+    })),true);
+    assert.equal(hasTrustedRequestOrigin(request('http://localhost:3000/api/auth/login','POST',{
+      headers:{origin:'http://attacker.example',host:'localhost:3000'},
+    })),false);
+    assert.equal(hasTrustedRequestOrigin(request('http://localhost:3000/api/auth/login','POST',{
+      headers:{origin:'http://127.0.0.1:3001',host:'localhost:3000'},
+    })),false);
+    Object.assign(process.env,{NODE_ENV:'production',KIOKUDO_WEB_PUBLIC_ORIGIN:'https://staging.example.org'});
+    assert.equal(hasTrustedRequestOrigin(request('https://staging.example.org/api/auth/login','POST',{
+      headers:{origin:'https://staging.example.org',host:'staging.example.org'},
+    })),true);
+    assert.equal(hasTrustedRequestOrigin(request('https://staging.example.org/api/auth/login','POST',{
+      headers:{origin:'https://other.example.org',host:'staging.example.org'},
+    })),false);
+    delete process.env.KIOKUDO_WEB_PUBLIC_ORIGIN;
+    assert.equal(hasTrustedRequestOrigin(request('https://staging.example.org/api/auth/login','POST',{
+      headers:{origin:'https://staging.example.org',host:'staging.example.org'},
+    })),false);
   });
 });
