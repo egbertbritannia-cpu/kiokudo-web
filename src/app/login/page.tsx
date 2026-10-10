@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -8,6 +8,25 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/session', { cache: 'no-store' })
+      .then(response => response.ok ? response.json() : null)
+      .then(result => setAuthenticated(result?.authenticated === true))
+      .catch(() => setAuthenticated(false));
+  }, []);
+
+  async function logout() {
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('logout_failed');
+      setAuthenticated(false);
+      router.refresh();
+    } catch {
+      setError('Không thể đăng xuất. Vui lòng thử lại.');
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,6 +55,17 @@ export default function LoginPage() {
     }
   }
 
+  if (authenticated) {
+    return <main style={{padding:'3rem',maxWidth:520,margin:'auto'}}>
+      <h1>Kiokudo · Đã đăng nhập</h1>
+      <p><a href="/">Về trang chủ</a></p>
+      <button type="button" onClick={logout}
+        style={{padding:'0.7rem 1.2rem',border:'1px solid #AA9B87',borderRadius:8}}>
+        Đăng xuất
+      </button>
+      {error && <p role="alert">{error}</p>}
+    </main>;
+  }
   return (
     <main style={{ minHeight: '75vh', display: 'grid', placeItems: 'center', padding: '2rem',
       background: 'var(--washi-base, #FAF8F5)' }}>
