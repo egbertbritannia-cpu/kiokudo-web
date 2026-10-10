@@ -30,7 +30,7 @@ const envKeys = [
 async function withFixture(run: () => Promise<void>) {
   const previous = Object.fromEntries(envKeys.map(key => [key, process.env[key]]));
   try {
-    process.env.NODE_ENV = 'development';
+    Object.assign(process.env, { NODE_ENV: 'development' });
     process.env.KIOKUDO_OWNER_SUBJECT = owner;
     process.env.KIOKUDO_SESSION_SECRET = 'fixture-session-key-not-a-deploy-secret-2026';
     process.env.KIOKUDO_INTERNAL_ASSERTION_KEY = 'fixture-core-key-not-a-deploy-secret-2026';
@@ -44,7 +44,7 @@ async function withFixture(run: () => Promise<void>) {
     for (const key of envKeys) {
       const old = previous[key];
       if (old === undefined) delete process.env[key];
-      else process.env[key] = old;
+      else Reflect.set(process.env, key, old);
     }
   }
 }
@@ -170,7 +170,7 @@ test('P01: staging URL cannot silently target production or unpinned hosts', asy
     assert.equal(stagingCoreOrigin('http://127.0.0.1:4000').hostname,'127.0.0.1');
     assert.throws(()=>stagingCoreOrigin('https://production.example.com'));
     assert.throws(()=>stagingCoreOrigin('http://127.0.0.1:4000/internal'));
-    process.env.NODE_ENV='production';
+    Object.assign(process.env, { NODE_ENV: 'production' });
     process.env.KIOKUDO_REMOTE_STAGING_READ_ENABLED='true';
     process.env.KIOKUDO_CORE_ALLOWED_HOST='staging.example.org';
     assert.equal(stagingCoreOrigin('https://staging.example.org').hostname,'staging.example.org');
