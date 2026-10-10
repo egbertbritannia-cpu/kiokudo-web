@@ -1,4 +1,6 @@
-import { createHmac, scryptSync, timingSafeEqual } from 'node:crypto';
+import { createHmac, scrypt, timingSafeEqual } from 'node:crypto';
+import { promisify } from 'node:util';
+const asyncScrypt = promisify(scrypt);
 
 export const SESSION_COOKIE = 'kiokudo_owner_session';
 const MAX_SESSION_SECONDS = 12 * 60 * 60;
@@ -33,13 +35,13 @@ function validLoginConfig(): boolean {
 }
 
 /** Format: 32-character hex salt : 128-character hex scrypt output. */
-export function verifyOwnerPassword(password: unknown): boolean {
+export async function verifyOwnerPassword(password: unknown): Promise<boolean> {
   if (typeof password !== 'string' || password.length < 16 || password.length > 256 ||
       !validLoginConfig()) return false;
   const stored = process.env.KIOKUDO_LOGIN_PASSWORD_SCRYPT ?? '';
   if (!/^[a-fA-F0-9]{32}:[a-fA-F0-9]{128}$/.test(stored)) return false;
   const [salt, hex] = stored.split(':');
-  const actual = scryptSync(password, Buffer.from(salt, 'hex'), 64);
+  const actual = await asyncScrypt(password, Buffer.from(salt, 'hex'), 64) as Buffer;
   const expected = Buffer.from(hex, 'hex');
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
