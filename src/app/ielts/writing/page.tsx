@@ -32,6 +32,12 @@ export default function AlbionWriting() {
     try {localStorage.setItem('albion_essay_log_v1',JSON.stringify(next));}catch{}
   }
 
+  useEffect(()=>{
+    if(!notice)return;
+    const timer=window.setTimeout(()=>setNotice(''),2700);
+    return ()=>window.clearTimeout(timer);
+  },[notice]);
+
   const averages=CRITERIA.map((_,i)=>average(essays.map(x=>x.bands[i])));
   const overall=essays.length?half(average(averages)):'—';
 
@@ -73,6 +79,6 @@ export default function AlbionWriting() {
         <button className="btn p" style={{marginTop:16}} onClick={addEssay}>Log essay</button>
       </div>
     </div>
-    {notice&&<p className="meta" role="status">{notice}</p>}
+    {notice&&<div className="toast" role="status">{notice}</div>}
   </>;
 }
