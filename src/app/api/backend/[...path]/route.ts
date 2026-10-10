@@ -1,21 +1,10 @@
 import type { NextRequest } from 'next/server';
+import { isAllowedReadQuery, isAllowedReadRoute } from '@/lib/bff-read-policy';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 type Context = { params: Promise<{ path: string[] }> };
-const allowlist = new Set([
-  'api/v1/cards','api/v1/status',
-  'api/v1/grammar','api/v1/grammar/practice',
-  'api/v1/ielts/dashboard','api/v1/ielts/materials','api/v1/ielts/sessions',
-  'api/v1/ielts/vocab','api/v1/ielts/mistakes',
-]);
-function isAllowedReadRoute(route:string):boolean {
-  return allowlist.has(route) ||
-    /^api\/v1\/grammar\/[A-Za-z0-9_-]{1,128}$/.test(route) ||
-    /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}$/.test(route);
-}
-
 /**
  * Phase 3 local staging gateway — read-only only.
  * Remote/production access MUST remain disabled until web authentication is
@@ -53,9 +42,16 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     return Response.json({error:'forbidden_site'}, {status:403});
   }
   const {path} = await context.params;
-  const route = Array.isArray(path) ? path.join('/') : '';
+  // Validate each decoded segment; never permit encoded slashes or traversal.
+  if (!Array.isArray(path) || path.some(segment => !/^[A-Za-z0-9_-]{1,128}$/.test(segment))) {
+    return Response.json({error:'invalid_route'}, {status:400});
+  }
+  const route = path.join('/');
   if (!isAllowedReadRoute(route)) {
     return Response.json({error:'route_not_migrated'}, {status:404});
+  }
+  if (!isAllowedReadQuery(route, request.nextUrl.search)) {
+    return Response.json({error:'invalid_query'}, {status:400});
   }
   const raw = process.env.KIOKUDO_CORE_URL;
   const token = process.env.KIOKUDO_CORE_SERVICE_TOKEN;
@@ -72,7 +68,9 @@ async function forward(request: NextRequest, context: Context): Promise<Response
     accept:'application/json',
   });
   const requestId=request.headers.get('x-request-id');
-  if (requestId) headers.set('x-request-id',requestId);
+  if (requestId && /^[A-Za-z0-9._-]{1,64}$/.test(requestId)) {
+    headers.set('x-request-id', requestId);
+  }
 
   try {
     const upstream=await fetch(target.toString(),{
