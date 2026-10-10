@@ -14,6 +14,7 @@ import { POST as logout } from '../src/app/api/auth/logout/route.js';
 import { GET as sessionStatus } from '../src/app/api/auth/session/route.js';
 import { GET as coreRead, POST as coreWrite } from '../src/app/api/backend/[...path]/route.js';
 import { middleware } from '../src/middleware.js';
+import { loginlessOwnerForHost } from '../src/lib/loginless-access.js';
 
 const owner = 'test_owner_alpha';
 const password = 'synthetic-test-password-2026';
@@ -27,6 +28,8 @@ const envKeys = [
   'KIOKUDO_CORE_URL', 'KIOKUDO_CORE_SERVICE_TOKEN',
   'KIOKUDO_CORE_ALLOWED_HOST', 'KIOKUDO_WEB_PUBLIC_ORIGIN',
   'KIOKUDO_WEB_STAGING_WRITES_ENABLED', 'KIOKUDO_PUBLIC_LOGIN_RATE_LIMIT_ACK',
+  'KIOKUDO_LOGINLESS_LOCAL_ENABLED', 'KIOKUDO_LOGINLESS_PRIVATE_MODE',
+  'KIOKUDO_PRIVATE_INGRESS_VERIFIED',
 ] as const;
 
 async function withFixture(run: () => Promise<void>) {
@@ -37,6 +40,9 @@ async function withFixture(run: () => Promise<void>) {
     process.env.KIOKUDO_SESSION_SECRET = 'fixture-session-key-not-a-deploy-secret-2026';
     process.env.KIOKUDO_INTERNAL_ASSERTION_KEY = 'fixture-core-key-not-a-deploy-secret-2026';
     process.env.KIOKUDO_LOGIN_PASSWORD_SCRYPT = passwordHash;
+    process.env.KIOKUDO_LOGINLESS_LOCAL_ENABLED = 'false';
+    process.env.KIOKUDO_LOGINLESS_PRIVATE_MODE = 'false';
+    process.env.KIOKUDO_PRIVATE_INGRESS_VERIFIED = 'false';
     process.env.KIOKUDO_STAGING_READ_ENABLED = 'true';
     process.env.KIOKUDO_REMOTE_STAGING_READ_ENABLED = 'false';
     process.env.KIOKUDO_CORE_URL = 'http://127.0.0.1:4000';
@@ -186,15 +192,51 @@ test('P01: staging URL cannot silently target production or unpinned hosts', asy
   });
 });
 
-test('P01: middleware blocks unauthenticated learner pages and allows valid signed session', async () => {
+test('P01: old login link is retired and no page middleware redirects IELTS', async () => {
   await withFixture(async () => {
-    const location = 'http://localhost:3000/review';
-    const redirect = await middleware(request(location));
-    assert.equal(redirect.status,307);
-    assert.equal(new URL(redirect.headers.get('location')!).pathname,'/login');
-    const cookie = SESSION_COOKIE + '=' + createOwnerSession();
-    const allowed = await middleware(request(location,'GET',{headers:{cookie}}));
-    assert.equal(allowed.headers.get('x-middleware-next'),'1');
+    const route = middleware(request('http://localhost:3000/login'));
+    assert.equal(route.status, 307);
+    assert.equal(new URL(route.headers.get('location')!).pathname, '/');
+    // Middleware is restricted to /login, so /ielts is not intercepted.
+    assert.deepEqual((await import('../src/middleware.js')).config.matcher, ['/login']);
+  });
+});
+
+test('Loginless: local owner works, remote owner needs two opt-ins and a pinned private host', async () => {
+  await withFixture(async () => {
+    assert.equal(loginlessOwnerForHost('localhost'), null);
+    process.env.KIOKUDO_LOGINLESS_LOCAL_ENABLED = 'true';
+    assert.equal(loginlessOwnerForHost('localhost'), owner);
+    assert.equal(loginlessOwnerForHost('127.0.0.1'), owner);
+    assert.equal(loginlessOwnerForHost('public.example.org'), null);
+
+    Object.assign(process.env, { NODE_ENV:'production',
+      KIOKUDO_WEB_PUBLIC_ORIGIN:'https://private.example.org',
+      KIOKUDO_LOGINLESS_PRIVATE_MODE:'true' });
+    assert.equal(loginlessOwnerForHost('private.example.org'), null);
+    process.env.KIOKUDO_PRIVATE_INGRESS_VERIFIED = 'true';
+    assert.equal(loginlessOwnerForHost('private.example.org'), owner);
+    assert.equal(loginlessOwnerForHost('public.example.org'), null);
+    assert.equal(loginlessOwnerForHost('localhost'), null);
+    delete process.env.KIOKUDO_WEB_PUBLIC_ORIGIN;
+    assert.equal(loginlessOwnerForHost('private.example.org'), null);
+  });
+});
+
+test('Loginless: API forwards authorized localhost reads without app cookie', async () => {
+  await withFixture(async () => {
+    process.env.KIOKUDO_LOGINLESS_LOCAL_ENABLED = 'true';
+    const oldFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response(JSON.stringify({success:true,data:[]}),{
+      status:200,headers:{'content-type':'application/json'},
+    });
+    try {
+      const ctx = { params: Promise.resolve({ path:['api','v1','ielts','dashboard'] }) };
+      const res = await coreRead(request('http://localhost:3000/api/backend/api/v1/ielts/dashboard'),ctx);
+      assert.equal(res.status, 200);
+    } finally {
+      globalThis.fetch = oldFetch;
+    }
   });
 });
 
