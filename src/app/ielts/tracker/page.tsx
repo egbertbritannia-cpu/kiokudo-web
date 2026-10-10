@@ -103,7 +103,6 @@ export default function AlbionTracker() {
               + Log New Test Result
             </button>}
         <div className="meta" style={{marginTop:10}}>Band ước tính theo thang Academic Reading.</div>
-        <div className="meta">Log mới lưu trên trình duyệt; phiên từ Core hiển thị riêng.</div>
       </div>
       <div className="box">
         <div className="meta">MISTAKE LOGBOOK</div>
@@ -117,6 +116,6 @@ export default function AlbionTracker() {
         </Link>
       </div>
     </div>
-    {error && <p role="status" className="meta" style={{marginTop:16}}>{error}</p>}
+    {error && <div className="toast" role="status">{error}</div>}
   </>;
 }
