@@ -22,7 +22,8 @@ function isAllowedStagingWrite(method: string, route: string): boolean {
   if (process.env.KIOKUDO_WEB_STAGING_WRITES_ENABLED !== 'true') return false;
   if (method === 'POST') {
     if (['api/v1/reviews','api/v1/reviews/batch','api/v1/grammar/practice/attempts',
-      'api/v1/ielts/sessions','api/v1/ielts/mistakes','api/v1/ielts/vocab'].includes(route)) return true;
+      'api/v1/ielts/sessions','api/v1/ielts/mistakes','api/v1/ielts/vocab',
+      'api/v1/curriculum/jpd133/mappings'].includes(route)) return true;
     if (/^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/submit$/.test(route)) return true;
   }
   return method === 'PUT' && /^api\/v1\/ielts\/sessions\/[A-Za-z0-9_-]{1,128}\/draft$/.test(route);
