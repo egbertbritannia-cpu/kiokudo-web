@@ -229,7 +229,7 @@ export default function ConjugationPage() {
               ← Trang chủ
             </Link>
             <Link
-              href="/cards"
+              href="/grammar/practice"
               className="btn-washi"
               style={{
                 padding: '0.55rem 1.15rem',
@@ -241,7 +241,7 @@ export default function ConjugationPage() {
                 WebkitBackdropFilter: 'blur(8px)',
               }}
             >
-              Bộ thẻ
+              Luyện ngữ pháp
             </Link>
 
             {/* NÚT MỞ SỔ TAY LÝ THUYẾT BẤT CỨ LÚC NÀO TRÊN HEADER */}
