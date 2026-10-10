@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { JapaneseArtBackdrop } from '@/components/art/JapaneseArtBackdrop';
+import { legacyIeltsHashToPath } from '@/lib/system-routes';
 
 interface DobaiCardItem {
   k: string;
@@ -133,9 +134,6 @@ export default function KiokudoStudioPage() {
   const [lessonId, setLessonId] = useState<string>('1');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  // Home Gate language switcher
-  const [homeLang, setHomeLang] = useState<'ja' | 'en'>('ja');
-
   // Dojo verb conjugation state
   const [dojoForm, setDojoForm] = useState('te');
   const [dojoIndex, setDojoIndex] = useState(0);
@@ -198,6 +196,11 @@ export default function KiokudoStudioPage() {
   // Đồng bộ Hash URL
   useEffect(() => {
     const handleHash = () => {
+      const canonicalIeltsRoute = legacyIeltsHashToPath(window.location.hash);
+      if (canonicalIeltsRoute) {
+        window.location.replace(canonicalIeltsRoute);
+        return;
+      }
       const h = window.location.hash.replace(/^#\/?/, '');
       const [n, a] = h.split('/');
       if (['karuta','cards','shodo'].includes(n)) {
@@ -467,6 +470,10 @@ export default function KiokudoStudioPage() {
   }, [tab]);
 
   const goToTab = (t: string) => {
+    if (t === 'ielts') {
+      window.location.assign('/ielts');
+      return;
+    }
     if (['karuta','cards','shodo'].includes(t)) return;
     window.location.hash = `#/${t}`;
     setTab(t);
@@ -496,51 +503,21 @@ export default function KiokudoStudioPage() {
           <div className="hd">
             <div>
               <div className="e">Cổng văn hóa</div>
-              <h1>Chọn không gian học<small>Culture switcher</small></h1>
-            </div>
-            <div>
-              <button
-                className={`chip ${homeLang === 'ja' ? 'on' : ''}`}
-                onClick={() => setHomeLang('ja')}
-              >
-                JA 侘寂
-              </button>
-              <button
-                className={`chip ${homeLang === 'en' ? 'on' : ''}`}
-                onClick={() => setHomeLang('en')}
-              >
-                EN Heritage
-              </button>
+              <h1>Kiokudo<small>記憶道 · 日本語</small></h1>
             </div>
           </div>
-
-          {homeLang === 'ja' ? (
-            <div className="box fr gate">
-              <div className="meta fk">侘 寂 · 静 寂 の 間</div>
-              <div className="hk" lang="ja">
-                <p style={{ margin: "0 0 0 18px" }}>閑さや</p>
-                <p style={{ margin: "34px 0 0 18px" }}>岩に染み入る</p>
-                <p style={{ margin: "68px 0 0" }}>蝉の声</p>
-              </div>
-              <p className="sub" style={{ margin: "20px 0 4px", fontStyle: "italic" }}>
-                Tiếng ve ngân ngấm sâu vào khe đá cổ, vạn vật chìm vào tĩnh lặng.
-              </p>
-              <div className="meta">松尾芭蕉 · MATSUO BASHŌ · 1689</div>
+          <div className="box fr gate">
+            <div className="meta fk">侘 寂 · 静 寂 の 間</div>
+            <div className="hk" lang="ja">
+              <p style={{ margin: "0 0 0 18px" }}>閑さや</p>
+              <p style={{ margin: "34px 0 0 18px" }}>岩に染み入る</p>
+              <p style={{ margin: "68px 0 0" }}>蝉の声</p>
             </div>
-          ) : (
-            <div className="en">
-              <small>CLASSIC BRITISH HERITAGE · THE READING ROOM</small>
-              <div className="q">
-                “All the world’s a stage,<br />and all the men and women merely players.”
-              </div>
-              <p style={{ margin: "22px 0 4px", color: "#D9CFB5", fontSize: ".9rem" }}>
-                Cả thế gian là một sân khấu, mọi người đàn ông đàn bà chỉ là diễn viên.
-              </p>
-              <div style={{ letterSpacing: ".2em", fontSize: ".72rem", color: "#C9A24B" }}>
-                W. SHAKESPEARE · AS YOU LIKE IT · c.1599
-              </div>
-            </div>
-          )}
+            <p className="sub" style={{ margin: "20px 0 4px", fontStyle: "italic" }}>
+              Tiếng ve ngân ngấm sâu vào khe đá cổ, vạn vật chìm vào tĩnh lặng.
+            </p>
+            <div className="meta">松尾芭蕉 · MATSUO BASHŌ · 1689</div>
+          </div>
 
           <div style={{ textAlign: "center", marginTop: "28px", display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
             <button className="btn p" onClick={() => goToTab('portal')}>門 Vào Cổng Văn Hóa Honmaru</button>
