@@ -22,6 +22,7 @@ import {
   syncPendingReviewsToServer,
 } from '@/lib/offline-db';
 import { JapaneseAudioPool } from '@/lib/audio-pool';
+import { activeReviewOwner, stageReview, pendingReviewCount, replayStoredReviews, cancelNeverSentReview } from '@/lib/fsrs-browser-replay';
 import { KanjiStrokePlayer } from '@/components/showcase/KanjiStrokePlayer';
 
 interface CardItem {
@@ -123,6 +124,8 @@ function ReviewSessionContent() {
   const [reviewHistory, setReviewHistory] = useState<Array<{
     cardIdx: number;
     grade: 'Again' | 'Hard' | 'Good' | 'Easy';
+    eventId: string;
+    ownerKey: string;
   }>>([]);
   const [undoToast, setUndoToast] = useState<string | null>(null);
 
@@ -208,8 +211,8 @@ function ReviewSessionContent() {
         setGradesCount({ Again: 0, Hard: 0, Good: 0, Easy: 0 });
 
         // Cập nhật số bản ghi chưa đồng bộ
-        const count = await getUnsyncedReviewCount();
-        setUnsyncedCount(count);
+        const owner = await activeReviewOwner();
+        setUnsyncedCount(owner ? await pendingReviewCount(owner) : 0);
       } catch (err) {
         console.error('Lỗi khi tải hàng đợi ôn tập:', err);
       } finally {
@@ -228,11 +231,11 @@ function ReviewSessionContent() {
       const offline = !navigator.onLine;
       setIsOffline(offline);
       if (!offline) {
-        // Phase 4 preview: never replay unsynced grades to a read-only BFF.
-        const syncRes = { synced: 0 };
-        if (syncRes.synced > 0) {
-          const count = await getUnsyncedReviewCount();
-          setUnsyncedCount(count);
+        // Replay only after a live owner session matches the local cache scope.
+        const owner = await activeReviewOwner();
+        if (owner) {
+          await replayStoredReviews(owner);
+          setUnsyncedCount(await pendingReviewCount(owner));
         }
       }
     };
@@ -341,37 +344,55 @@ function ReviewSessionContent() {
     japaneseAudio.playHyoshigi();
   }, []);
 
-  // Hành động Chấm điểm theo thuật toán FSRS (Bất đồng bộ không chặn luồng giao diện)
-  // Phase 4: UI remains unchanged; mutation stays locked until
-  // authenticated BFF and offline replay parity are verified.
-  // No optimistic count, fake success or IndexedDB event is written.
-  const handleGrade = useCallback(
-    async (_grade: 'Again' | 'Hard' | 'Good' | 'Easy') => {
-      if (!currentCard) return;
-      setUndoToast('Bản xem trước: chấm điểm FSRS chưa được kích hoạt trên frontend mới.');
-      setTimeout(() => setUndoToast(null), 3500);
-    },
-    [currentCard]
-  );
+  // Persist a canonical stable event ID before sending. A queued event is never
+  // presented as a server-confirmed FSRS grade; retry retains its original ID.
+  const handleGrade = useCallback(async (grade:'Again'|'Hard'|'Good'|'Easy')=>{
+    if (!currentCard) return;
+    try{
+      const owner=await activeReviewOwner();
+      if(!owner){
+        setUndoToast('Chưa xác nhận danh tính chủ sở hữu; không ghi điểm.');
+        return;
+      }
+      const event=await stageReview(owner,currentCard.id,grade,
+        Math.max(0,Date.now()-cardStartTimeRef.current));
+      setReviewHistory(prev=>[...prev,{cardIdx:currentIdx,grade,eventId:event.eventId,ownerKey:owner}]);
+      setGradesCount(prev=>({...prev,[grade]:prev[grade]+1}));
+      setCurrentIdx(i=>Math.min(i+1,queue.length+1));
+      if(currentIdx>=queue.length)setIsCompleted(true);
+      setShowAnswer(false);
+      setUnsyncedCount(await pendingReviewCount(owner));
+      setUndoToast('Đã lưu vào hàng đợi. Chưa xác nhận ghi điểm trên Core.');
+      if(navigator.onLine){
+        const result=await replayStoredReviews(owner);
+        setUnsyncedCount(await pendingReviewCount(owner));
+        if(result.acknowledged>0)setUndoToast('Core đã xác nhận sự kiện ôn tập.');
+        else if(result.outcome==='blocked_auth')setUndoToast('Core từ chối xác thực hoặc write gate đang khóa.');
+      }
+    }catch{
+      setUndoToast('Không thể lưu sự kiện ôn tập vào IndexedDB; chưa chấm điểm.');
+    }
+  },[currentCard,currentIdx,queue.length]);
 
-  // Hành động Hoàn tác kết quả chấm điểm (Undo Grade - DEF-UI-KARUTA-003)
-  const handleUndo = useCallback(() => {
-    if (reviewHistory.length === 0) return;
-    const lastItem = reviewHistory[reviewHistory.length - 1];
-    setReviewHistory((prev) => prev.slice(0, -1));
+  // Undo is valid only for a never-sent queue event. Once Core may have
+  // committed, do not fabricate a compensating transaction or UI success.
+  const handleUndo = useCallback(async ()=>{
+    const lastItem=reviewHistory[reviewHistory.length-1];
+    if(!lastItem)return;
+    const cancelled=await cancelNeverSentReview(lastItem.ownerKey,lastItem.eventId);
+    if(!cancelled){
+      setUndoToast('Sự kiện đã gửi/đang gửi; cần Core undo API trước khi hoàn tác.');
+      return;
+    }
+    setReviewHistory(prev=>prev.slice(0,-1));
     setCurrentIdx(lastItem.cardIdx);
     setShowAnswer(true);
     setIsCompleted(false);
-
-    setGradesCount((prev) => ({
-      ...prev,
-      [lastItem.grade]: Math.max(0, prev[lastItem.grade] - 1),
-    }));
-
+    setGradesCount(prev=>({...prev,[lastItem.grade]:Math.max(0,prev[lastItem.grade]-1)}));
+    setUnsyncedCount(await pendingReviewCount(lastItem.ownerKey));
     japaneseAudio.playWashiPaper();
-    setUndoToast('Đã hoàn tác kết quả chấm điểm (Phím Z)');
-    setTimeout(() => setUndoToast(null), 2500);
-  }, [reviewHistory]);
+    setUndoToast('Đã hủy sự kiện chưa gửi.');
+  },[reviewHistory]);
 
   // Phím tắt thông minh: Space để lật, 1-4 để chấm điểm, Z để hoàn tác
   useEffect(() => {
