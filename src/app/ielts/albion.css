@@ -26,12 +26,14 @@
   --paper:#0F1D16;--card:#16271E;--ink:#EFE8D3;--sub:#A4AE9F;
   --line:#2F4538;--shu:#C85A68;--gold:#D2AE5B;--ok:#6FA36A;--no:#C85A68;
 }
-/* The HTML switches the existing BODY paper texture in English mode.
- * The previous port accidentally overlaid dots on top of Japanese stripes. */
-html:has(.albion-ui) body::before {
+/* Root #app is a stacking layer above body::before. Hide its Japanese
+ * stripes and paint the reference dots in Albion itself above parchment. */
+html:has(.albion-ui) body::before { opacity:0; }
+.albion-ui::before {
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  opacity:.6;
   background-image:radial-gradient(circle at 1px 1px,rgba(120,90,50,.18) 1px,transparent 0);
   background-size:22px 22px;
-  opacity:.6;
 }
 .albion-ui a{color:inherit;text-decoration:none}
 .albion-ui button,.albion-ui input,.albion-ui select,.albion-ui textarea{font:inherit;color:inherit}
