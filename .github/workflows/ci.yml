@@ -28,7 +28,7 @@ jobs:
         with:
           repository: egbertbritannia-cpu/kiokudo-core
           # P01-P04 draft integration pin (Core PR #8). NOT release-approved; re-pin after review.
-          ref: ac52b6eee0857b9c7dcb62fd42e54d50c1347404
+          ref: 5602567521d876b77f9b07028a854f126121bb01
           path: kiokudo-core
           persist-credentials: false
       - uses: actions/setup-node@v4
