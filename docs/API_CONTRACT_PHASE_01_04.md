@@ -1,4 +1,4 @@
-> **FEATURE RETIREMENT 2026-10-10:** Add Card, Cards Library and flashcard FSRS Review have been removed from Web and Core. The endpoint descriptions below for `/api/v1/cards`, `/api/v1/reviews`, `/api/v1/reviews/batch`, and `/api/v1/reviews/{eventId}/undo` are **historical only**. Use [the updated endpoint index](API_ENDPOINTS.yaml) and the actual Core `contracts/openapi.yaml` for supported routes. Dò bài / Grammar / JPD133 / IELTS remain.
+> **FEATURE RETIREMENT 2026-10-10:** Add Card, Cards Library, JPD133-to-card mapping API and flashcard FSRS Review have been removed from Web and Core. The endpoint descriptions below for `/api/v1/cards`, `/api/v1/reviews`, `/api/v1/reviews/batch`, and `/api/v1/reviews/{eventId}/undo` are **historical only**. Use [the updated endpoint index](API_ENDPOINTS.yaml) and the actual Core `contracts/openapi.yaml` for supported routes. Dò bài / Grammar / JPD133 / IELTS remain.
 
 # Kiokudo API contract — FE ↔ BFF ↔ Core (Phase 01–04)
 
