@@ -46,6 +46,12 @@ export default function AlbionSpeaking() {
     try {localStorage.setItem('albion_speaking_log_v1',JSON.stringify(next));}catch{}
   }
 
+  useEffect(()=>{
+    if(!notice)return;
+    const timer=window.setTimeout(()=>setNotice(''),2700);
+    return ()=>window.clearTimeout(timer);
+  },[notice]);
+
   return <>
     <div className="hd">
       <div><div className="e">The Conversation Room</div><h1>Speaking Log<small>Part 2</small></h1></div>
@@ -87,6 +93,6 @@ export default function AlbionSpeaking() {
         <b>Band {half(average(x.bands))}</b>
       </div>):<span className="sub">Chưa có buổi luyện nào.</span>}
     </div>
-    {notice&&<p className="meta" role="status">{notice}</p>}
+    {notice&&<div className="toast" role="status">{notice}</div>}
   </>;
 }
