@@ -18,11 +18,11 @@ export function legacyIeltsHashToPath(hash: string): string | null {
   const [module, section] = route.split('/');
   // Support the original one-file Albion demo's #/en/* bookmarks, too.
   if (module === 'en') {
-    const legacyPages = new Set(['tracker','writing','speaking','vocab','mistakes']);
+    const legacyPages = new Set(['tracker','writing','speaking','mistakes']);
     return section && legacyPages.has(section) ? `${IELTS_HOME}/${section}` : IELTS_HOME;
   }
   if (module !== 'ielts') return null;
-  const canonicalPages = new Set(['session','review','tracker','writing','speaking','vocab','mistakes']);
+  const canonicalPages = new Set(['session','review','tracker','writing','speaking','mistakes']);
   return section && canonicalPages.has(section)
     ? `${IELTS_HOME}/${section}`
     : IELTS_HOME;
