@@ -1,7 +1,7 @@
 {
-  "name": "Japanese SRS System · 記憶道",
-  "short_name": "記憶道 SRS",
-  "description": "Hệ thống ghi nhớ lặp lại ngắt quãng tối ưu học tiếng Nhật kết hợp thuật toán FSRS & Nghệ thuật Văn hóa Nhật Bản",
+  "name": "Kiokudo · 記憶道",
+  "short_name": "記憶道",
+  "description": "Học tiếng Nhật qua JPD133, luyện Dò bài, ngữ pháp, IELTS và nghệ thuật văn hóa Nhật Bản",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAF8F5",

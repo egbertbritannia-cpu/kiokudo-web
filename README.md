@@ -4,7 +4,7 @@ Next.js frontend for Japanese curriculum practice, Dò bài, Grammar, JPD133, cu
 
 ## Removed: Add Card and Flashcard Review (2026-10-10)
 
-The user-facing flashcard library `/cards`, creation page `/cards/new`, FSRS study page `/review`, and staging cards inspector `/staging/cards` have been removed. The Studio's Karuta/flashcard, Cards and Shodo composer subviews (`/#/karuta`, `/#/cards`, `/#/shodo`) no longer render. Navigation, flashcard-only client outbox, FSRS worker and BFF `/api/v1/cards` and `/api/v1/reviews*` access have been removed.
+The user-facing flashcard library `/cards`, creation page `/cards/new`, FSRS study page `/review`, and staging cards inspector `/staging/cards` have been removed. The Studio's Karuta/flashcard, Cards and Shodo composer subviews (`/#/karuta`, `/#/cards`, `/#/shodo`) no longer render. JPD133-to-card mapping APIs are also retired. Navigation, flashcard-only client outbox, FSRS worker and BFF `/api/v1/cards` and `/api/v1/reviews*` access have been removed.
 
 The separate **Dò bài** feature (`/review/dobai`), **Grammar**, **JPD133 curriculum**, **IELTS**, **Culture**, and **Conjugation** stay supported. Historical card rows in staging/legacy SQLite may still be referenced for migration fidelity; no production data or history was deleted.
 

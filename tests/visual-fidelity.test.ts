@@ -5,7 +5,6 @@ import { readFileSync, existsSync } from 'node:fs';
 
 const legacyBlobs = {
   'src/app/globals.css': '418aa820b635d0bc60a1060c8ec76b83cbd31fe8',
-  'src/app/culture/page.tsx': 'a78b59d07826e58294cd77568d0e2fdd6217af75',
   'src/app/review/dobai/page.tsx': '61519719fbd8930ba0bc33867e7fcc335d8e47be',
   'public/assets/art/art-manifest.json': '1024517b588c8d98a5ca2f080d60feab8f3c2e81',
   'public/assets/art/hokusai-suwa-lake.jpg': '42f18b85d2103047bcc4d2a237224ffc4196ee46',

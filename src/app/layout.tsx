@@ -30,7 +30,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: '記憶道 Kiokudo Studio',
-  description: 'Hệ thống học tiếng Nhật và củng cố trí nhớ FSRS kết hợp nghệ thuật văn hóa Wabi-Sabi',
+  description: 'Hệ thống học tiếng Nhật qua giáo trình JPD133, Dò bài, ngữ pháp và nghệ thuật văn hóa Wabi-Sabi',
 };
 
 export default function RootLayout({
@@ -50,7 +50,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#17130E" />
       </head>
       <body>
-        {/* Phase 4: service worker/review sync and telemetry remain unmounted until backend endpoint parity. */}
+        {/* Phase 4: service worker and telemetry remain unmounted until backend endpoint parity. */}
 
         {/* THANH ĐIỀU HƯỚNG KIOKUDO STUDIO (COPY Y CHANG KIOKUDO-STUDIO.HTML) */}
         <KiokudoNavBar />

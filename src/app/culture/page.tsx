@@ -263,7 +263,7 @@ for (let y = 20; y < 720; y += 11) {
           <div>
             <h3>Chào buổi sáng, Cassius!</h3>
             <p>
-              Phiên củng cố trí nhớ dài hạn đã sẵn sàng. Daruma đã được điểm một mắt, hoàn thành 12 thẻ để điểm nốt mắt còn lại.
+              Daruma chào đón bạn. Chọn Dò bài, Grammar hoặc giáo trình JPD133 để bắt đầu buổi học.
             </p>
           </div>
           <Link className="go" href="/review/dobai">
@@ -271,119 +271,40 @@ for (let y = 20; y < 720; y += 11) {
           </Link>
         </div>
 
-        {/* CỤM CHỈ SỐ THỐNG KÊ */}
-        <div className="stats rv-item on">
-          <div className="stat">
-            <small>TỔNG THẺ</small>
-            <b>676</b>
-            <span>thẻ · ổn định</span>
-            <div className="k">札</div>
-          </div>
-          <div className="stat">
-            <small>ĐẾN HẠN HÔM NAY</small>
-            <b style={{ color: 'var(--shu)' }}>12</b>
-            <span>thẻ · ưu tiên</span>
-            <div className="k">急</div>
-          </div>
-          <div className="stat">
-            <small>MỤC TIÊU GHI NHỚ</small>
-            <b>94%</b>
-            <span>retention · FSRS v4.5</span>
-            <div className="k">憶</div>
-          </div>
-          <div className="stat">
-            <small>ĐỘ TRỄ BJORK</small>
-            <b>1.4s</b>
-            <span>phản xạ trung bình</span>
-            <div className="k">速</div>
-          </div>
-        </div>
-
-        {/* 2 CỘT: HÀNG ĐỢI ƯU TIÊN & DANH MỤC BỘ THẺ */}
+        {/* Learning modules retained after retiring flashcard functionality. */}
         <div className="cols">
           <div className="panel rv-item on">
-            <h3>HÀNG ĐỢI ÔN TẬP ƯU TIÊN</h3>
-            <div className="q">
-              <span className="n">壱</span>
-              <div>
-                <div className="w">曖昧<small>あいまい</small></div>
-                <div className="e">Mơ hồ, không rõ ràng · Atamadaka [1]</div>
-                <div className="s">S 4.2d · REPS 5</div>
-              </div>
-              <Link href="/review/dobai">Ôn thẻ</Link>
-            </div>
-            <div className="q">
-              <span className="n">弐</span>
-              <div>
-                <div className="w">躊躇<small>ちゅうちょ</small></div>
-                <div className="e">Do dự, chần chừ · Heiban [0]</div>
-                <div className="s">S 6.8d · REPS 7</div>
-              </div>
-              <Link href="/review/dobai">Ôn thẻ</Link>
-            </div>
-            <div className="q">
-              <span className="n">参</span>
-              <div>
-                <div className="w">木漏れ日<small>こもれび</small></div>
-                <div className="e">Ánh nắng xuyên qua kẽ lá · Nakadaka [3]</div>
-                <div className="s">S 12.1d · REPS 9</div>
-              </div>
-              <Link href="/review/dobai">Ôn thẻ</Link>
-            </div>
-            <div className="q">
-              <span className="n">四</span>
-              <div>
-                <div className="w">一期一会<small>いちごいちえ</small></div>
-                <div className="e">Đời người gặp một lần, quý trọng duyên</div>
-                <div className="s">S 18.5d · REPS 11</div>
-              </div>
-              <Link href="/review/dobai">Ôn thẻ</Link>
-            </div>
-            <div className="q">
-              <span className="n">五</span>
-              <div>
-                <div className="w">切磋琢磨<small>せっさたくま</small></div>
-                <div className="e">Cùng nhau rèn giũa nâng cao thực lực</div>
-                <div className="s">S 24.0d · REPS 14</div>
-              </div>
-              <Link href="/review/dobai">Ôn thẻ</Link>
-            </div>
-          </div>
-
-          <div className="panel rv-item on">
-            <h3>短冊帳 · DANH MỤC BỘ THẺ</h3>
+            <h3>HỌC TIẾNG NHẬT</h3>
             <div className="decks">
               <div className="tan">
-                <i>語</i>
-                <div>
-                  JPD133 · Từ vựng Kotoba
-                  <small>252 thẻ · 250 mới · 2 đã học</small>
-                </div>
-                <Link href="/cards">Bắt đầu</Link>
-              </div>
-              <div className="tan">
-                <i>漢</i>
-                <div>
-                  JPD133 · Chữ Kanji
-                  <small>232 thẻ · 232 đã học</small>
-                </div>
-                <Link href="/review">Ôn tập</Link>
-              </div>
-              <div className="tan">
-                <i>五</i>
-                <div>
-                  JLPT N5 · Từ vựng cốt lõi
-                  <small>78 thẻ · 78 mới</small>
-                </div>
+                <i>復</i>
+                <div>Luyện Dò bài<small>Thực hành phản xạ từ vựng theo giáo trình</small></div>
                 <Link href="/review/dobai">Bắt đầu</Link>
               </div>
               <div className="tan">
                 <i>文</i>
-                <div>
-                  JPD133 · Ngữ pháp Bunbou
-                  <small>96 thẻ · 32 quy tắc · Unit 8 hoàn thành 8/8</small>
-                </div>
+                <div>Ngữ pháp JPD133<small>Học cấu trúc và giải bài tập</small></div>
                 <Link href="/grammar">Luyện tập</Link>
+              </div>
+              <div className="tan">
+                <i>道</i>
+                <div>Chia động từ<small>Rèn luyện các thể tiếng Nhật</small></div>
+                <Link href="/conjugation">Vào Dojo</Link>
+              </div>
+            </div>
+          </div>
+          <div className="panel rv-item on">
+            <h3>GIÁO TRÌNH VÀ NGOẠI NGỮ</h3>
+            <div className="decks">
+              <div className="tan">
+                <i>語</i>
+                <div>JPD133<small>Từ vựng và nội dung theo từng Slot</small></div>
+                <Link href="/curriculum/jpd133">Xem giáo trình</Link>
+              </div>
+              <div className="tan">
+                <i>英</i>
+                <div>IELTS<small>Bài luyện Reading, Listening, Writing và Speaking</small></div>
+                <Link href="/ielts">Mở IELTS</Link>
               </div>
             </div>
           </div>
