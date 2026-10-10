@@ -46,6 +46,8 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* The user-provided Albion reference uses these exact English fonts. */}
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&display=swap" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#17130E" />
       </head>
