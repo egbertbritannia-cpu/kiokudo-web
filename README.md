@@ -8,6 +8,16 @@ The user-facing flashcard library `/cards`, creation page `/cards/new`, FSRS stu
 
 The separate **Dò bài** feature (`/review/dobai`), **Grammar**, **JPD133 curriculum**, **IELTS**, **Culture**, and **Conjugation** stay supported. Historical card rows in staging/legacy SQLite may still be referenced for migration fidelity; no production data or history was deleted.
 
+## Albion IELTS visual design — frozen reference
+
+**User-owned design source:** `Kiokudo Studio · 日本語 _ Albion IELTS(1).html`, English section `ENAV`, `E[""]`, `E.tracker`, `E.writing`, `E.speaking`, `E.vocab`, `E.mistakes`, and `[data-sys=en]` CSS. Do not restyle or replace the Albion look with the former Oxford-blue IELTS dashboard. `src/app/ielts/albion.css` is deliberately scoped to the English system so the Japanese UI stays unchanged.
+
+The **exact six navbar tabs and order** are Home, Tracker, Writing, Speaking, Vocab, Logbook. URLs are `/ielts`, `/ielts/tracker`, `/ielts/writing`, `/ielts/speaking`, `/ielts/vocab`, `/ielts/mistakes`; links from the reference HTML `/#/en/*` redirect to these canonical pages. The original ALBION crest, parchment/dark green/burgundy/gold colors, Cormorant Garamond headings, Be Vietnam Pro body, double borders, grid proportions, desktop header and mobile pill are maintained. The only pre-approved visual exception is the **small round system switcher in the navbar**, instead of the large floating text switch in the original HTML.
+
+Original HTML sample scores, mistake logs, essay ratings and speaking history are **demonstration data**, not the user's results. Albion Tracker, Logbook and Vocab read the existing authenticated/private Core endpoints when available; empty results are not replaced with fabricated user progress. Writing/Speaking logs and new manually entered Tracker/Logbook records currently persist locally in the browser, not to Core; these are not claimed synchronized. The six original English views use reference styling while deleted FSRS card creation and FSRS card-review workflows stay removed. The original vocabulary tile styling is retained for reference/browsing, but FSRS flashcard grading is not reinstated.
+
+Existing `/ielts/session` and `/ielts/review` backend-connected application routes remain for compatibility; they were not in the six screens of the supplied Albion HTML and were not removed. Run `npm run check` and `npm test` before deploying.
+
 ## Switching between Japanese and IELTS
 
 A compact, round, icon-only **SystemSwitcher** sits in the navbar on desktop and mobile. It is a normal accessible link (keyboard Enter, focus ring, tooltip and accessible name).
