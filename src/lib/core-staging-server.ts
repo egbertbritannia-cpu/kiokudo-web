@@ -11,7 +11,8 @@ export async function stagingCoreRead<T>(path:string):Promise<T> {
   if (!isStagingReadEnabled()) {
     throw new Error('staging_preview_disabled');
   }
-  if (!/^\/api\/v1\/(grammar(?:\/[A-Za-z0-9_-]{1,128})?)$/.test(path)) {
+  if (!(/^\/api\/v1\/grammar(?:\/[A-Za-z0-9_-]{1,128})?$/.test(path) ||
+    path === '/api/v1/curriculum/jpd133/mappings')) {
     throw new Error('staging_route_not_allowed');
   }
   const origin = process.env.KIOKUDO_CORE_URL;
