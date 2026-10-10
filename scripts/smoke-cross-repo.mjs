@@ -33,7 +33,7 @@ async function loginToFixtureOwner(){
 }
 await loginToFixtureOwner();
 const anonymous=await globalThis.fetch(grammar);
-assert.equal(anonymous.status,401,'private Grammar requires owner session');
+assert.equal(anonymous.status,200,'local staging read supports configured single-owner loginless mode');
 
 let ready=null, last='';
 for(let i=0;i<50;i++){
@@ -76,7 +76,7 @@ assert.equal(grammarPage.status,200);
 assert.ok((await grammarPage.text()).includes('CI Bài 8'));
 const ieltsPage=await ownerFetch(origin+'/ielts',{signal:AbortSignal.timeout(30000)});
 assert.equal(ieltsPage.status,200);
-assert.ok((await ieltsPage.text()).includes('The Study'));
+assert.ok((await ieltsPage.text()).includes('ALBION IELTS · THE READING ROOM'));
 for(const retiredPage of ['/cards','/cards/new','/review','/staging/cards']){
  const r=await ownerFetch(origin+retiredPage,{signal:AbortSignal.timeout(30000)});
  assert.equal(r.status,404,'retired UI route should no longer exist: '+retiredPage);
