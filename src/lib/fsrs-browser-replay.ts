@@ -74,6 +74,7 @@ export async function replayStoredReviews(ownerKey:string):
   if(!verified||verified!==ownerKey)return {acknowledged:0,outcome:'blocked_auth'};
   const db=store();
   try {
+    await db.rearmAfterAuthentication(ownerKey);
     if (typeof navigator!=='undefined'&&navigator.locks) {
       return await navigator.locks.request('kiokudo-v2-fsrs-replay',async()=>
         replayOwner(db,ownerKey,sendReview));
