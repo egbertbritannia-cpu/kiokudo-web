@@ -9,15 +9,17 @@
 - **PHASE_01_STATUS:** `PARTIAL`
 - **LAST_SCHEDULED_RUN:** `NOT_YET_STARTED`
 - **LAST_VERIFIED_PROGRESS_CHANGE:** `2026-10-10 07:41 +07` (khởi tạo checkpoint, KHÔNG phải xác minh code mới).
-- **WEB_MAIN_HEAD_LAST_REPORTED:** `bbed3870a48cf0e61e0d251fe6035fc6551655c2` — ghi nhận từ báo cáo P05 trước; **phải kiểm tra HEAD thực tế** trước khi code.
-- **CORE_MAIN_HEAD_LAST_REPORTED:** `67682872d78f37559e4c9e9d109c5c8320d418c1` — ghi nhận trước, không phải xác nhận mới.
+- **WEB_MAIN_HEAD_LAST_REPORTED:** `2e133016b1e5bbe44378f6620b5c04ad00585fac` — xác minh GitHub main trước PR #9; thay đổi BFF nằm trên branch riêng, chưa merge.
+- **CORE_MAIN_HEAD_LAST_REPORTED:** `67682872d78f37559e4c9e9d109c5c8320d418c1` — xác minh GitHub main, không đổi trong lần coding thủ công.
 - **LEGACY_REFERENCE_PIN:** `3348f4ee49c9539fb9ea60c96e42833811c325ca` — chỉ đối chiếu read-only.
-- **NEXT_ACTION:** kiểm tra head và các nhánh P01/P02; xác định identity principal đáng tin cậy và per-user ownership. Chọn vertical slice auth/BFF có thể chạy test mà **không bật** Review POST. Ghi code lên branch/PR, chứng minh negative tests. Nếu provider/identity quyết định bị chặn, làm testable trust-boundary/deny-by-default trong Phase 01; không chuyển phase chỉ vì hết giờ.
-- **LAST_COMMIT_OR_PR_FOR_CHECKPOINT:** none; initial audit summaries below, no new code verified here.
-- **BLOCKER_NOW:** thiếu authenticated learner principal, Core owner scoping; thiếu bản staging identity được xác minh và auth choice/operator configuration.
+- **NEXT_ACTION:** xem [Draft PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) về BFF read guards và so HEAD. PR mới chỉ IMPLEMENTED_UNVERIFIED vì người dùng yêu cầu không chạy test. Tập trung tiếp theo vào trusted learner session principal + Core per-user ownership strategy (cần quyết định identity/session provider và mapping legacy owner); sau đó bổ sung auth-negative tests/CI trong lượt có cho phép nghiệm thu. Tuyệt đối không bật Review POST khi chưa có principal/owner gate.
+- **LAST_COMMIT_OR_PR_FOR_CHECKPOINT:** [Web Draft PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9), head `86b82d54df769975a16d85093923b59454c1f13c`; code committed on branch only, tests/typecheck/build NOT_EXECUTED, no merge/deploy.
+- **BLOCKER_NOW:** thiếu authenticated learner principal, Core owner scoping và verified staging identity; auth provider/operator decision pending. PR #9 chỉ tăng hardening read-only, không giải quyết auth/ownership.
 - **RELEASE_GATE:** `NO_GO`
 - **ALL_PHASES_DONE:** `false`
 - **PRODUCTION_CHANGED_BY_AUTOMATION:** `false`
+
+- **LAST_MANUAL_IMPLEMENTATION:** `2026-10-10` — PR #9 opened; code-only per user instruction, not a scheduled run.
 
 ## Phase status — đánh dấu thật, không đánh dấu theo giờ
 
@@ -32,7 +34,7 @@
 
 ## Bằng chứng cũ và tình trạng tích hợp (không tự động suy ra đã merge)
 
-- Phase 01 report: [P01 on branch](https://github.com/egbertbritannia-cpu/kiokudo-web/blob/agent/kiokudo-p01-bff-query-guard-20261010/docs/automation/reports/PHASE_01_REPORT.md). Helper BFF pure chưa wired, no verified user principal, các loại browser writes disabled. Branch `agent/kiokudo-p01-bff-query-guard-20261010`. Kiểm tra lại branch trước khi làm.
+- Phase 01 report cũ: [P01 branch trước](https://github.com/egbertbritannia-cpu/kiokudo-web/blob/agent/kiokudo-p01-bff-query-guard-20261010/docs/automation/reports/PHASE_01_REPORT.md). **Bổ sung thủ công 10/10:** [Draft PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) đã wire read-only policy vào BFF route thật và guard query/path, code trên branch mới chưa merge; tests/typecheck/build **NOT_EXECUTED theo yêu cầu người dùng**. No verified user principal, browser writes remain disabled.
 - Phase 02 report: [P02 on branch](https://github.com/egbertbritannia-cpu/kiokudo-web/blob/agent/kiokudo-p02-outbox-20261010/docs/automation/reports/PHASE_02_REPORT.md). Unit tests 10/10 reported PASS cục bộ; pure outbox branch `agent/kiokudo-p02-outbox-20261010`; IndexedDB adapter chưa commit; UI chưa tích hợp, no Core authenticated writes.
 - Phase 03: bản vá snapshot validator và regression tests 32/32 PASS **theo báo cáo lượt trước trên bản vá cục bộ**; branch Core `agent/kiokudo-p03-snapshot-guards-20261010` có thể chưa khác `main`; cần kiểm tra trước khi tạo PR. Không có real production snapshot/staging verification.
 - Phase 04: JPD133/IELTS contract 18/18 PASS **cục bộ theo báo cáo trước**; branch `agent/kiokudo-p04-domain-contracts-20261010` chưa xác minh code committed. Không có confirmed Grammar/IELTS persistence.
@@ -59,7 +61,7 @@
 ### Gợi ý danh sách việc P01 đang chờ
 
 - `P01-AUTH-IDENTITY-OWNER`: principal nguồn đáng tin + owner scoping/deny-by-default; **IN_PROGRESS (phân tích) / BLOCKED_EXTERNAL (lựa chọn auth và staging)**.
-- `P01-BFF-READ-GUARDS`: tích hợp helper vào BFF GET path, kiểm thử malformed and traversal query; **TODO**.
+- `P01-BFF-READ-GUARDS`: BFF handler và policy đã commit trên Draft PR #9; **IMPLEMENTED_UNVERIFIED** (chưa merge, chưa chạy test).
 - `P01-NEGATIVE-AUTH-TESTS`: unauthenticated, forged user ID, cross-user card, service bearer exposure; **TODO**.
 - `P01-CONTRACT-CI`: PR reviewable + Web/Core CI + exact SHA pin; **TODO**.
 - `P01-ACCEPTANCE`: validate P01 AC matrix; chuyển phase 02 khi tất cả gates đạt; **TODO**.
