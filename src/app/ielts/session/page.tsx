@@ -102,10 +102,68 @@ export default function IeltsSessionTracker() {
     return () => clearInterval(timer);
   }, [isRunning, timeLeft, section]);
 
-  // Local draft and exam timer are operational. Server writes remain disabled
-  // until per-user auth and safe IELTS session/log transactions are migrated.
+  // Stage one immutable client session ID; retries never create another session.
+  // The Core remains the authority for revision and submission status.
   const handleSubmitSession = async () => {
-    window.alert('IELTS staging: nháp đang lưu trên thiết bị. Chưa thể nộp phiên hoặc ghi điểm vào database.');
+    if(submitting)return;
+    setSubmitting(true);
+    const storageId = `kiokudo_ielts_active_session_${section}`;
+    const localKey = `ielts_draft_${section}`;
+    try {
+      let sessionId = localStorage.getItem(storageId);
+      if (!sessionId || !/^[A-Za-z0-9_-]{1,128}$/.test(sessionId)) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem(storageId,sessionId);
+      }
+      const materialId = availableMaterials.find(m=>m.title===materialTitle)?.id ?? null;
+      async function mutate(path:string,method:'POST'|'PUT',payload:unknown) {
+        const res=await fetch(`/api/backend${path}`,{
+          method,credentials:'same-origin',cache:'no-store',
+          headers:{'content-type':'application/json'},body:JSON.stringify(payload),
+        });
+        const data:unknown=await res.json().catch(()=>null);
+        if(!res.ok||!data||typeof data!=='object'||(data as {success?:boolean}).success!==true)
+          throw new Error(`Core did not confirm ${path}: HTTP ${res.status}`);
+        return data as {success:true;data:{id?:string;revision:number;sessionStatus:string}};
+      }
+      const created=await mutate('/api/v1/ielts/sessions','POST',{
+        sessionId,section,testType,materialId,
+        testNumber:materialTitle.slice(0,120),
+      });
+      const data=Object.entries(answers).filter(([q])=>Number.isInteger(Number(q))&&Number(q)>0&&Number(q)<=40)
+        .map(([q,answer])=>({number:Number(q),answer:String(answer)}));
+      if(writingTask1.trim())data.push({number:41,answer:writingTask1});
+      if(writingTask2.trim())data.push({number:42,answer:writingTask2});
+      // Persisted request ID survives network loss, so retries cannot double-mutate.
+      const draftRequestKey=storageId+'_draft_req';
+      let draftRequestId=localStorage.getItem(draftRequestKey);
+      if(!draftRequestId){
+        draftRequestId=crypto.randomUUID();localStorage.setItem(draftRequestKey,draftRequestId);
+      }
+      const saved=await mutate(`/api/v1/ielts/sessions/${sessionId}/draft`,'PUT',{
+        requestId:draftRequestId,expectedRevision:created.data.revision,answers:data,
+      });
+      localStorage.removeItem(draftRequestKey);
+      const submitKey=storageId+'_submit_req';
+      let submitRequestId=localStorage.getItem(submitKey);
+      if(!submitRequestId){
+        submitRequestId=crypto.randomUUID();localStorage.setItem(submitKey,submitRequestId);
+      }
+      const submitted=await mutate(`/api/v1/ielts/sessions/${sessionId}/submit`,'POST',{
+        requestId:submitRequestId,expectedRevision:saved.data.revision,
+      });
+      if(submitted.data.sessionStatus!=='completed')throw new Error('Unexpected submission status');
+      localStorage.removeItem(submitKey);
+      localStorage.removeItem(storageId);
+      localStorage.removeItem(localKey);
+      setSavedNotification('Core đã xác nhận nộp bài. Chưa có band score tự động.');
+      window.alert('Đã lưu bài làm lên staging và nộp phiên thành công. Band score cần được xác minh riêng.');
+    } catch {
+      // Preserve all local draft and retry keys; never claim server success.
+      window.alert('Core chưa xác nhận nộp bài. Nháp vẫn được lưu cục bộ để thử lại.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSectionChange = (newSection: SectionType) => {
