@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SystemSwitcher } from '@/components/navigation/SystemSwitcher';
 
 export default function IeltsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,13 +17,14 @@ export default function IeltsLayout({ children }: { children: React.ReactNode })
   return (
     <div className="english-mode" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* British IELTS Navbar */}
-      <nav style={{
+      <nav className="ielts-system-nav" aria-label="IELTS navigation" style={{
         backgroundColor: 'var(--primary-color)',
         color: '#FDFBF7',
         padding: '1rem 2rem',
         display: 'flex',
         alignItems: 'center',
-        gap: '2rem',
+        gap: '1rem',
+        flexWrap: 'wrap',
         borderBottom: '4px solid var(--secondary-color)'
       }}>
         <div style={{
@@ -34,7 +36,7 @@ export default function IeltsLayout({ children }: { children: React.ReactNode })
           🇬🇧 IELTS Tracker
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', flex: 1, alignItems: 'center' }}>
+        <div className="ielts-system-nav-links" style={{ display: 'flex', gap: '0.75rem', flex: 1, minWidth: 0, alignItems: 'center', overflowX: 'auto' }}>
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -58,28 +60,7 @@ export default function IeltsLayout({ children }: { children: React.ReactNode })
           })}
         </div>
 
-        <div>
-          <Link
-            href="/"
-            style={{
-              color: '#FFFFFF',
-              background: '#9E3223',
-              padding: '0.4rem 0.85rem',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontSize: '0.82rem',
-              fontWeight: 'bold',
-              fontFamily: 'var(--font-maru), sans-serif',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-            }}
-          >
-            <span>🇯🇵</span>
-            <span>Trở về Kiokudō</span>
-          </Link>
-        </div>
+        <SystemSwitcher />
       </nav>
 
       {/* Main Content */}
