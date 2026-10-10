@@ -119,6 +119,7 @@ test('P01: route/query denylist stops unknown paths, duplicates and malicious qu
   await withFixture(async () => {
     assert.equal(isAllowedReadRoute('api/v1/cards'), false);
     assert.equal(isAllowedReadRoute('api/v1/reviews'), false);
+    assert.equal(isAllowedReadRoute('api/v1/curriculum/jpd133/mappings'), false);
     assert.equal(isAllowedReadRoute('api/v1/grammar/../cards'), false);
     assert.equal(isAllowedReadQuery('api/v1/grammar/practice', '?limit=10&lessonId=all'), true);
     assert.equal(isAllowedReadQuery('api/v1/grammar/practice','?limit=10&limit=100'), false);
