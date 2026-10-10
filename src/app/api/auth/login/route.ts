@@ -1,3 +1,4 @@
+import { hasTrustedRequestOrigin } from '@/lib/origin-policy';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   createOwnerSession, OWNER_COOKIE_OPTIONS, SESSION_COOKIE, verifyOwnerPassword,
@@ -6,15 +7,9 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-function sameOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get('origin');
-  const site = request.headers.get('sec-fetch-site');
-  return origin === request.nextUrl.origin && site !== 'cross-site';
-}
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const headers = { 'cache-control': 'no-store' };
-  if (!sameOrigin(request)) {
+  if (!hasTrustedRequestOrigin(request)) {
     return NextResponse.json({ error: 'forbidden_origin' }, { status: 403, headers });
   }
   if (!(request.headers.get('content-type') ?? '').toLowerCase().startsWith('application/json') ||
