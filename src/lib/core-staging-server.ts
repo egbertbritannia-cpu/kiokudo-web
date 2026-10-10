@@ -1,3 +1,6 @@
+import { cookies } from 'next/headers';
+import { signCoreOwnerAssertion, verifyOwnerSession, SESSION_COOKIE } from './owner-auth-server';
+
 /**
  * Server-only local staging Core reader, deliberately NOT a browser DB client.
  * Same fail-closed origin/token policy as the localhost read-only BFF.
@@ -19,8 +22,15 @@ export async function stagingCoreRead<T>(path:string):Promise<T> {
     throw new Error('core_not_local_staging');
   }
   url.pathname=path;
+  const owner=verifyOwnerSession((await cookies()).get(SESSION_COOKIE)?.value);
+  if(!owner)throw new Error('authentication_required');
+  const ownerAssertion=signCoreOwnerAssertion(owner,'GET',url.pathname+url.search);
   const res=await fetch(url.toString(),{
-    method:'GET',headers:{authorization:`Bearer ${token}`,accept:'application/json'},
+    method:'GET',headers:{
+      authorization:'Bearer '+token,
+      'x-kiokudo-owner-assertion':ownerAssertion,
+      accept:'application/json',
+    },
     cache:'no-store',redirect:'manual',signal:AbortSignal.timeout(12000),
   });
   if(!res.ok)throw new Error(res.status===404?'lesson_not_found':'core_staging_read_failed');
