@@ -62,7 +62,7 @@ test('BFF read-only GET forwards server token and omits browser credentials',asy
     let called=false;
     globalThis.fetch=async(url,init)=>{
       called=true;
-      assert.equal(String(url),'http://127.0.0.1:4000/api/v1/cards?limit=10');
+      assert.equal(String(url),'http://127.0.0.1:4000/api/v1/grammar/practice?limit=10');
       assert.equal(new Headers(init?.headers).get('authorization'),`Bearer ${token}`);
       assert.equal(new Headers(init?.headers).get('cookie'),null);
       assert.match(new Headers(init?.headers).get('x-kiokudo-owner-assertion') ?? '', /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/);
@@ -72,7 +72,7 @@ test('BFF read-only GET forwards server token and omits browser credentials',asy
       });
     };
     try{
-      const r=await GET(req('GET','http://localhost:3000/api/backend/api/v1/cards?limit=10',{cookie:'usercookie=value'}),ctx('api','v1','grammar','practice'));
+      const r=await GET(req('GET','http://localhost:3000/api/backend/api/v1/grammar/practice?limit=10',{cookie:'usercookie=value'}),ctx('api','v1','grammar','practice'));
       assert.equal(r.status,200);
       assert.equal(r.headers.get('set-cookie'),null);
       assert.equal(r.headers.get('cache-control'),'no-store');
