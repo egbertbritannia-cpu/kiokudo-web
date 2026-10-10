@@ -6,20 +6,25 @@
 
 - **CURRENT_PHASE:** `01`
 - **CURRENT_WORK_ITEM:** `P01-AUTH-OPERATOR-CONFIG-REVIEW`
-- **PHASE_01_STATUS:** `PARTIAL / CODE_IMPLEMENTED_UNVERIFIED`
+- **PHASE_01_STATUS:** `PARTIAL / TEST_VERIFIED_ON_BRANCH`
 - **LAST_SCHEDULED_RUN:** `NOT_YET_STARTED`
-- **LAST_VERIFIED_PROGRESS_CHANGE:** `2026-10-10 07:41 +07` (khởi tạo checkpoint, KHÔNG phải xác minh code mới).
+- **LAST_VERIFIED_PROGRESS_CHANGE:** `2026-10-10 ~08:22 +07` — real GitHub Actions PASS for both PR branches using synthetic isolated staging, NOT real staging certification.
 - **WEB_MAIN_HEAD_LAST_REPORTED:** `2e133016b1e5bbe44378f6620b5c04ad00585fac` — xác minh GitHub main trước PR #9; thay đổi BFF nằm trên branch riêng, chưa merge.
 - **CORE_MAIN_HEAD_LAST_REPORTED:** `67682872d78f37559e4c9e9d109c5c8320d418c1` — xác minh GitHub main, không đổi trong lần coding thủ công.
 - **LEGACY_REFERENCE_PIN:** `3348f4ee49c9539fb9ea60c96e42833811c325ca` — chỉ đối chiếu read-only.
-- **NEXT_ACTION:** review [Web Draft PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) + [Core Draft PR #6](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/6), cùng code phiên đăng nhập một chủ sở hữu, signed Web/Core request assertion và BFF route guards. Đọc `docs/automation/reports/PHASE_01_AUTH_CODE_DELIVERY.md` để cấu hình session, password scrypt hash, shared assertion secret, Core single-owner staging dataset acknowledgment và HTTPS staging hostname. Không bật review browser writes. **User yêu cầu không chạy tests/typecheck/build trong lượt coding này**; tiêu chí acceptance vẫn pending, không chuyển phase đến khi review/integration/CI/negative auth gates và staging evidence thực sự được xác minh.
-- **LAST_COMMIT_OR_PR_FOR_CHECKPOINT:** [Web Draft PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9), head `2e8fa19de7f31ed133a5673a282958880260d2e2`; [Core Draft PR #6](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/6), head `f0b644a41864f2af00e5873f419b535f87e83d13`; both committed on feature branches. Tests/typecheck/build NOT_EXECUTED per user; no merge/deploy.
-- **BLOCKER_NOW:** owner session and request-bound Core signed assertions implemented as code but not configured/verified. Need owner subject, password digest, HMAC secrets, explicit single-owner staging data acknowledgment and true DB provenance. Public login requires infra-level rate limiting. No test/CI/integration evidence by user request; no multi-user owner schema.
+- **NEXT_ACTION:** [Phase 01 test evidence](reports/PHASE_01_TEST_REPORT_20261010.md) confirms [Web CI run 38012855155](https://github.com/egbertbritannia-cpu/kiokudo-web/actions/runs/38012855155) and [Core CI run 38012513903](https://github.com/egbertbritannia-cpu/kiokudo-core/actions/runs/38012513903) SUCCESS with local synthetic fixtures. Review **both draft PRs together**, provision actual staging-only secrets in protected settings, verify single-owner data provenance and signed principal on real staging, arrange infrastructure rate limiting for public password login, then run approved staged security/E2E/visual checks. Do NOT auto-merge/deploy, touch production, or enable browser review writes. Phase 01 remains PARTIAL until external acceptance.
+- **LAST_COMMIT_OR_PR_FOR_CHECKPOINT:** [Web PR #9](https://github.com/egbertbritannia-cpu/kiokudo-web/pull/9) head `674f089fe9585823725c039fab09daeed7d76bf3` (13 P01 tests, 23 all Web tests, typecheck/build and fixture two-server smoke PASS); [Core PR #6](https://github.com/egbertbritannia-cpu/kiokudo-core/pull/6) head `6a7530dee4ecb1ab8e3ecc80dbf3c86f19e4c894` (4 P01 tests, 26 Node tests, 14 Python tests, typecheck/build PASS). Tests executed by GitHub Actions, no local checkout; both branches unmerged.
+- **BLOCKER_NOW:** fixture CI PASS but no real staging deployment/owner provenance. Operator must configure owner subject, password digest, HMAC secrets, trusted HTTPS public and Core staging hosts and explicit single-owner dataset ACK only after verification. Public login needs infra-level rate limiting. Existing data has no multi-user owner columns; two Draft PRs unmerged. Release NO_GO.
 - **RELEASE_GATE:** `NO_GO`
 - **ALL_PHASES_DONE:** `false`
 - **PRODUCTION_CHANGED_BY_AUTOMATION:** `false`
 
 - **LAST_MANUAL_IMPLEMENTATION:** `2026-10-10 ~08:09 +07` — Web PR #9 + Core PR #6 code-only; not a scheduled run; 0 tests run.
+
+## Phase 01 automated tests (2026-10-10)
+
+- [Test report](reports/PHASE_01_TEST_REPORT_20261010.md) records 13/13 Web dedicated security tests, 23/23 Web full tests, 4/4 Core dedicated security tests, 26/26 Core Node full tests, 14 Python tests and real two-server synthetic smoke. GitHub Actions logs and exact branch SHAs linked there.
+- **All tests passed on feature branches only.** No real production/staging DB accessed. Keep checkpoint in P01 and release NO_GO until operator-approved staging ownership/provenance and security acceptance.
 
 ## New evidence (manual code delivery, 10/10/2026)
 
@@ -30,7 +35,7 @@
 
 | Phase | Tick | Status | Ước lượng cũ (KHÔNG tự động tính là code đã tích hợp) | Điều kiện để tick |
 | --- | --- | --- | --- | --- |
-| 01 Baseline + Auth/BFF | [ ] | PARTIAL | 2/10 | Principal/owner isolation + BFF negative tests + code/CI verified |
+| 01 Baseline + Auth/BFF | [ ] | PARTIAL / TEST_VERIFIED_BRANCH | 2/10 | Principal/owner isolation + BFF negative tests + code/CI verified |
 | 02 FSRS/offline/undo | [ ] | PARTIAL | 2/10 | IndexedDB persistence, replay, canonical ack, safe undo, integrated tests |
 | 03 DB parity/migration | [ ] | PARTIAL / BLOCKED_EXTERNAL | 2/8 | Patch merged/CI + isolated staging + provenance + verified parity |
 | 04 Grammar/JPD133+IELTS | [ ] | PARTIAL | 1/12 | Stable mapping, authenticated persistence, module integration/E2E |
@@ -67,8 +72,8 @@
 
 - `P01-AUTH-IDENTITY-OWNER`: implemented signed single-owner Web session and signed Core assertion, owner dataset ACK gate, no per-row ownership migration; **CODE_IMPLEMENTED_UNVERIFIED / BLOCKED_EXTERNAL (secrets, staging provenance, public brute-force controls)**.
 - `P01-BFF-READ-GUARDS`: implemented strict path/query allowlist, owner cookie gate and assertion-forwarding on Web PR #9, signed SSR Grammar reads and gated HTTPS staging; **CODE_IMPLEMENTED_UNVERIFIED** (not merged, no tests).
-- `P01-NEGATIVE-AUTH-TESTS`: unauthenticated, forged user ID, cross-user card, service bearer exposure; **TODO**.
-- `P01-CONTRACT-CI`: PR reviewable + Web/Core CI + exact SHA pin; **TODO**.
+- `P01-NEGATIVE-AUTH-TESTS`: synthetic unauthenticated, forged/expired/wrong-issuer/wrong-owner and write-disabled scenarios **PASS on GitHub Actions**. Production auth/reliability/security negative tests remain pending.
+- `P01-CONTRACT-CI`: Web/Core Draft PRs and SHA-pinned cross-repo fixture smoke **PASS on CI**; real staging and merge still pending.
 - `P01-ACCEPTANCE`: validate P01 AC matrix; chuyển phase 02 khi tất cả gates đạt; **TODO**.
 
 Sau mỗi lượt, chỉ viết next actions của work item còn dang dở, không nhân bản tất cả checklists.
