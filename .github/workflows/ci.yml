@@ -28,7 +28,7 @@ jobs:
         with:
           repository: egbertbritannia-cpu/kiokudo-core
           # Retired-flashcard Core branch pin; keep Web/Core validated against exact commit.
-          ref: 835f34dddef4bf85ea7a5b5cdebb145722992933
+          ref: 9ad7a39722b5a8e33eeb3a9f9ec4a54164cb6e29
           path: kiokudo-core
           persist-credentials: false
       - uses: actions/setup-node@v4
