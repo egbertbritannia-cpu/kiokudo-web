@@ -53,4 +53,9 @@ test('decommissioned flashcard pages are absent, and core-learning views remain'
   assert.ok(!nav.includes("href: '/#/cards'"));
   assert.ok(!nav.includes("href: '/#/karuta'"));
   assert.ok(!nav.includes("href: '/#/shodo'"));
+  assert.ok(!studio.includes("tab === 'kura'"),'Kura view must be removed');
+  assert.ok(!studio.includes('kuraLatency'),'Kura demo timer must be removed');
+  assert.ok(studio.includes("['karuta','cards','shodo','kura'].includes(n)"),
+    'Old Kura bookmarks must go to Japanese Home');
+  assert.ok(!nav.includes("href: '/#/kura'"),'Kura must be absent from desktop and mobile navigation');
 });
