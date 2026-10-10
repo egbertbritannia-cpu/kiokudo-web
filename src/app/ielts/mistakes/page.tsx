@@ -23,23 +23,40 @@ export default function AlbionMistakeLogbook(){
       }
     }catch{}
     setMistakes(local);
-    fetch('/api/backend/api/v1/ielts/mistakes',{cache:'no-store'})
-      .then(x=>x.ok?x.json():null)
-      .then(json=>{
-        if(json?.success && Array.isArray(json.data)){
-          const upstream:Mistake[]=json.data.map((x:{
-            id?:string; mistakeCategory?:string; category?:string;
-            title?:string; rootCauseAnalysis?:string; note?:string;
-          })=>({
-            id:x.id, category:x.mistakeCategory||x.category||'Reading',
-            title:x.title||x.mistakeCategory||'Mistake analysis',
-            note:x.rootCauseAnalysis||x.note||'',local:false,
+    // Core's mistakeCategory describes the error (e.g. Vocabulary), whereas
+    // Albion's four filter buttons describe the IELTS *skill*. Join sessions
+    // to display the correct Reading/Listening/Writing/Speaking category.
+    Promise.all([
+      fetch('/api/backend/api/v1/ielts/mistakes',{cache:'no-store'})
+        .then(x=>x.ok?x.json():null).catch(()=>null),
+      fetch('/api/backend/api/v1/ielts/sessions?limit=100',{cache:'no-store'})
+        .then(x=>x.ok?x.json():null).catch(()=>null),
+    ]).then(([json, sessions])=>{
+      if(json?.success && Array.isArray(json.data)){
+        type CoreMistake = { id?:string; sessionId?:string; mistakeCategory?:string;
+          category?:string; title?:string; rootCauseAnalysis?:string; note?:string };
+        type CoreSession = { id:string; section:string };
+        const bySession = new Map<string,string>(
+          sessions?.success && Array.isArray(sessions.data)
+            ? (sessions.data as CoreSession[])
+                .filter(row=>typeof row.id==='string' && typeof row.section==='string')
+                .map(row=>[row.id,row.section] as [string,string])
+            : [],
+        );
+        const upstream:Mistake[]=(json.data as CoreMistake[])
+          .filter(x=>x!==null && typeof x==='object')
+          .map(x=>({
+            id:x.id,
+            category:(x.sessionId && bySession.get(x.sessionId)) ||
+              x.category || x.mistakeCategory || 'Reading',
+            title:x.title || x.mistakeCategory || 'Mistake analysis',
+            note:x.rootCauseAnalysis || x.note || '',
+            local:false,
           }));
-          // Keep the latest local edits even when this request resolves after
-          // the user added or deleted an entry while Core was loading.
-          setMistakes(current=>[...upstream,...current.filter(item=>item.local)]);
-        }
-      }).catch(()=>{});
+        // Do not overwrite local entries added while requests were pending.
+        setMistakes(current=>[...upstream,...current.filter(item=>item.local)]);
+      }
+    }).catch(()=>{});
   },[]);
 
   const filtered=mistakes.filter(x=>filter==='All'||x.category===filter);
