@@ -758,7 +758,7 @@ export default function KiokudoStudioPage() {
                     </div>
 
                     <div className="inc"><i style={{ width: `${dobaiIncWidth}%` }} /></div>
-                    <div className="tm" dangerouslySetInnerHTML={{ __html: dobaiTimerDisplay }} />
+                    <div className="tm">{dobaiTimerDisplay}</div>
 
                     {!dobaiRev && (
                       <button

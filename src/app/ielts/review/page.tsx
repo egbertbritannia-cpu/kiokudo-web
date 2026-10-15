@@ -128,7 +128,7 @@ export default function IeltsReviewDesk() {
 
             // Populate question logs if available
             if (s.logs && Array.isArray(s.logs) && s.logs.length > 0) {
-              const mapped = s.logs.slice(0, 10).map((l: any) => ({
+              const mapped = s.logs.map((l: any) => ({
                 qNum: l.questionNumber,
                 logId: l.id,
                 yourAnswer: l.userAnswer || '—',
@@ -142,7 +142,7 @@ export default function IeltsReviewDesk() {
             if (s.mistakes && Array.isArray(s.mistakes) && s.mistakes.length > 0) {
               const loadedMistakes: Record<number, MistakeRecord> = {};
               s.mistakes.forEach((m: any, idx: number) => {
-                const qNum = m.logId ? parseInt(m.logId.split('_q')[1] || `${idx + 1}`, 10) : idx + 2;
+                const qNum = m.logId ? parseInt(m.logId.split(/_q_?/).pop() || `${idx + 1}`, 10) : idx + 2;
                 loadedMistakes[qNum] = {
                   qNum,
                   id:m.id,

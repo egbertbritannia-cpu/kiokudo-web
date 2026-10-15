@@ -10,7 +10,7 @@ export const NAV_ITEMS = [
   { href: '/#/portal', tab: 'portal', kanji: '門', label: 'Cổng Văn Hóa' },
   { href: '/#/dobai', tab: 'dobai', kanji: '復', label: 'Dò bài' },
   { href: '/#/dojo', tab: 'dojo', kanji: '道', label: 'Dojo' },
-  { href: '/#/grammar', tab: 'grammar', kanji: '文', label: 'Grammar' },
+  { href: '/grammar', tab: 'grammar', kanji: '文', label: 'Grammar' },
 ];
 
 /**
@@ -35,8 +35,8 @@ export function KiokudoNavBar() {
   if (isIeltsPath(pathname)) return null;
 
   const isCurrent = (tab: string) => {
-    if (tab === '' && currentHash === '') return true;
-    if (tab === 'grammar' && (currentHash === 'lesson' || currentHash === 'practice')) return true;
+    if (tab === '' && currentHash === '' && pathname === '/') return true;
+    if (tab === 'grammar' && (pathname?.startsWith('/grammar') || currentHash === 'grammar' || currentHash === 'lesson' || currentHash === 'practice')) return true;
     return currentHash === tab;
   };
 
